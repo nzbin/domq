@@ -103,6 +103,14 @@
         )
     }
 
+    function compact(array) {
+        return filter.call(array, function (item) { return item != null })
+    }
+
+    function flatten(array) {
+        return array.length > 0 ? D.fn.concat.apply([], array) : array
+    }
+
     function dasherize(str) {
         return str.replace(/::/g, '/')
             .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
@@ -128,6 +136,63 @@
         this.selector = selector || ''
     }
 
+    D.extend = function () {
+        var options, name, src, copy, copyIsArray, clone,
+            target = arguments[0] || {},
+            i = 1,
+            length = arguments.length,
+            deep = false;
+
+        // Handle a deep copy situation
+        if (typeof target === "boolean") {
+            deep = target;
+
+            // Skip the boolean and the target
+            target = arguments[i] || {};
+            i++;
+        }
+        // Handle case when target is a string or something (possible in deep copy)
+        if (typeof target !== "object" && !isFunction(target)) {
+            target = {};
+        }
+        // Extend D itself if only one argument is passed
+        if (i === length) {
+            target = this;
+            i--;
+        }
+        for (; i < length; i++) {
+            // Only deal with non-null/undefined values
+            if ((options = arguments[i]) != null) {
+                // Extend the base object
+                for (name in options) {
+                    src = target[name];
+                    copy = options[name];
+                    // Prevent never-ending loop
+                    if (target === copy) {
+                        continue;
+                    }
+                    // Recurse if we're merging plain objects or arrays
+                    if (deep && copy && (D.isPlainObject(copy) ||
+                        (copyIsArray = Array.isArray(copy)))) {
+                        if (copyIsArray) {
+                            copyIsArray = false;
+                            clone = src && Array.isArray(src) ? src : [];
+                        } else {
+                            clone = src && D.isPlainObject(src) ? src : {};
+                        }
+                        // Never move original objects, clone them
+                        target[name] = D.extend(deep, clone, copy);
+                        // Don't bring in undefined values
+                    } else if (copy !== undefined) {
+                        target[name] = copy;
+                    }
+                }
+            }
+        }
+        // Return the modified object
+        return target;
+    };
+
     // The function takes a html string and an optional tag name
     // to generate DOM nodes from the given html string.
     // The generated DOM nodes are returned as an array.
@@ -137,7 +202,9 @@
         var dom, nodes, container
 
         // A special case optimization for a single tag
-        if (singleTagRE.test(html)) { dom = $(document.createElement(RegExp.$1)) }
+        if (singleTagRE.test(html)) {
+            dom = D(document.createElement(RegExp.$1))
+        }
 
         if (!dom) {
 
@@ -161,7 +228,7 @@
         }
 
         if (isPlainObject(properties)) {
-            nodes = $(dom)
+            nodes = D(dom)
             D.each(properties, function (key, value) {
                 if (methodAttributes.indexOf(key) > -1) nodes[key](value)
                 else nodes.attr(key, value)
@@ -169,19 +236,6 @@
         }
 
         return dom
-    }
-
-    D.each = function (elements, callback) {
-        var i, key
-        if (likeArray(elements)) {
-            for (i = 0; i < elements.length; i++)
-                if (callback.call(elements[i], i, elements[i]) === false) return elements
-        } else {
-            for (key in elements)
-                if (callback.call(elements[key], key, elements[key]) === false) return elements
-        }
-
-        return elements
     }
 
     // D's CSS selector implementation which
@@ -220,15 +274,63 @@
 
     D.type = type;
 
+    D.isD = function (object) {
+        return object instanceof D
+    }
+
+    // plugin compatibility
+    D.uuid = 0
+    D.support = {}
+    D.expr = {}
+    D.noop = function () { }
+
+    D.map = function (elements, callback) {
+        var value, values = [],
+            i, key
+        if (likeArray(elements))
+            for (i = 0; i < elements.length; i++) {
+                value = callback(elements[i], i)
+                if (value != null) values.push(value)
+            }
+        else
+            for (key in elements) {
+                value = callback(elements[key], key)
+                if (value != null) values.push(value)
+            }
+        return flatten(values)
+    }
+
+    D.each = function (elements, callback) {
+        var i, key
+        if (likeArray(elements)) {
+            for (i = 0; i < elements.length; i++)
+                if (callback.call(elements[i], i, elements[i]) === false) return elements
+        } else {
+            for (key in elements)
+                if (callback.call(elements[key], key, elements[key]) === false) return elements
+        }
+
+        return elements
+    }
+
+    D.grep = function (elements, callback) {
+        return filter.call(elements, callback)
+    }
+
     // Populate the class2type map
     D.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function (i, name) {
         class2type["[object " + name + "]"] = name.toLowerCase()
     });
 
-    D.isD = function (object) {
-        return object instanceof D
-    }
-
+    D.contains = document.documentElement.contains
+        ? function (parent, node) {
+            return parent !== node && parent.contains(node)
+        }
+        : function (parent, node) {
+            while (node && (node = node.parentNode))
+                if (node === parent) return true
+            return false
+        }
 
     D.fn = D.prototype = {
         constuctor: D,
@@ -249,7 +351,7 @@
             var dom;
             // If nothing given, return an empty D collection
             if (!selector) {
-                return this
+                return new D.init(dom, selector)
             }
             // Optimize for string selectors
             else if (typeof selector == 'string') {
@@ -258,7 +360,8 @@
                 // Note: In both Chrome 21 and Firefox 15, DOM error 12
                 // is thrown if the fragment doesn't begin with <
                 if (selector[0] == '<' && fragmentRE.test(selector)) {
-                    dom = D.fragment(selector, RegExp.$1, context), selector = null
+                    dom = D.fragment(selector, RegExp.$1, context);
+                    selector = null;
                 }
                 // If there's a context, create a collection on that context first, and select
                 // nodes from there
@@ -305,6 +408,60 @@
             }
             // create a new D collection from the nodes found
             return new D.init(dom, selector)
+        },
+        concat: function () {
+            var i, value, args = []
+            for (i = 0; i < arguments.length; i++) {
+                value = arguments[i]
+                args[i] = D.isD(value) ? value.toArray() : value
+            }
+            return concat.apply(D.isD(this) ? this.toArray() : this, args)
+        },
+
+        // `map` and `slice` in the jQuery API work differently
+        // from their array counterparts
+        map: function (fn) {
+            return D(
+                D.map(this, function (el, i) { return fn.call(el, i, el) })
+            )
+        },
+        slice: function () {
+            return D(
+                slice.apply(this, arguments)
+            )
+        },
+
+        remove: function () {
+            return this.each(function () {
+                if (this.parentNode != null)
+                    this.parentNode.removeChild(this)
+            })
+        },
+
+        ready: function (callback) {
+            // don't use "interactive" on IE <= 10 (it can fired premature)
+            if (document.readyState === "complete" ||
+                (document.readyState !== "loading" && !document.documentElement.doScroll))
+                setTimeout(function () { callback(D) }, 0)
+            else {
+                var handler = function () {
+                    document.removeEventListener("DOMContentLoaded", handler, false)
+                    window.removeEventListener("load", handler, false)
+                    callback(D)
+                }
+                document.addEventListener("DOMContentLoaded", handler, false)
+                window.addEventListener("load", handler, false)
+            }
+            return this
+        },
+        get: function (idx) {
+            return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
+        },
+        toArray: function () {
+            return this.get()
+        },
+        size: function () {
+            return this.length
         },
         size: function () {
             return this.length
@@ -354,6 +511,89 @@
             return this.each(function () { this.style.cssText += ';' + css })
         },
     }
+
+    function traverseNode(node, fun) {
+        fun(node)
+        for (var i = 0, len = node.childNodes.length; i < len; i++)
+            traverseNode(node.childNodes[i], fun)
+    }
+
+    // Generate the `after`, `prepend`, `before`, `append`,
+    // `insertAfter`, `insertBefore`, `appendTo`, and `prependTo` methods.
+    adjacencyOperators.forEach(function (operator, operatorIndex) {
+        var inside = operatorIndex % 2 //=> prepend, append
+
+        D.fn[operator] = function () {
+            // arguments can be nodes, arrays of nodes, D objects and HTML strings
+            var argType,
+                nodes = D.map(arguments, function (arg) {
+                    var arr = []
+                    argType = type(arg)
+                    if (argType == "array") {
+                        arg.forEach(function (el) {
+                            if (el.nodeType !== undefined) return arr.push(el)
+                            else if (D.isD(el)) return arr = arr.concat(el.get())
+                            arr = arr.concat(D.fragment(el))
+                        })
+                        return arr
+                    }
+
+                    return (
+                        argType == "object" || arg == null
+                            ? arg
+                            : D.fragment(arg)
+                    )
+                }),
+                parent,
+                copyByClone = this.length > 1;
+
+            if (nodes.length < 1) return this
+
+            return this.each(function (_, target) {
+                parent = inside ? target : target.parentNode
+
+                // convert all methods to a "before" operation
+                target = operatorIndex == 0
+                    ? target.nextSibling
+                    : operatorIndex == 1
+                        ? target.firstChild
+                        : operatorIndex == 2
+                            ? target : null
+
+                var parentInDocument = D.contains(document.documentElement, parent)
+
+                nodes.forEach(function (node) {
+
+                    if (copyByClone) {
+                        node = node.cloneNode(true)
+                    } else if (!parent) {
+                        return D(node).remove()
+                    }
+
+                    parent.insertBefore(node, target)
+
+                    if (parentInDocument) {
+                        traverseNode(node, function (el) {
+                            if (el.nodeName != null && el.nodeName.toUpperCase() === 'SCRIPT' &&
+                                (!el.type || el.type === 'text/javascript') && !el.src) {
+                                var target = el.ownerDocument ? el.ownerDocument.defaultView : window
+                                target['eval'].call(target, el.innerHTML)
+                            }
+                        });
+                    }
+                })
+            })
+        }
+
+        // after    => insertAfter
+        // prepend  => prependTo
+        // before   => insertBefore
+        // append   => appendTo
+        D.fn[inside ? operator + 'To' : 'insert' + (operatorIndex ? 'Before' : 'After')] = function (html) {
+            D(html)[operator](this)
+            return this
+        }
+    })
 
 
     D.init.prototype = D.fn;
