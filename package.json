@@ -1,0 +1,21 @@
+{
+  "name": "d",
+  "version": "0.0.0",
+  "description": "",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nzbin/d.git"
+  },
+  "author": "nzbin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nzbin/d/issues"
+  },
+  "homepage": "https://github.com/nzbin/d#readme"
+}
