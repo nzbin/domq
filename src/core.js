@@ -125,7 +125,7 @@
 
     // Class D
     var D = function (selector, context) {
-        return new D.fn.init(selector, context)
+        return new D.fn.init(selector, context);
     }
 
     D.fn = D.prototype = {
