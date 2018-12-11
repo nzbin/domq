@@ -377,22 +377,23 @@
         grep: function (elements, callback) {
             return filter.call(elements, callback)
         },
+        contains: function () {
+            return (document.documentElement.contains
+                ? function (parent, node) {
+                    return parent !== node && parent.contains(node)
+                }
+                : function (parent, node) {
+                    while (node && (node = node.parentNode))
+                        if (node === parent) return true
+                    return false
+                });
+        }
     });
 
     // Populate the class2type map
     D.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function (i, name) {
         class2type["[object " + name + "]"] = name.toLowerCase()
     });
-
-    D.contains = document.documentElement.contains
-        ? function (parent, node) {
-            return parent !== node && parent.contains(node)
-        }
-        : function (parent, node) {
-            while (node && (node = node.parentNode))
-                if (node === parent) return true
-            return false
-        }
 
     // Methods in Prototype
     D.fn.extend({
