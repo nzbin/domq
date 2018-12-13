@@ -388,7 +388,7 @@
                     return false
                 });
         },
-        matches = function (element, selector) {
+        matches: function (element, selector) {
             if (!selector || !element || element.nodeType !== 1) return false
             var matchesSelector = element.matches || element.webkitMatchesSelector ||
                 element.mozMatchesSelector || element.oMatchesSelector ||
@@ -750,7 +750,6 @@
             }
         },
 
-
         /* DOM */
         remove: function () {
             return this.each(function () {
@@ -915,7 +914,6 @@
             return this
         }
     });
-
 
     D.fn.init.prototype = D.fn;
 
