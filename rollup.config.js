@@ -17,7 +17,7 @@ const banner = `
 
 export default [
   {
-    input: 'src/core.js',
+    input: 'src/index.js',
     output: [
       {
         name: 'd',
