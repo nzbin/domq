@@ -23,7 +23,6 @@
     "@babel/core": "^7.0.0-beta.53",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.53",
     "@babel/preset-env": "^7.0.0-beta.53",
-    "cpy-cli": "^1.0.1",
     "eslint": "^4.17.0",
     "npm-run-all": "^4.1.2",
     "onchange": "^3.2.1",
