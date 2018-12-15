@@ -148,6 +148,17 @@ function className(node, value) {
   svg ? (klass.baseVal = value) : (node.className = value)
 }
 
+/*  Event Usage */
+function isString(obj) {
+  return typeof obj == 'string'
+}
+function returnTrue() {
+  return true
+}
+function returnFalse() {
+  return false
+}
+
 export {
   type,
   isFunction,
@@ -169,7 +180,10 @@ export {
   filtered,
   funcArg,
   setAttribute,
-  className
+  className,
+  isString,
+  returnTrue,
+  returnFalse
 }
 
 

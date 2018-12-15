@@ -1,17 +1,24 @@
 import D from './core';
 
-var _zid = 1,
-  slice = Array.prototype.slice,
-  isFunction = D.isFunction,
-  isString = function (obj) { return typeof obj == 'string' },
-  handlers = {},
-  specialEvents = {},
-  focusinSupported = 'onfocusin' in window,
-  focus = { focus: 'focusin', blur: 'focusout' },
-  hover = { mouseenter: 'mouseover', mouseleave: 'mouseout' }
+import {
+  slice,
+  handlers,
+  specialEvents,
+  focusinSupported,
+  focus,
+  hover,
+  ignoreProperties,
+  eventMethods,
+} from './vars';
 
-specialEvents.click = specialEvents.mousedown = specialEvents.mouseup = specialEvents.mousemove = 'MouseEvents'
+import {
+  isFunction,
+  isString,
+  returnTrue,
+  returnFalse
+} from './utils';
 
+var _zid = 1;
 function zid(element) {
   return element._zid || (element._zid = _zid++)
 }
@@ -84,39 +91,6 @@ function remove(element, events, fn, selector, capture) {
     })
 }
 
-D.event = { add: add, remove: remove }
-
-D.proxy = function (fn, context) {
-  var args = (2 in arguments) && slice.call(arguments, 2)
-  if (isFunction(fn)) {
-    var proxyFn = function () { return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments) }
-    proxyFn._zid = zid(fn)
-    return proxyFn
-  } else if (isString(context)) {
-    if (args) {
-      args.unshift(fn[context], fn)
-      return D.proxy.apply(null, args)
-    } else {
-      return D.proxy(fn[context], fn)
-    }
-  } else {
-    throw new TypeError("expected function")
-  }
-}
-
-D.fn.one = function (event, selector, data, callback) {
-  return this.on(event, selector, data, callback, 1)
-}
-
-var returnTrue = function () { return true },
-  returnFalse = function () { return false },
-  ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
-  eventMethods = {
-    preventDefault: 'isDefaultPrevented',
-    stopImmediatePropagation: 'isImmediatePropagationStopped',
-    stopPropagation: 'isPropagationStopped'
-  }
-
 function compatible(event, source) {
   if (source || !event.isDefaultPrevented) {
     source || (source = event)
@@ -148,6 +122,38 @@ function createProxy(event) {
     if (!ignoreProperties.test(key) && event[key] !== undefined) proxy[key] = event[key]
 
   return compatible(proxy, event)
+}
+
+D.event = { add: add, remove: remove }
+
+D.Event = function (type, props) {
+  if (!isString(type)) props = type, type = props.type
+  var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true
+  if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name])
+  event.initEvent(type, bubbles, true)
+  return compatible(event)
+}
+
+D.proxy = function (fn, context) {
+  var args = (2 in arguments) && slice.call(arguments, 2)
+  if (isFunction(fn)) {
+    var proxyFn = function () { return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments) }
+    proxyFn._zid = zid(fn)
+    return proxyFn
+  } else if (isString(context)) {
+    if (args) {
+      args.unshift(fn[context], fn)
+      return D.proxy.apply(null, args)
+    } else {
+      return D.proxy(fn[context], fn)
+    }
+  } else {
+    throw new TypeError("expected function")
+  }
+}
+
+D.fn.one = function (event, selector, data, callback) {
+  return this.on(event, selector, data, callback, 1)
 }
 
 D.fn.on = function (event, selector, data, callback, one) {
@@ -241,11 +247,3 @@ D.fn.triggerHandler = function (event, args) {
           this.trigger(event)
       }
     })
-
-D.Event = function (type, props) {
-  if (!isString(type)) props = type, type = props.type
-  var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true
-  if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name])
-  event.initEvent(type, bubbles, true)
-  return compatible(event)
-}

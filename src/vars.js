@@ -53,8 +53,25 @@ var emptyArray = [],
     'frameborder': 'frameBorder',
     'contenteditable': 'contentEditable'
   },
-  isArray = Array.isArray || function(arg) {
+  isArray = Array.isArray || function (arg) {
     return Object.prototype.toString.call(arg) === '[object Array]';
+  },
+  // Usage in Event
+  handlers = {},
+  specialEvents = {
+    click: 'MouseEvents',
+    mousedown: 'MouseEvents',
+    mouseup: 'MouseEvents',
+    mousemove: 'MouseEvents',
+  },
+  focusinSupported = 'onfocusin' in window,
+  focus = { focus: 'focusin', blur: 'focusout' },
+  hover = { mouseenter: 'mouseover', mouseleave: 'mouseout' },
+  ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
+  eventMethods = {
+    preventDefault: 'isDefaultPrevented',
+    stopImmediatePropagation: 'isImmediatePropagationStopped',
+    stopPropagation: 'isPropagationStopped'
   };
 
 export {
@@ -79,7 +96,14 @@ export {
   toString,
   tempParent,
   propMap,
-  isArray
+  isArray,
+  handlers,
+  specialEvents,
+  focusinSupported,
+  focus,
+  hover,
+  ignoreProperties,
+  eventMethods,
 }
 
 
