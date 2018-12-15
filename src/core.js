@@ -918,6 +918,4 @@ adjacencyOperators.forEach(function (operator, operatorIndex) {
 
 D.fn.init.prototype = D.fn;
 
-window.D = D;
-
 export default D;

@@ -1,3 +1,4 @@
+import D from './core';
 
 var _zid = 1,
   slice = Array.prototype.slice,
@@ -222,7 +223,7 @@ D.fn.triggerHandler = function (event, args) {
     e = createProxy(isString(event) ? D.Event(event) : event)
     e._args = args
     e.target = element
-    $.each(findHandlers(element, event.type || event), function (i, handler) {
+    D.each(findHandlers(element, event.type || event), function (i, handler) {
       result = handler.proxy(e)
       if (e.isImmediatePropagationStopped()) return false
     })
@@ -248,5 +249,3 @@ D.Event = function (type, props) {
   event.initEvent(type, bubbles, true)
   return compatible(event)
 }
-
-
