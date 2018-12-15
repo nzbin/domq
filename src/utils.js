@@ -1,26 +1,12 @@
 import {
-  emptyArray,
-  concat,
   filter,
   slice,
   document,
   elementDisplay,
   classCache,
   cssNumber,
-  fragmentRE,
-  singleTagRE,
-  tagExpanderRE,
-  rootNodeRE,
-  capitalRE,
-  methodAttributes,
-  adjacencyOperators,
-  containers,
-  simpleSelectorRE,
   class2type,
-  toString,
-  tempParent,
-  propMap,
-  isArray
+  toString
 } from './vars';
 
 function type(obj) {
@@ -141,6 +127,26 @@ function deserializeValue(value) {
     return value
   }
 }
+function filtered(nodes, selector) {
+  return selector == null ? D(nodes) : D(nodes).filter(selector)
+}
+
+function funcArg(context, arg, idx, payload) {
+  return isFunction(arg) ? arg.call(context, idx, payload) : arg
+}
+
+function setAttribute(node, name, value) {
+  value == null ? node.removeAttribute(name) : node.setAttribute(name, value)
+}
+
+// access className property while respecting SVGAnimatedString
+function className(node, value) {
+  var klass = node.className || '',
+    svg = klass && klass.baseVal !== undefined
+
+  if (value === undefined) return svg ? klass.baseVal : klass
+  svg ? (klass.baseVal = value) : (node.className = value)
+}
 
 export {
   type,
@@ -159,7 +165,11 @@ export {
   classRE,
   defaultDisplay,
   deserializeValue,
-  children
+  children,
+  filtered,
+  funcArg,
+  setAttribute,
+  className
 }
 
 

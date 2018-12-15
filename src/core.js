@@ -4,9 +4,6 @@ import {
     filter,
     slice,
     document,
-    elementDisplay,
-    classCache,
-    cssNumber,
     fragmentRE,
     singleTagRE,
     tagExpanderRE,
@@ -17,7 +14,6 @@ import {
     containers,
     simpleSelectorRE,
     class2type,
-    toString,
     tempParent,
     propMap,
     isArray
@@ -40,7 +36,11 @@ import {
     classRE,
     defaultDisplay,
     deserializeValue,
-    children
+    children,
+    filtered,
+    funcArg,
+    setAttribute,
+    className
 } from './utils';
 
 // Class D
@@ -177,6 +177,72 @@ D.extend = D.fn.extend = function () {
 
 D.extend({
     type: type,
+    isFunction: isFunction,
+    isWindow: isWindow,
+    isPlainObject: isPlainObject,
+    camelCase: camelize,
+    isArray: isArray,
+    isEmptyObject: function (obj) {
+        var name
+        for (name in obj) return false
+        return true
+    },
+    isNumeric: function (val) {
+        var num = Number(val),
+            type = typeof val
+        return val != null && type != 'boolean' &&
+            (type != 'string' || val.length) &&
+            !isNaN(num) && isFinite(num) || false
+    },
+    inArray: function (elem, array, i) {
+        return emptyArray.indexOf.call(array, elem, i)
+    },
+    trim: function (str) {
+        return str == null ? "" : String.prototype.trim.call(str)
+    },
+    noop: function () { },
+    map: function (elements, callback) {
+        var value, values = [],
+            i, key
+        if (likeArray(elements))
+            for (i = 0; i < elements.length; i++) {
+                value = callback(elements[i], i)
+                if (value != null) values.push(value)
+            }
+        else
+            for (key in elements) {
+                value = callback(elements[key], key)
+                if (value != null) values.push(value)
+            }
+        return flatten(values)
+    },
+    each: function (elements, callback) {
+        var i, key
+        if (likeArray(elements)) {
+            for (i = 0; i < elements.length; i++)
+                if (callback.call(elements[i], i, elements[i]) === false) return elements
+        } else {
+            for (key in elements)
+                if (callback.call(elements[key], key, elements[key]) === false) return elements
+        }
+
+        return elements
+    },
+    grep: function (elements, callback) {
+        return filter.call(elements, callback)
+    },
+    contains: function () {
+        return (document.documentElement.contains
+            ? function (parent, node) {
+                return parent !== node && parent.contains(node)
+            }
+            : function (parent, node) {
+                while (node && (node = node.parentNode))
+                    if (node === parent) return true
+                return false
+            });
+    },
+
     // Make DOM Array
     makeArray: function (dom, selector, me) {
         var i, len = dom ? dom.length : 0
@@ -259,48 +325,6 @@ D.extend({
     isD: function (object) {
         return object instanceof D
     },
-    noop: function () { },
-    map: function (elements, callback) {
-        var value, values = [],
-            i, key
-        if (likeArray(elements))
-            for (i = 0; i < elements.length; i++) {
-                value = callback(elements[i], i)
-                if (value != null) values.push(value)
-            }
-        else
-            for (key in elements) {
-                value = callback(elements[key], key)
-                if (value != null) values.push(value)
-            }
-        return flatten(values)
-    },
-    each: function (elements, callback) {
-        var i, key
-        if (likeArray(elements)) {
-            for (i = 0; i < elements.length; i++)
-                if (callback.call(elements[i], i, elements[i]) === false) return elements
-        } else {
-            for (key in elements)
-                if (callback.call(elements[key], key, elements[key]) === false) return elements
-        }
-
-        return elements
-    },
-    grep: function (elements, callback) {
-        return filter.call(elements, callback)
-    },
-    contains: function () {
-        return (document.documentElement.contains
-            ? function (parent, node) {
-                return parent !== node && parent.contains(node)
-            }
-            : function (parent, node) {
-                while (node && (node = node.parentNode))
-                    if (node === parent) return true
-                return false
-            });
-    },
     matches: function (element, selector) {
         if (!selector || !element || element.nodeType !== 1) return false
         var matchesSelector = element.matches || element.webkitMatchesSelector ||
@@ -324,7 +348,7 @@ D.each("Boolean Number String Function Array Date RegExp Object Error".split(" "
 
 // Methods in Prototype
 D.fn.extend({
-    // 💔
+    // 💔 Modify the collection by adding elements to it
     concat: function () {
         var i, value, args = []
         for (i = 0; i < arguments.length; i++) {
@@ -333,44 +357,18 @@ D.fn.extend({
         }
         return concat.apply(D.isD(this) ? this.toArray() : this, args)
     },
-
-    toArray: function () {
-        return this.get()
+    // 💔 `pluck` is borrowed from Prototype.js
+    pluck: function (property) {
+        return D.map(this, function (el) { return el[property] })
     },
 
-    /* Core */
-    each: function (callback) {
-        emptyArray.every.call(this, function (el, idx) {
-            return callback.call(el, idx, el) !== false
-        })
-        return this
-    },
-    get: function (idx) {
-        return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
-    },
-    size: function () {
-        return this.length
-    },
-    index: function (element) {
-        return element ? this.indexOf(D(element)[0]) : this.parent().children().indexOf(this[0])
-    },
-
-    /* Filter */
-    add: function (selector, context) {
-        return D(uniq(this.concat(D(selector, context))))
-    },
-    contents: function () {
-        return this.map(function () { return this.contentDocument || slice.call(this.childNodes) })
-    },
+    /* Traversing */
+    // Filtering
     filter: function (selector) {
         if (isFunction(selector)) return this.not(this.not(selector))
         return D(filter.call(this, function (element) {
             return D.matches(element, selector)
         }))
-    },
-    is: function (selector) {
-        return typeof selector == 'string' ? this.length > 0 && D.matches(this[0], selector) :
-            selector && this.selector == selector.selector
     },
     not: function (selector) {
         var nodes = []
@@ -387,6 +385,11 @@ D.fn.extend({
         }
         return D(nodes)
     },
+    is: function (selector) {
+        return typeof selector == 'string'
+            ? this.length > 0 && D.matches(this[0], selector)
+            : selector && this.selector == selector.selector
+    },
     has: function (selector) {
         return this.filter(function () {
             return isObject(selector) ?
@@ -399,25 +402,15 @@ D.fn.extend({
     },
     first: function () {
         var el = this[0]
-        return el && !isObject(el) ? el : $(el)
+        return el && !isObject(el) ? el : D(el)
     },
     last: function () {
         var el = this[this.length - 1]
-        return el && !isObject(el) ? el : $(el)
-    },
-    // `map` and `slice` in the jQuery API work differently
-    // from their array counterparts
-    map: function (fn) {
-        return D(
-            D.map(this, function (el, i) { return fn.call(el, i, el) })
-        )
+        return el && !isObject(el) ? el : D(el)
     },
     slice: function () {
-        return D(
-            slice.apply(this, arguments)
-        )
+        return D(slice.apply(this, arguments))
     },
-
     find: function (selector) {
         var result, $this = this
         if (!selector) result = D()
@@ -432,6 +425,14 @@ D.fn.extend({
         else result = this.map(function () { return D.qsa(this, selector) })
         return result
     },
+    // Miscellaneous Traversing
+    add: function (selector, context) {
+        return D(uniq(this.concat(D(selector, context))))
+    },
+    contents: function () {
+        return this.map(function () { return this.contentDocument || slice.call(this.childNodes) })
+    },
+    // Tree Traversal
     closest: function (selector, context) {
         var nodes = [],
             collection = typeof selector == 'object' && D(selector)
@@ -440,7 +441,7 @@ D.fn.extend({
                 node = node !== context && !isDocument(node) && node.parentNode
             if (node && nodes.indexOf(node) < 0) nodes.push(node)
         })
-        return $(nodes)
+        return D(nodes)
     },
     parents: function (selector) {
         var ancestors = [],
@@ -473,13 +474,15 @@ D.fn.extend({
             return parent
         })
     },
-
-    // 💔 `pluck` is borrowed from Prototype.js
-    pluck: function (property) {
-        return D.map(this, function (el) { return el[property] })
+    prev: function (selector) {
+        return D(this.pluck('previousElementSibling')).filter(selector || '*')
+    },
+    next: function (selector) {
+        return D(this.pluck('nextElementSibling')).filter(selector || '*')
     },
 
     /* Attribute */
+    // General Attributes
     attr: function (name, value) {
         var result
         return (typeof name == 'string' && !(1 in arguments)) ?
@@ -512,6 +515,19 @@ D.fn.extend({
         name = propMap[name] || name
         return this.each(function () { delete this[name] })
     },
+    val: function (value) {
+        if (0 in arguments) {
+            if (value == null) value = ""
+            return this.each(function (idx) {
+                this.value = funcArg(this, value, idx, this.value)
+            })
+        } else {
+            return this[0] && (this[0].multiple ?
+                D(this[0]).find('option').filter(function () { return this.selected }).pluck('value') :
+                this[0].value)
+        }
+    },
+    // Class Attributes
     hasClass: function (name) {
         if (!name) return false
         return emptyArray.some.call(this, function (el) {
@@ -555,6 +571,7 @@ D.fn.extend({
             })
         })
     },
+    // DOM Insertion
     html: function (html) {
         return 0 in arguments ?
             this.each(function (idx) {
@@ -570,27 +587,6 @@ D.fn.extend({
                 this.textContent = newText == null ? '' : '' + newText
             }) :
             (0 in this ? this.pluck('textContent').join("") : null)
-    },
-    val: function (value) {
-        if (0 in arguments) {
-            if (value == null) value = ""
-            return this.each(function (idx) {
-                this.value = funcArg(this, value, idx, this.value)
-            })
-        } else {
-            return this[0] && (this[0].multiple ?
-                D(this[0]).find('option').filter(function () { return this.selected }).pluck('value') :
-                this[0].value)
-        }
-    },
-    data: function (name, value) {
-        var attrName = 'data-' + name.replace(capitalRE, '-$1').toLowerCase()
-
-        var data = (1 in arguments) ?
-            this.attr(attrName, value) :
-            this.attr(attrName)
-
-        return data !== null ? deserializeValue(data) : undefined
     },
 
     /* CSS */
@@ -631,22 +627,6 @@ D.fn.extend({
         }
 
         return this.each(function () { this.style.cssText += ';' + css })
-    },
-    scrollTop: function (value) {
-        if (!this.length) return
-        var hasScrollTop = 'scrollTop' in this[0]
-        if (value === undefined) return hasScrollTop ? this[0].scrollTop : this[0].pageYOffset
-        return this.each(hasScrollTop ?
-            function () { this.scrollTop = value } :
-            function () { this.scrollTo(this.scrollX, value) })
-    },
-    scrollLeft: function (value) {
-        if (!this.length) return
-        var hasScrollLeft = 'scrollLeft' in this[0]
-        if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : this[0].pageXOffset
-        return this.each(hasScrollLeft ?
-            function () { this.scrollLeft = value } :
-            function () { this.scrollTo(value, this.scrollY) })
     },
     offset: function (coordinates) {
         if (coordinates) return this.each(function (index) {
@@ -697,6 +677,22 @@ D.fn.extend({
             top: offset.top - parentOffset.top,
             left: offset.left - parentOffset.left
         }
+    },
+    scrollTop: function (value) {
+        if (!this.length) return
+        var hasScrollTop = 'scrollTop' in this[0]
+        if (value === undefined) return hasScrollTop ? this[0].scrollTop : this[0].pageYOffset
+        return this.each(hasScrollTop ?
+            function () { this.scrollTop = value } :
+            function () { this.scrollTo(this.scrollX, value) })
+    },
+    scrollLeft: function (value) {
+        if (!this.length) return
+        var hasScrollLeft = 'scrollLeft' in this[0]
+        if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : this[0].pageXOffset
+        return this.each(hasScrollLeft ?
+            function () { this.scrollLeft = value } :
+            function () { this.scrollTo(value, this.scrollY) })
     },
 
     /* DOM */
@@ -750,8 +746,36 @@ D.fn.extend({
         })
         return this
     },
+    replaceWith: function (newContent) {
+        return this.before(newContent).remove()
+    },
 
-    /* Event */
+    /* Miscellaneous */
+    toArray: function () {
+        return this.get()
+    },
+    each: function (callback) {
+        emptyArray.every.call(this, function (el, idx) {
+            return callback.call(el, idx, el) !== false
+        })
+        return this
+    },
+    map: function (fn) {
+        return D(
+            D.map(this, function (el, i) { return fn.call(el, i, el) })
+        )
+    },
+    get: function (idx) {
+        return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
+    },
+    size: function () {
+        return this.length
+    },
+    index: function (element) {
+        return element ? this.indexOf(D(element)[0]) : this.parent().children().indexOf(this[0])
+    },
+
+    /* Events */
     ready: function (callback) {
         // don't use "interactive" on IE <= 10 (it can fired premature)
         if (document.readyState === "complete" ||
@@ -769,6 +793,18 @@ D.fn.extend({
         return this
     },
 
+    /* Data */
+    data: function (name, value) {
+        var attrName = 'data-' + name.replace(capitalRE, '-$1').toLowerCase()
+
+        var data = (1 in arguments) ?
+            this.attr(attrName, value) :
+            this.attr(attrName)
+
+        return data !== null ? deserializeValue(data) : undefined
+    },
+
+    /* Effects */
     show: function () {
         return this.each(function () {
             this.style.display == "none" && (this.style.display = '')
