@@ -1,3 +1,5 @@
+import D from './d-class';
+
 import {
     emptyArray,
     concat,
@@ -42,11 +44,6 @@ import {
     setAttribute,
     className
 } from './utils';
-
-// Class D
-var D = function (selector, context) {
-    return new D.fn.init(selector, context);
-}
 
 D.fn = D.prototype = {
     constuctor: D,
@@ -917,5 +914,3 @@ adjacencyOperators.forEach(function (operator, operatorIndex) {
 });
 
 D.fn.init.prototype = D.fn;
-
-export default D;

@@ -1,4 +1,4 @@
-import D from './core';
+import D from './d-class';
 
 import {
   slice,

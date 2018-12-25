@@ -1,3 +1,5 @@
+import D from './d-class';
+
 import {
   filter,
   slice,
