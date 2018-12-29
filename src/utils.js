@@ -122,7 +122,7 @@ function deserializeValue(value) {
       (value == "false" ? false :
         value == "null" ? null :
           +value + "" == value ? +value :
-            /^[\[\{]/.test(value) ? $.parseJSON(value) :
+            /^[\[\{]/.test(value) ? JSON.parse(value) :
               value) :
       value
   } catch (e) {

@@ -56,7 +56,7 @@ var emptyArray = [],
   isArray = Array.isArray || function (arg) {
     return Object.prototype.toString.call(arg) === '[object Array]';
   },
-  // Usage in Event
+  // Using in Event
   handlers = {},
   specialEvents = {
     click: 'MouseEvents',
