@@ -13,6 +13,7 @@ import {
     capitalRE,
     methodAttributes,
     adjacencyOperators,
+    dimensions,
     containers,
     simpleSelectorRE,
     class2type,
@@ -814,15 +815,17 @@ D.fn.extend({
     },
 });
 
-;['width', 'height'].forEach(function (dimension) {
+dimensions.forEach(function (dimension) {
     var dimensionProperty =
         dimension.replace(/./, function (m) { return m[0].toUpperCase() })
 
     D.fn[dimension] = function (value) {
         var offset, el = this[0]
-        if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] :
-            isDocument(el) ? el.documentElement['scroll' + dimensionProperty] :
-                (offset = this.offset()) && offset[dimension]
+        if (value === undefined) return isWindow(el)
+            ? el['inner' + dimensionProperty]
+            : isDocument(el)
+                ? el.documentElement['scroll' + dimensionProperty]
+                : parseFloat(this.css(dimension))
         else return this.each(function (idx) {
             el = D(this)
             el.css(dimension, funcArg(this, value, idx, el[dimension]()))
@@ -856,11 +859,9 @@ adjacencyOperators.forEach(function (operator, operatorIndex) {
                     return arr
                 }
 
-                return (
-                    argType == "object" || arg == null
-                        ? arg
-                        : D.fragment(arg)
-                )
+                return argType == "object" || arg == null
+                    ? arg
+                    : D.fragment(arg)
             }),
             parent,
             copyByClone = this.length > 1;

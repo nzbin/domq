@@ -24,6 +24,8 @@ var emptyArray = [],
   methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
 
   adjacencyOperators = ['after', 'prepend', 'before', 'append'],
+  dimensions= ['width', 'height'],
+
   table = document.createElement('table'),
   tableRow = document.createElement('tr'),
   containers = {
@@ -90,6 +92,7 @@ export {
   capitalRE,
   methodAttributes,
   adjacencyOperators,
+  dimensions,
   containers,
   simpleSelectorRE,
   class2type,
