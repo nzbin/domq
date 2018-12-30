@@ -1,21 +1,26 @@
 {
   "name": "domq",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "A shorthand version of Zepto.js.",
+  "main": "dist/domq.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nzbin/d.git"
+    "url": "git+https://github.com/nzbin/domq.git"
   },
+  "keywords": [
+    "jquery",
+    "zepto",
+    "dom-library"
+  ],
   "author": "nzbin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nzbin/d/issues"
+    "url": "https://github.com/nzbin/domq/issues"
   },
-  "homepage": "https://github.com/nzbin/d#readme",
+  "homepage": "https://github.com/nzbin/domq#readme",
   "scripts": {
     "build": "rollup -c",
-    "compress": "uglifyjs dist/d.js -o dist/d.min.js -c -m --comments /^!/ --source-map",
-    "copy": "cpy dist/d.js docs/js",
+    "compress": "uglifyjs dist/domq.js -o dist/domq.min.js -c -m --comments /^!/ --source-map",
     "release": "run-s build compress",
     "lint": "eslint src/js --fix"
   },
