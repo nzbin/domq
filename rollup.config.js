@@ -20,21 +20,21 @@ export default [
     input: 'src/index.js',
     output: [
       {
-        name: 'd',
+        name: 'domq',
         banner,
-        file: "dist/d.js",
+        file: "dist/domq.js",
         format: 'umd',
         sourcemap: true
       },
       {
         banner,
-        file: 'dist/d.common.js',
+        file: 'dist/domq.common.js',
         format: 'cjs',
         sourcemap: true
       },
       {
         banner,
-        file: 'dist/d.esm.js',
+        file: 'dist/domq.esm.js',
         format: 'es',
         sourcemap: true
       }
