@@ -255,19 +255,15 @@ D.extend({
         }
 
         if (!dom) {
-
             if (html.replace) {
                 html = html.replace(tagExpanderRE, "<$1></$2>")
             }
-
             if (name === undefined) {
                 name = fragmentRE.test(html) && RegExp.$1
             }
-
             if (!(name in containers)) {
                 name = '*'
             }
-
             container = containers[name]
             container.innerHTML = '' + html
             dom = D.each(slice.call(container.childNodes), function () {
@@ -390,19 +386,7 @@ D.fn.extend({
     },
     index: function (element) {
         return element ? this.indexOf(D(element)[0]) : this.parent().children().indexOf(this[0])
-    },
-
-    /* Effects */
-    show: function () {
-        return this.each(function () {
-            this.style.display == "none" && (this.style.display = '')
-            if (getComputedStyle(this, '').getPropertyValue("display") == "none")
-                this.style.display = defaultDisplay(this.nodeName)
-        })
-    },
-    hide: function () {
-        return this.css("display", "none")
-    },
+    }
 });
 
 D.fn.init.prototype = D.fn;
