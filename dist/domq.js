@@ -25,6 +25,7 @@
         slice = emptyArray.slice,
         document = window.document,
         elementDisplay = {},
+        classCache = {},
         cssNumber = {
       'column-count': 1,
       'columns': 1,
@@ -135,6 +136,10 @@
       });
     }
 
+    function classRE(name) {
+      return name in classCache ? classCache[name] : classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)');
+    }
+
     function defaultDisplay(nodeName) {
       var element, display;
 
@@ -167,6 +172,14 @@
     function setAttribute(node, name, value) {
       value == null ? node.removeAttribute(name) : node.setAttribute(name, value);
     } // access className property while respecting SVGAnimatedString
+
+
+    function className(node, value) {
+      var klass = node.className || '',
+          svg = klass && klass.baseVal !== undefined;
+      if (value === undefined) return svg ? klass.baseVal : klass;
+      svg ? klass.baseVal = value : node.className = value;
+    }
 
     D.fn = D.prototype = {
       constuctor: D,
@@ -673,6 +686,51 @@
     });
 
     D.fn.extend({
+      hasClass: function hasClass(name) {
+        if (!name) return false;
+        return emptyArray.some.call(this, function (el) {
+          return this.test(className(el));
+        }, classRE(name));
+      },
+      addClass: function addClass(name) {
+        var classList = [];
+        if (!name) return this;
+        return this.each(function (idx) {
+          if (!('className' in this)) return;
+          classList = [];
+          var cls = className(this),
+              newName = funcArg(this, name, idx, cls);
+          newName.split(/\s+/g).forEach(function (klass) {
+            if (!D(this).hasClass(klass)) classList.push(klass);
+          }, this);
+          classList.length && className(this, cls + (cls ? " " : "") + classList.join(" "));
+        });
+      },
+      removeClass: function removeClass(name) {
+        var classList = [];
+        return this.each(function (idx) {
+          if (!('className' in this)) return;
+          if (name === undefined) return className(this, '');
+          classList = className(this);
+          funcArg(this, name, idx, classList).split(/\s+/g).forEach(function (klass) {
+            classList = classList.replace(classRE(klass), " ");
+          });
+          className(this, classList.trim());
+        });
+      },
+      toggleClass: function toggleClass(name, when) {
+        if (!name) return this;
+        return this.each(function (idx) {
+          var $this = D(this),
+              names = funcArg(this, name, idx, className(this));
+          names.split(/\s+/g).forEach(function (klass) {
+            (when === undefined ? !$this.hasClass(klass) : when) ? $this.addClass(klass) : $this.removeClass(klass);
+          });
+        });
+      }
+    });
+
+    D.fn.extend({
       offset: function offset(coordinates) {
         if (coordinates) return this.each(function (index) {
           var $this = D(this),
@@ -847,6 +905,10 @@
       }
     });
 
+    function subtract(el, dimen) {
+      return el.css('box-sizing') === 'border-box' ? dimen === 'width' ? parseFloat(el.css(dimen)) - parseFloat(el.css('padding-left')) - parseFloat(el.css('padding-right')) - parseFloat(el.css('border-left')) - parseFloat(el.css('border-right')) : parseFloat(el.css(dimen)) - parseFloat(el.css('padding-top')) - parseFloat(el.css('padding-bottom')) - parseFloat(el.css('border-top')) - parseFloat(el.css('border-bottom')) : parseFloat(el.css(dimen));
+    }
+
     dimensions.forEach(function (dimension) {
       var dimensionProperty = dimension.replace(/./, function (m) {
         return m[0].toUpperCase();
@@ -854,7 +916,7 @@
 
       D.fn[dimension] = function (value) {
         var el = this[0];
-        if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] : isDocument(el) ? el.documentElement['scroll' + dimensionProperty] : parseFloat(this.css(dimension));else return this.each(function (idx) {
+        if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] : isDocument(el) ? el.documentElement['scroll' + dimensionProperty] : subtract(this, dimension);else return this.each(function (idx) {
           el = D(this);
           el.css(dimension, funcArg(this, value, idx, el[dimension]()));
         });

@@ -237,7 +237,6 @@ D.extend({
                 return false
             });
     },
-
     // Make DOM Array
     makeArray: function (dom, selector, me) {
         var i, len = dom ? dom.length : 0
