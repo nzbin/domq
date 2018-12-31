@@ -1,6 +1,6 @@
 
 /*!
- * domq - v0.1.0
+ * domq.js - v0.1.0
  * A shorthand version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
@@ -19,9 +19,8 @@ var emptyArray = [],
     concat = emptyArray.concat,
     filter = emptyArray.filter,
     slice = emptyArray.slice,
-    document$1 = window.document,
+    document = window.document,
     elementDisplay = {},
-    classCache = {},
     cssNumber = {
   'column-count': 1,
   'columns': 1,
@@ -35,26 +34,25 @@ var emptyArray = [],
     singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/,
     tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
     rootNodeRE = /^(?:body|html)$/i,
-    capitalRE = /([A-Z])/g,
     // special attributes that should be get/set via method calls
 methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
     adjacencyOperators = ['after', 'prepend', 'before', 'append'],
     dimensions = ['width', 'height'],
-    table = document$1.createElement('table'),
-    tableRow = document$1.createElement('tr'),
+    table = document.createElement('table'),
+    tableRow = document.createElement('tr'),
     containers = {
-  'tr': document$1.createElement('tbody'),
+  'tr': document.createElement('tbody'),
   'tbody': table,
   'thead': table,
   'tfoot': table,
   'td': tableRow,
   'th': tableRow,
-  '*': document$1.createElement('div')
+  '*': document.createElement('div')
 },
     simpleSelectorRE = /^[\w-]*$/,
     class2type = {},
     toString = class2type.toString,
-    tempParent = document$1.createElement('div'),
+    tempParent = document.createElement('div'),
     propMap = {
   'tabindex': 'tabIndex',
   'readonly': 'readOnly',
@@ -71,29 +69,6 @@ methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'of
 },
     isArray = Array.isArray || function (arg) {
   return Object.prototype.toString.call(arg) === '[object Array]';
-},
-    // Using in Event
-handlers = {},
-    specialEvents = {
-  click: 'MouseEvents',
-  mousedown: 'MouseEvents',
-  mouseup: 'MouseEvents',
-  mousemove: 'MouseEvents'
-},
-    focusinSupported = 'onfocusin' in window,
-    focus = {
-  focus: 'focusin',
-  blur: 'focusout'
-},
-    hover = {
-  mouseenter: 'mouseover',
-  mouseleave: 'mouseout'
-},
-    ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
-    eventMethods = {
-  preventDefault: 'isDefaultPrevented',
-  stopImmediatePropagation: 'isImmediatePropagationStopped',
-  stopPropagation: 'isPropagationStopped'
 };
 
 function type(obj) {
@@ -156,16 +131,12 @@ function camelize(str) {
   });
 }
 
-function classRE(name) {
-  return name in classCache ? classCache[name] : classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)');
-}
-
 function defaultDisplay(nodeName) {
   var element, display;
 
   if (!elementDisplay[nodeName]) {
-    element = document$1.createElement(nodeName);
-    document$1.body.appendChild(element);
+    element = document.createElement(nodeName);
+    document.body.appendChild(element);
     display = getComputedStyle(element, '').getPropertyValue("display");
     element.parentNode.removeChild(element);
     display == "none" && (display = "block");
@@ -180,22 +151,6 @@ function children(element) {
     if (node.nodeType == 1) return node;
   });
 } // "true"  => true
-// "false" => false
-// "null"  => null
-// "42"    => 42
-// "42.5"  => 42.5
-// "08"    => "08"
-// JSON    => parse if valid
-// String  => self
-
-
-function deserializeValue(value) {
-  try {
-    return value ? value == "true" || (value == "false" ? false : value == "null" ? null : +value + "" == value ? +value : /^[\[\{]/.test(value) ? JSON.parse(value) : value) : value;
-  } catch (e) {
-    return value;
-  }
-}
 
 function filtered(nodes, selector) {
   return selector == null ? D(nodes) : D(nodes).filter(selector);
@@ -208,28 +163,6 @@ function funcArg(context, arg, idx, payload) {
 function setAttribute(node, name, value) {
   value == null ? node.removeAttribute(name) : node.setAttribute(name, value);
 } // access className property while respecting SVGAnimatedString
-
-
-function className(node, value) {
-  var klass = node.className || '',
-      svg = klass && klass.baseVal !== undefined;
-  if (value === undefined) return svg ? klass.baseVal : klass;
-  svg ? klass.baseVal = value : node.className = value;
-}
-/*  Event Usage */
-
-
-function isString(obj) {
-  return typeof obj == 'string';
-}
-
-function returnTrue() {
-  return true;
-}
-
-function returnFalse() {
-  return false;
-}
 
 D.fn = D.prototype = {
   constuctor: D,
@@ -265,11 +198,11 @@ D.fn = D.prototype = {
             return D(context).find(selector);
           } // If it's a CSS selector, use it to select nodes.
           else {
-              dom = D.qsa(document$1, selector);
+              dom = D.qsa(document, selector);
             }
       } // If a function is given, call it when the DOM is ready
       else if (isFunction(selector)) {
-          return D(document$1).ready(selector);
+          return D(document).ready(selector);
         } // If a D collection is given, just return it
         else if (D.isD(selector)) {
             return selector;
@@ -285,7 +218,7 @@ D.fn = D.prototype = {
                   return D(context).find(selector);
                 } // And last but no least, if it's a CSS selector, use it to select nodes.
                 else {
-                    dom = D.qsa(document$1, selector);
+                    dom = D.qsa(document, selector);
                   } // create a new D collection from the nodes found
 
 
@@ -418,7 +351,7 @@ D.extend({
     return filter.call(elements, callback);
   },
   contains: function contains() {
-    return document$1.documentElement.contains ? function (parent, node) {
+    return document.documentElement.contains ? function (parent, node) {
       return parent !== node && parent.contains(node);
     } : function (parent, node) {
       while (node && (node = node.parentNode)) {
@@ -446,7 +379,7 @@ D.extend({
     var dom, nodes, container; // A special case optimization for a single tag
 
     if (singleTagRE.test(html)) {
-      dom = D(document$1.createElement(RegExp.$1));
+      dom = D(document.createElement(RegExp.$1));
     }
 
     if (!dom) {
@@ -517,7 +450,7 @@ D.each("Boolean Number String Function Array Date RegExp Object Error".split(" "
 }); // Methods in Prototype
 
 D.fn.extend({
-  // 💔 Modify the collection by adding elements to it
+  // Modify the collection by adding elements to it
   concat: function concat$$1() {
     var i,
         value,
@@ -530,20 +463,90 @@ D.fn.extend({
 
     return concat.apply(D.isD(this) ? this.toArray() : this, args);
   },
-  // 💔 `pluck` is borrowed from Prototype.js
+  // `pluck` is borrowed from Prototype.js
   pluck: function pluck(property) {
     return D.map(this, function (el) {
       return el[property];
     });
   },
-
-  /* Traversing */
   // Filtering
+  eq: function eq(idx) {
+    return idx === -1 ? this.slice(idx) : this.slice(idx, +idx + 1);
+  },
+  first: function first() {
+    var el = this[0];
+    return el && !isObject(el) ? el : D(el);
+  },
+  last: function last() {
+    var el = this[this.length - 1];
+    return el && !isObject(el) ? el : D(el);
+  },
+  slice: function slice$$1() {
+    return D(slice.apply(this, arguments));
+  },
+
+  /* Miscellaneous */
+  toArray: function toArray() {
+    return this.get();
+  },
+  each: function each(callback) {
+    emptyArray.every.call(this, function (el, idx) {
+      return callback.call(el, idx, el) !== false;
+    });
+    return this;
+  },
+  map: function map(fn) {
+    return D(D.map(this, function (el, i) {
+      return fn.call(el, i, el);
+    }));
+  },
+  get: function get(idx) {
+    return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length];
+  },
+  size: function size() {
+    return this.length;
+  },
+  index: function index(element) {
+    return element ? this.indexOf(D(element)[0]) : this.parent().children().indexOf(this[0]);
+  },
+
+  /* Effects */
+  show: function show() {
+    return this.each(function () {
+      this.style.display == "none" && (this.style.display = '');
+      if (getComputedStyle(this, '').getPropertyValue("display") == "none") this.style.display = defaultDisplay(this.nodeName);
+    });
+  },
+  hide: function hide() {
+    return this.css("display", "none");
+  }
+});
+D.fn.init.prototype = D.fn;
+
+D.fn.extend({
+  find: function find(selector) {
+    var result,
+        $this = this;
+    if (!selector) result = D();else if (typeof selector == 'object') result = D(selector).filter(function () {
+      var node = this;
+      return emptyArray.some.call($this, function (parent) {
+        return D.contains(parent, node);
+      });
+    });else if (this.length == 1) result = D(D.qsa(this[0], selector));else result = this.map(function () {
+      return D.qsa(this, selector);
+    });
+    return result;
+  },
   filter: function filter$$1(selector) {
     if (isFunction(selector)) return this.not(this.not(selector));
     return D(filter.call(this, function (element) {
       return D.matches(element, selector);
     }));
+  },
+  has: function has(selector) {
+    return this.filter(function () {
+      return isObject(selector) ? D.contains(this, selector) : D(this).find(selector).size();
+    });
   },
   not: function not(selector) {
     var nodes = [];
@@ -560,39 +563,6 @@ D.fn.extend({
   is: function is(selector) {
     return typeof selector == 'string' ? this.length > 0 && D.matches(this[0], selector) : selector && this.selector == selector.selector;
   },
-  has: function has(selector) {
-    return this.filter(function () {
-      return isObject(selector) ? D.contains(this, selector) : D(this).find(selector).size();
-    });
-  },
-  eq: function eq(idx) {
-    return idx === -1 ? this.slice(idx) : this.slice(idx, +idx + 1);
-  },
-  first: function first() {
-    var el = this[0];
-    return el && !isObject(el) ? el : D(el);
-  },
-  last: function last() {
-    var el = this[this.length - 1];
-    return el && !isObject(el) ? el : D(el);
-  },
-  slice: function slice$$1() {
-    return D(slice.apply(this, arguments));
-  },
-  find: function find(selector) {
-    var result,
-        $this = this;
-    if (!selector) result = D();else if (typeof selector == 'object') result = D(selector).filter(function () {
-      var node = this;
-      return emptyArray.some.call($this, function (parent) {
-        return D.contains(parent, node);
-      });
-    });else if (this.length == 1) result = D(D.qsa(this[0], selector));else result = this.map(function () {
-      return D.qsa(this, selector);
-    });
-    return result;
-  },
-  // Miscellaneous Traversing
   add: function add(selector, context) {
     return D(uniq(this.concat(D(selector, context))));
   },
@@ -601,7 +571,6 @@ D.fn.extend({
       return this.contentDocument || slice.call(this.childNodes);
     });
   },
-  // Tree Traversal
   closest: function closest(selector, context) {
     var nodes = [],
         collection = typeof selector == 'object' && D(selector);
@@ -644,126 +613,15 @@ D.fn.extend({
       });
     }), selector);
   },
-  offsetParent: function offsetParent() {
-    return this.map(function () {
-      var parent = this.offsetParent || document$1.body;
-
-      while (parent && !rootNodeRE.test(parent.nodeName) && D(parent).css("position") == "static") {
-        parent = parent.offsetParent;
-      }
-
-      return parent;
-    });
-  },
   prev: function prev(selector) {
     return D(this.pluck('previousElementSibling')).filter(selector || '*');
   },
   next: function next(selector) {
     return D(this.pluck('nextElementSibling')).filter(selector || '*');
-  },
+  }
+});
 
-  /* Attribute */
-  // General Attributes
-  attr: function attr(name, value) {
-    var result;
-    return typeof name == 'string' && !(1 in arguments) ? 0 in this && this[0].nodeType == 1 && (result = this[0].getAttribute(name)) != null ? result : undefined : this.each(function (idx) {
-      if (this.nodeType !== 1) return;
-      if (isObject(name)) for (var key in name) {
-        setAttribute(this, key, name[key]);
-      } else setAttribute(this, name, funcArg(this, value, idx, this.getAttribute(name)));
-    });
-  },
-  removeAttr: function removeAttr(name) {
-    return this.each(function () {
-      this.nodeType === 1 && name.split(' ').forEach(function (attribute) {
-        setAttribute(this, attribute);
-      }, this);
-    });
-  },
-  prop: function prop(name, value) {
-    name = propMap[name] || name;
-    return typeof name == 'string' && !(1 in arguments) ? this[0] && this[0][name] : this.each(function (idx) {
-      if (isObject(name)) for (var key in name) {
-        this[propMap[key] || key] = name[key];
-      } else this[name] = funcArg(this, value, idx, this[name]);
-    });
-  },
-  removeProp: function removeProp(name) {
-    name = propMap[name] || name;
-    return this.each(function () {
-      delete this[name];
-    });
-  },
-  val: function val(value) {
-    if (0 in arguments) {
-      if (value == null) value = "";
-      return this.each(function (idx) {
-        this.value = funcArg(this, value, idx, this.value);
-      });
-    } else {
-      return this[0] && (this[0].multiple ? D(this[0]).find('option').filter(function () {
-        return this.selected;
-      }).pluck('value') : this[0].value);
-    }
-  },
-  // Class Attributes
-  hasClass: function hasClass(name) {
-    if (!name) return false;
-    return emptyArray.some.call(this, function (el) {
-      return this.test(className(el));
-    }, classRE(name));
-  },
-  addClass: function addClass(name) {
-    var classList = [];
-    if (!name) return this;
-    return this.each(function (idx) {
-      if (!('className' in this)) return;
-      classList = [];
-      var cls = className(this),
-          newName = funcArg(this, name, idx, cls);
-      newName.split(/\s+/g).forEach(function (klass) {
-        if (!D(this).hasClass(klass)) classList.push(klass);
-      }, this);
-      classList.length && className(this, cls + (cls ? " " : "") + classList.join(" "));
-    });
-  },
-  removeClass: function removeClass(name) {
-    var classList = [];
-    return this.each(function (idx) {
-      if (!('className' in this)) return;
-      if (name === undefined) return className(this, '');
-      classList = className(this);
-      funcArg(this, name, idx, classList).split(/\s+/g).forEach(function (klass) {
-        classList = classList.replace(classRE(klass), " ");
-      });
-      className(this, classList.trim());
-    });
-  },
-  toggleClass: function toggleClass(name, when) {
-    if (!name) return this;
-    return this.each(function (idx) {
-      var $this = D(this),
-          names = funcArg(this, name, idx, className(this));
-      names.split(/\s+/g).forEach(function (klass) {
-        (when === undefined ? !$this.hasClass(klass) : when) ? $this.addClass(klass) : $this.removeClass(klass);
-      });
-    });
-  },
-  // DOM Insertion
-  html: function html(_html) {
-    return 0 in arguments ? this.each(function (idx) {
-      var originHtml = this.innerHTML;
-      D(this).empty().append(funcArg(this, _html, idx, originHtml));
-    }) : 0 in this ? this[0].innerHTML : null;
-  },
-  text: function text(_text) {
-    return 0 in arguments ? this.each(function (idx) {
-      var newText = funcArg(this, _text, idx, this.textContent);
-      this.textContent = newText == null ? '' : '' + newText;
-    }) : 0 in this ? this.pluck('textContent').join("") : null;
-  },
-
-  /* CSS */
+D.fn.extend({
   css: function css(property, value) {
     if (arguments.length < 2) {
       var element = this[0];
@@ -807,7 +665,10 @@ D.fn.extend({
     return this.each(function () {
       this.style.cssText += ';' + css;
     });
-  },
+  }
+});
+
+D.fn.extend({
   offset: function offset(coordinates) {
     if (coordinates) return this.each(function (index) {
       var $this = D(this),
@@ -821,7 +682,7 @@ D.fn.extend({
       $this.css(props);
     });
     if (!this.length) return null;
-    if (document$1.documentElement !== this[0] && !D.contains(document$1.documentElement, this[0])) return {
+    if (document.documentElement !== this[0] && !D.contains(document.documentElement, this[0])) return {
       top: 0,
       left: 0
     };
@@ -878,23 +739,71 @@ D.fn.extend({
       this.scrollTo(value, this.scrollY);
     });
   },
-
-  /* DOM */
-  remove: function remove() {
-    return this.each(function () {
-      if (this.parentNode != null) this.parentNode.removeChild(this);
-    });
-  },
-  empty: function empty() {
-    return this.each(function () {
-      this.innerHTML = '';
-    });
-  },
-  clone: function clone() {
+  offsetParent: function offsetParent() {
     return this.map(function () {
-      return this.cloneNode(true);
+      var parent = this.offsetParent || document.body;
+
+      while (parent && !rootNodeRE.test(parent.nodeName) && D(parent).css("position") == "static") {
+        parent = parent.offsetParent;
+      }
+
+      return parent;
+    });
+  }
+});
+
+D.fn.extend({
+  attr: function attr(name, value) {
+    var result;
+    return typeof name == 'string' && !(1 in arguments) ? 0 in this && this[0].nodeType == 1 && (result = this[0].getAttribute(name)) != null ? result : undefined : this.each(function (idx) {
+      if (this.nodeType !== 1) return;
+      if (isObject(name)) for (var key in name) {
+        setAttribute(this, key, name[key]);
+      } else setAttribute(this, name, funcArg(this, value, idx, this.getAttribute(name)));
     });
   },
+  removeAttr: function removeAttr(name) {
+    return this.each(function () {
+      this.nodeType === 1 && name.split(' ').forEach(function (attribute) {
+        setAttribute(this, attribute);
+      }, this);
+    });
+  }
+});
+
+D.fn.extend({
+  prop: function prop(name, value) {
+    name = propMap[name] || name;
+    return typeof name == 'string' && !(1 in arguments) ? this[0] && this[0][name] : this.each(function (idx) {
+      if (isObject(name)) for (var key in name) {
+        this[propMap[key] || key] = name[key];
+      } else this[name] = funcArg(this, value, idx, this[name]);
+    });
+  },
+  removeProp: function removeProp(name) {
+    name = propMap[name] || name;
+    return this.each(function () {
+      delete this[name];
+    });
+  }
+});
+
+D.fn.extend({
+  val: function val(value) {
+    if (0 in arguments) {
+      if (value == null) value = "";
+      return this.each(function (idx) {
+        this.value = funcArg(this, value, idx, this.value);
+      });
+    } else {
+      return this[0] && (this[0].multiple ? D(this[0]).find('option').filter(function () {
+        return this.selected;
+      }).pluck('value') : this[0].value);
+    }
+  }
+});
+
+D.fn.extend({
   wrap: function wrap(structure) {
     var func = isFunction(structure);
     if (this[0] && !func) var dom = D(structure).get(0),
@@ -931,72 +840,9 @@ D.fn.extend({
       D(this).replaceWith(D(this).children());
     });
     return this;
-  },
-  replaceWith: function replaceWith(newContent) {
-    return this.before(newContent).remove();
-  },
-
-  /* Miscellaneous */
-  toArray: function toArray() {
-    return this.get();
-  },
-  each: function each(callback) {
-    emptyArray.every.call(this, function (el, idx) {
-      return callback.call(el, idx, el) !== false;
-    });
-    return this;
-  },
-  map: function map(fn) {
-    return D(D.map(this, function (el, i) {
-      return fn.call(el, i, el);
-    }));
-  },
-  get: function get(idx) {
-    return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length];
-  },
-  size: function size() {
-    return this.length;
-  },
-  index: function index(element) {
-    return element ? this.indexOf(D(element)[0]) : this.parent().children().indexOf(this[0]);
-  },
-
-  /* Events */
-  ready: function ready(callback) {
-    // don't use "interactive" on IE <= 10 (it can fired premature)
-    if (document$1.readyState === "complete" || document$1.readyState !== "loading" && !document$1.documentElement.doScroll) setTimeout(function () {
-      callback(D);
-    }, 0);else {
-      var handler = function handler() {
-        document$1.removeEventListener("DOMContentLoaded", handler, false);
-        window.removeEventListener("load", handler, false);
-        callback(D);
-      };
-
-      document$1.addEventListener("DOMContentLoaded", handler, false);
-      window.addEventListener("load", handler, false);
-    }
-    return this;
-  },
-
-  /* Data */
-  data: function data(name, value) {
-    var attrName = 'data-' + name.replace(capitalRE, '-$1').toLowerCase();
-    var data = 1 in arguments ? this.attr(attrName, value) : this.attr(attrName);
-    return data !== null ? deserializeValue(data) : undefined;
-  },
-
-  /* Effects */
-  show: function show() {
-    return this.each(function () {
-      this.style.display == "none" && (this.style.display = '');
-      if (getComputedStyle(this, '').getPropertyValue("display") == "none") this.style.display = defaultDisplay(this.nodeName);
-    });
-  },
-  hide: function hide() {
-    return this.css("display", "none");
   }
 });
+
 dimensions.forEach(function (dimension) {
   var dimensionProperty = dimension.replace(/./, function (m) {
     return m[0].toUpperCase();
@@ -1009,6 +855,39 @@ dimensions.forEach(function (dimension) {
       el.css(dimension, funcArg(this, value, idx, el[dimension]()));
     });
   };
+});
+
+D.fn.extend({
+  remove: function remove() {
+    return this.each(function () {
+      if (this.parentNode != null) this.parentNode.removeChild(this);
+    });
+  },
+  empty: function empty() {
+    return this.each(function () {
+      this.innerHTML = '';
+    });
+  },
+  clone: function clone() {
+    return this.map(function () {
+      return this.cloneNode(true);
+    });
+  },
+  html: function html(_html) {
+    return 0 in arguments ? this.each(function (idx) {
+      var originHtml = this.innerHTML;
+      D(this).empty().append(funcArg(this, _html, idx, originHtml));
+    }) : 0 in this ? this[0].innerHTML : null;
+  },
+  text: function text(_text) {
+    return 0 in arguments ? this.each(function (idx) {
+      var newText = funcArg(this, _text, idx, this.textContent);
+      this.textContent = newText == null ? '' : '' + newText;
+    }) : 0 in this ? this.pluck('textContent').join("") : null;
+  },
+  replaceWith: function replaceWith(newContent) {
+    return this.before(newContent).remove();
+  }
 });
 
 function traverseNode(node, fn) {
@@ -1048,7 +927,7 @@ adjacencyOperators.forEach(function (operator, operatorIndex) {
       parent = inside ? target : target.parentNode; // convert all methods to a "before" operation
 
       target = operatorIndex == 0 ? target.nextSibling : operatorIndex == 1 ? target.firstChild : operatorIndex == 2 ? target : null;
-      var parentInDocument = D.contains(document$1.documentElement, parent);
+      var parentInDocument = D.contains(document.documentElement, parent);
       nodes.forEach(function (node) {
         if (copyByClone) {
           node = node.cloneNode(true);
@@ -1079,9 +958,42 @@ adjacencyOperators.forEach(function (operator, operatorIndex) {
     return this;
   };
 });
-D.fn.init.prototype = D.fn;
 
-var _zid = 1;
+var _zid = 1,
+    handlers = {},
+    specialEvents = {
+  click: 'MouseEvents',
+  mousedown: 'MouseEvents',
+  mouseup: 'MouseEvents',
+  mousemove: 'MouseEvents'
+},
+    focusinSupported = 'onfocusin' in window,
+    focus = {
+  focus: 'focusin',
+  blur: 'focusout'
+},
+    hover = {
+  mouseenter: 'mouseover',
+  mouseleave: 'mouseout'
+},
+    ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
+    eventMethods = {
+  preventDefault: 'isDefaultPrevented',
+  stopImmediatePropagation: 'isImmediatePropagationStopped',
+  stopPropagation: 'isPropagationStopped'
+};
+
+function isString(obj) {
+  return typeof obj == 'string';
+}
+
+function returnTrue() {
+  return true;
+}
+
+function returnFalse() {
+  return false;
+}
 
 function zid(element) {
   return element._zid || (element._zid = _zid++);
@@ -1321,7 +1233,140 @@ D.fn.triggerHandler = function (event, args) {
   };
 });
 
-window.D = window.$ = D;
+var prefix = '',
+    eventPrefix,
+    vendors = {
+  Webkit: 'webkit',
+  Moz: '',
+  O: 'o'
+},
+    testEl = document.createElement('div'),
+    supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
+    transform,
+    transitionProperty,
+    transitionDuration,
+    transitionTiming,
+    transitionDelay,
+    animationName,
+    animationDuration,
+    animationTiming,
+    animationDelay,
+    cssReset = {};
+
+function dasherize$1(str) {
+  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+}
+
+function normalizeEvent(name) {
+  return eventPrefix ? eventPrefix + name : name.toLowerCase();
+}
+
+if (testEl.style.transform === undefined) D.each(vendors, function (vendor, event) {
+  if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
+    prefix = '-' + vendor.toLowerCase() + '-';
+    eventPrefix = event;
+    return false;
+  }
+});
+transform = prefix + 'transform';
+cssReset[transitionProperty = prefix + 'transition-property'] = cssReset[transitionDuration = prefix + 'transition-duration'] = cssReset[transitionDelay = prefix + 'transition-delay'] = cssReset[transitionTiming = prefix + 'transition-timing-function'] = cssReset[animationName = prefix + 'animation-name'] = cssReset[animationDuration = prefix + 'animation-duration'] = cssReset[animationDelay = prefix + 'animation-delay'] = cssReset[animationTiming = prefix + 'animation-timing-function'] = '';
+D.fx = {
+  off: eventPrefix === undefined && testEl.style.transitionProperty === undefined,
+  speeds: {
+    _default: 400,
+    fast: 200,
+    slow: 600
+  },
+  cssPrefix: prefix,
+  transitionEnd: normalizeEvent('TransitionEnd'),
+  animationEnd: normalizeEvent('AnimationEnd')
+};
+
+D.fn.animate = function (properties, duration, ease, callback, delay) {
+  if (D.isFunction(duration)) callback = duration, ease = undefined, duration = undefined;
+  if (D.isFunction(ease)) callback = ease, ease = undefined;
+  if (D.isPlainObject(duration)) ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration;
+  if (duration) duration = (typeof duration == 'number' ? duration : D.fx.speeds[duration] || D.fx.speeds._default) / 1000;
+  if (delay) delay = parseFloat(delay) / 1000;
+  return this.anim(properties, duration, ease, callback, delay);
+};
+
+D.fn.anim = function (properties, duration, ease, callback, delay) {
+  var key,
+      cssValues = {},
+      cssProperties,
+      transforms = '',
+      that = this,
+      _wrappedCallback,
+      endEvent = D.fx.transitionEnd,
+      fired = false;
+
+  if (duration === undefined) duration = D.fx.speeds._default / 1000;
+  if (delay === undefined) delay = 0;
+  if (D.fx.off) duration = 0;
+
+  if (typeof properties == 'string') {
+    // keyframe animation
+    cssValues[animationName] = properties;
+    cssValues[animationDuration] = duration + 's';
+    cssValues[animationDelay] = delay + 's';
+    cssValues[animationTiming] = ease || 'linear';
+    endEvent = D.fx.animationEnd;
+  } else {
+    cssProperties = []; // CSS transitions
+
+    for (key in properties) {
+      if (supportedTransforms.test(key)) transforms += key + '(' + properties[key] + ') ';else cssValues[key] = properties[key], cssProperties.push(dasherize$1(key));
+    }
+
+    if (transforms) cssValues[transform] = transforms, cssProperties.push(transform);
+
+    if (duration > 0 && typeof properties === 'object') {
+      cssValues[transitionProperty] = cssProperties.join(', ');
+      cssValues[transitionDuration] = duration + 's';
+      cssValues[transitionDelay] = delay + 's';
+      cssValues[transitionTiming] = ease || 'linear';
+    }
+  }
+
+  _wrappedCallback = function wrappedCallback(event) {
+    if (typeof event !== 'undefined') {
+      if (event.target !== event.currentTarget) return; // makes sure the event didn't bubble from "below"
+
+      D(event.target).off(endEvent, _wrappedCallback);
+    } else D(this).off(endEvent, _wrappedCallback); // triggered by setTimeout
+
+
+    fired = true;
+    D(this).css(cssReset);
+    callback && callback.call(this);
+  };
+
+  if (duration > 0) {
+    this.on(endEvent, _wrappedCallback); // transitionEnd is not always firing on older Android phones
+    // so make sure it gets fired
+
+    setTimeout(function () {
+      if (fired) return;
+
+      _wrappedCallback.call(that);
+    }, (duration + delay) * 1000 + 25);
+  } // trigger page reflow so new elements can animate
+
+
+  this.size() && this.get(0).clientLeft;
+  this.css(cssValues);
+  if (duration <= 0) setTimeout(function () {
+    that.each(function () {
+      _wrappedCallback.call(this);
+    });
+  }, 0);
+  return this;
+};
+
+testEl = null;
+
+window.D = D;
 
 module.exports = D;
 //# sourceMappingURL=domq.common.js.map
