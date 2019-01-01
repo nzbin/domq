@@ -10,3 +10,20 @@ A shorthand version of Zepto.js.
 ```sh
 $ npm install domq --save
 ```
+
+## Instance methods
+
+```js
+D().append();
+D().prepend();
+D().after();
+D().before();
+```
+
+## Static methods
+
+```js
+D.extend();
+D.isPlainObject();
+D.isEmptyObject();
+```
