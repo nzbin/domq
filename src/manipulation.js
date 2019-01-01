@@ -114,7 +114,6 @@ D.each({
     replaceAll: "replaceWith"
 }, function (name, original) {
     D.fn[name] = function (html) {
-        console.log(this)
         D(html)[original](this);
         return this;
     }

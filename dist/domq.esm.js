@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.2.0
+ * domq.js - v0.3.0
  * A shorthand version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
@@ -13,11 +13,11 @@ var D = function D(selector, context) {
   return new D.fn.init(selector, context);
 };
 
-var emptyArray = [],
+var document = window.document,
+    emptyArray = [],
     concat = emptyArray.concat,
     filter = emptyArray.filter,
     slice = emptyArray.slice,
-    document = window.document,
     classCache = {},
     cssNumber = {
   'column-count': 1,
@@ -868,13 +868,10 @@ D.fn.extend({
   }
 });
 
-var dimensions = ['width', 'height'];
-
 function subtract(el, dimen) {
   return el.css('box-sizing') === 'border-box' ? dimen === 'width' ? parseFloat(el.css(dimen)) - parseFloat(el.css('padding-left')) - parseFloat(el.css('padding-right')) - parseFloat(el.css('border-left')) - parseFloat(el.css('border-right')) : parseFloat(el.css(dimen)) - parseFloat(el.css('padding-top')) - parseFloat(el.css('padding-bottom')) - parseFloat(el.css('border-top')) - parseFloat(el.css('border-bottom')) : parseFloat(el.css(dimen));
 }
-
-dimensions.forEach(function (dimension) {
+['width', 'height'].forEach(function (dimension) {
   var dimensionProperty = dimension.replace(/./, function (m) {
     return m[0].toUpperCase();
   });
@@ -888,15 +885,14 @@ dimensions.forEach(function (dimension) {
   };
 });
 
-var adjacencyOperators = ['after', 'prepend', 'before', 'append'];
-
 var traverseNode = function traverseNode(node, fn) {
   fn(node);
 
   for (var i = 0, len = node.childNodes.length; i < len; i++) {
     traverseNode(node.childNodes[i], fn);
   }
-};
+}; // inside => append, prepend
+
 
 var domMani = function domMani(elem, args, fn, inside) {
   // arguments can be nodes, arrays of nodes, D objects and HTML strings
@@ -987,66 +983,6 @@ D.fn.extend({
       this.parentNode.insertBefore(elem, this);
     }, false);
   }
-}); // Generate the `after`, `prepend`, `before`, `append`,
-// `insertAfter`, `insertBefore`, `appendTo`, and `prependTo` methods.
-
-adjacencyOperators.forEach(function (operator, operatorIndex) {
-  var inside = operatorIndex % 2; //=> prepend, append
-
-  D.fn[operator] = function () {
-    // arguments can be nodes, arrays of nodes, D objects and HTML strings
-    var argType,
-        nodes = D.map(arguments, function (arg) {
-      var arr = [];
-      argType = type(arg);
-
-      if (argType == "array") {
-        arg.forEach(function (el) {
-          if (el.nodeType !== undefined) return arr.push(el);else if (D.isD(el)) return arr = arr.concat(el.get());
-          arr = arr.concat(D.fragment(el));
-        });
-        return arr;
-      }
-
-      return argType == "object" || arg == null ? arg : D.fragment(arg);
-    }),
-        parent,
-        copyByClone = this.length > 1;
-    if (nodes.length < 1) return this;
-    return this.each(function (_, target) {
-      parent = inside ? target : target.parentNode; // convert all methods to a "before" operation
-
-      target = operatorIndex == 0 ? target.nextSibling : operatorIndex == 1 ? target.firstChild : operatorIndex == 2 ? target : null;
-      var parentInDocument = D.contains(document.documentElement, parent);
-      nodes.forEach(function (node) {
-        if (copyByClone) {
-          node = node.cloneNode(true);
-        } else if (!parent) {
-          return D(node).remove();
-        }
-
-        parent.insertBefore(node, target);
-
-        if (parentInDocument) {
-          traverseNode(node, function (el) {
-            if (el.nodeName != null && el.nodeName.toUpperCase() === 'SCRIPT' && (!el.type || el.type === 'text/javascript') && !el.src) {
-              var target = el.ownerDocument ? el.ownerDocument.defaultView : window;
-              target['eval'].call(target, el.innerHTML);
-            }
-          });
-        }
-      });
-    });
-  }; // after    => insertAfter
-  // prepend  => prependTo
-  // before   => insertBefore
-  // append   => appendTo
-  // D.fn[inside ? operator + 'To' : 'insert' + (operatorIndex ? 'Before' : 'After')] = function (html) {
-  //     console.log(this)
-  //     D(html)[operator](this)
-  //     return this
-  // }
-
 });
 D.each({
   appendTo: "append",
@@ -1056,7 +992,6 @@ D.each({
   replaceAll: "replaceWith"
 }, function (name, original) {
   D.fn[name] = function (html) {
-    console.log(this);
     D(html)[original](this);
     return this;
   };
