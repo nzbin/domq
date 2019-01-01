@@ -84,5 +84,3 @@ export {
   propMap,
   isArray
 }
-
-
