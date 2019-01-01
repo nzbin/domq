@@ -74,11 +74,11 @@
     };
 
     function type(obj) {
-      return obj == null ? String(obj) : class2type[toString.call(obj)] || "object";
+      return obj == null ? String(obj) : class2type[toString.call(obj)] || 'object';
     }
 
     function isFunction(value) {
-      return type(value) == "function";
+      return type(value) == 'function';
     }
 
     function isWindow(obj) {
@@ -90,7 +90,7 @@
     }
 
     function isObject(obj) {
-      return type(obj) == "object";
+      return type(obj) == 'object';
     }
 
     function isPlainObject(obj) {
@@ -118,7 +118,7 @@
     }
 
     function maybeAddPx(name, value) {
-      return typeof value == "number" && !cssNumber[dasherize(name)] ? value + "px" : value;
+      return typeof value == 'number' && !cssNumber[dasherize(name)] ? value + 'px' : value;
     }
 
     function uniq(array) {
@@ -141,7 +141,7 @@
       return 'children' in element ? slice.call(element.children) : D.map(element.childNodes, function (node) {
         if (node.nodeType == 1) return node;
       });
-    } // "true"  => true
+    } // 'true'  => true
 
     function filtered(nodes, selector) {
       return selector == null ? D(nodes) : D(nodes).filter(selector);
@@ -237,7 +237,7 @@
           length = arguments.length,
           deep = false; // Handle a deep copy situation
 
-      if (typeof target === "boolean") {
+      if (typeof target === 'boolean') {
         deep = target; // Skip the boolean and the target
 
         target = arguments[i] || {};
@@ -245,7 +245,7 @@
       } // Handle case when target is a string or something (possible in deep copy)
 
 
-      if (typeof target !== "object" && !isFunction(target)) {
+      if (typeof target !== 'object' && !isFunction(target)) {
         target = {};
       } // Extend D itself if only one argument is passed
 
@@ -314,7 +314,7 @@
         return emptyArray.indexOf.call(array, elem, i);
       },
       trim: function trim(str) {
-        return str == null ? "" : String.prototype.trim.call(str);
+        return str == null ? '' : String.prototype.trim.call(str);
       },
       noop: function noop() {},
       map: function map(elements, callback) {
@@ -372,7 +372,7 @@
 
         if (!dom) {
           if (html.replace) {
-            html = html.replace(tagExpanderRE, "<$1></$2>");
+            html = html.replace(tagExpanderRE, '<$1></$2>');
           }
 
           if (name === undefined) {
@@ -442,8 +442,8 @@
       return false;
     }; // Populate the class2type map
 
-    D.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function (i, name) {
-      class2type["[object " + name + "]"] = name.toLowerCase();
+    D.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '), function (i, name) {
+      class2type['[object ' + name + ']'] = name.toLowerCase();
     }); // Methods in Prototype
 
     D.fn.extend({
@@ -574,7 +574,7 @@
           newName.split(/\s+/g).forEach(function (klass) {
             if (!D(this).hasClass(klass)) classList.push(klass);
           }, this);
-          classList.length && className(this, cls + (cls ? " " : "") + classList.join(" "));
+          classList.length && className(this, cls + (cls ? ' ' : '') + classList.join(' '));
         });
       },
       removeClass: function removeClass(name) {
@@ -584,7 +584,7 @@
           if (name === undefined) return className(this, '');
           classList = className(this);
           funcArg(this, name, idx, classList).split(/\s+/g).forEach(function (klass) {
-            classList = classList.replace(classRE(klass), " ");
+            classList = classList.replace(classRE(klass), ' ');
           });
           className(this, classList.trim());
         });
@@ -655,7 +655,7 @@
       scrollTop: function scrollTop(value) {
         if (!this.length) return;
         var hasScrollTop = 'scrollTop' in this[0];
-        if (value === undefined) return hasScrollTop ? this[0].scrollTop : this[0].pageYOffset;
+        if (value === undefined) return hasScrollTop ? this[0].scrollTop : isWindow(this[0]) ? this[0].pageYOffset : this[0].defaultView.pageYOffset;
         return this.each(hasScrollTop ? function () {
           this.scrollTop = value;
         } : function () {
@@ -665,7 +665,7 @@
       scrollLeft: function scrollLeft(value) {
         if (!this.length) return;
         var hasScrollLeft = 'scrollLeft' in this[0];
-        if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : this[0].pageXOffset;
+        if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : isWindow(this[0]) ? this[0].pageXOffset : this[0].defaultView.pageXOffset;
         return this.each(hasScrollLeft ? function () {
           this.scrollLeft = value;
         } : function () {
@@ -676,7 +676,7 @@
         return this.map(function () {
           var parent = this.offsetParent || document.body;
 
-          while (parent && !rootNodeRE.test(parent.nodeName) && D(parent).css("position") == "static") {
+          while (parent && !rootNodeRE.test(parent.nodeName) && D(parent).css('position') == 'static') {
             parent = parent.offsetParent;
           }
 
@@ -724,7 +724,7 @@
     D.fn.extend({
       val: function val(value) {
         if (0 in arguments) {
-          if (value == null) value = "";
+          if (value == null) value = '';
           return this.each(function (idx) {
             this.value = funcArg(this, value, idx, this.value);
           });
@@ -907,7 +907,7 @@
         var arr = [];
         argType = type(arg);
 
-        if (argType == "array") {
+        if (argType == 'array') {
           arg.forEach(function (el) {
             if (el.nodeType !== undefined) return arr.push(el);else if (D.isD(el)) return arr = arr.concat(el.get());
             arr = arr.concat(D.fragment(el));
@@ -915,7 +915,7 @@
           return arr;
         }
 
-        return argType == "object" || arg == null ? arg : D.fragment(arg);
+        return argType == 'object' || arg == null ? arg : D.fragment(arg);
       }),
           copyByClone = elem.length > 1;
       if (nodes.length < 1) return elem;
@@ -964,7 +964,7 @@
         return 0 in arguments ? this.each(function (idx) {
           var newText = funcArg(this, _text, idx, this.textContent);
           this.textContent = newText == null ? '' : '' + newText;
-        }) : 0 in this ? this.pluck('textContent').join("") : null;
+        }) : 0 in this ? this.pluck('textContent').join('') : null;
       },
       replaceWith: function replaceWith(newContent) {
         return this.before(newContent).remove();
@@ -991,11 +991,11 @@
       }
     });
     D.each({
-      appendTo: "append",
-      prependTo: "prepend",
-      insertBefore: "before",
-      insertAfter: "after",
-      replaceAll: "replaceWith"
+      appendTo: 'append',
+      prependTo: 'prepend',
+      insertBefore: 'before',
+      insertAfter: 'after',
+      replaceAll: 'replaceWith'
     }, function (name, original) {
       D.fn[name] = function (html) {
         D(html)[original](this);
@@ -1183,7 +1183,7 @@
           return D.proxy(fn[context], fn);
         }
       } else {
-        throw new TypeError("expected function");
+        throw new TypeError('expected function');
       }
     };
 
@@ -1249,7 +1249,7 @@
       event._args = args;
       return this.each(function () {
         // handle focus(), blur() by calling them directly
-        if (event.type in focus && typeof this[event.type] == "function") this[event.type](); // items in the collection might not be DOM elements
+        if (event.type in focus && typeof this[event.type] == 'function') this[event.type](); // items in the collection might not be DOM elements
         else if ('dispatchEvent' in this) this.dispatchEvent(event);else D(this).triggerHandler(event, args);
       });
     }; // triggers event handlers on current element just as if an event occurred,
