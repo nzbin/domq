@@ -34,8 +34,6 @@ var emptyArray = [],
     rootNodeRE = /^(?:body|html)$/i,
     // special attributes that should be get/set via method calls
 methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
-    adjacencyOperators = ['after', 'prepend', 'before', 'append'],
-    dimensions = ['width', 'height'],
     table = document.createElement('table'),
     tableRow = document.createElement('tr'),
     containers = {
@@ -345,17 +343,6 @@ D.extend({
   grep: function grep(elements, callback) {
     return filter.call(elements, callback);
   },
-  contains: function contains() {
-    return document.documentElement.contains ? function (parent, node) {
-      return parent !== node && parent.contains(node);
-    } : function (parent, node) {
-      while (node && (node = node.parentNode)) {
-        if (node === parent) return true;
-      }
-
-      return false;
-    };
-  },
   // Make DOM Array
   makeArray: function makeArray(dom, selector, me) {
     var i,
@@ -438,7 +425,16 @@ D.extend({
     temp && tempParent.removeChild(element);
     return match;
   }
-}); // Populate the class2type map
+});
+D.contains = document.documentElement.contains ? function (parent, node) {
+  return parent !== node && parent.contains(node);
+} : function (parent, node) {
+  while (node && (node = node.parentNode)) {
+    if (node === parent) return true;
+  }
+
+  return false;
+}; // Populate the class2type map
 
 D.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function (i, name) {
   class2type["[object " + name + "]"] = name.toLowerCase();
@@ -872,6 +868,8 @@ D.fn.extend({
   }
 });
 
+var dimensions = ['width', 'height'];
+
 function subtract(el, dimen) {
   return el.css('box-sizing') === 'border-box' ? dimen === 'width' ? parseFloat(el.css(dimen)) - parseFloat(el.css('padding-left')) - parseFloat(el.css('padding-right')) - parseFloat(el.css('border-left')) - parseFloat(el.css('border-right')) : parseFloat(el.css(dimen)) - parseFloat(el.css('padding-top')) - parseFloat(el.css('padding-bottom')) - parseFloat(el.css('border-top')) - parseFloat(el.css('border-bottom')) : parseFloat(el.css(dimen));
 }
@@ -889,6 +887,54 @@ dimensions.forEach(function (dimension) {
     });
   };
 });
+
+var adjacencyOperators = ['after', 'prepend', 'before', 'append'];
+
+var traverseNode = function traverseNode(node, fn) {
+  fn(node);
+
+  for (var i = 0, len = node.childNodes.length; i < len; i++) {
+    traverseNode(node.childNodes[i], fn);
+  }
+};
+
+var domMani = function domMani(elem, args, fn, inside) {
+  // arguments can be nodes, arrays of nodes, D objects and HTML strings
+  var argType,
+      nodes = D.map(args, function (arg) {
+    var arr = [];
+    argType = type(arg);
+
+    if (argType == "array") {
+      arg.forEach(function (el) {
+        if (el.nodeType !== undefined) return arr.push(el);else if (D.isD(el)) return arr = arr.concat(el.get());
+        arr = arr.concat(D.fragment(el));
+      });
+      return arr;
+    }
+
+    return argType == "object" || arg == null ? arg : D.fragment(arg);
+  }),
+      copyByClone = elem.length > 1;
+  if (nodes.length < 1) return elem;
+  return elem.each(function (_, target) {
+    parent = inside ? target : target.parentNode;
+    var parentInDocument = D.contains(document.documentElement, parent);
+    nodes.forEach(function (node) {
+      if (copyByClone) node = node.cloneNode(true);else if (!parent) return D(node).remove();
+      fn.call(target, node);
+
+      if (parentInDocument) {
+        traverseNode(node, function (el) {
+          if (el.nodeName != null && el.nodeName.toUpperCase() === 'SCRIPT' && (!el.type || el.type === 'text/javascript') && !el.src) {
+            var target = el.ownerDocument ? el.ownerDocument.defaultView : window;
+            target['eval'].call(target, el.innerHTML);
+          }
+        });
+      }
+    });
+  });
+};
 
 D.fn.extend({
   remove: function remove() {
@@ -920,18 +966,29 @@ D.fn.extend({
   },
   replaceWith: function replaceWith(newContent) {
     return this.before(newContent).remove();
+  },
+  append: function append() {
+    return domMani(this, arguments, function (elem) {
+      this.insertBefore(elem, null);
+    }, true);
+  },
+  prepend: function prepend() {
+    return domMani(this, arguments, function (elem) {
+      this.insertBefore(elem, this.firstChild);
+    }, true);
+  },
+  after: function after() {
+    return domMani(this, arguments, function (elem) {
+      this.parentNode.insertBefore(elem, this.nextSibling);
+    }, false);
+  },
+  before: function before() {
+    return domMani(this, arguments, function (elem) {
+      this.parentNode.insertBefore(elem, this);
+    }, false);
   }
-});
-
-function traverseNode(node, fn) {
-  fn(node);
-
-  for (var i = 0, len = node.childNodes.length; i < len; i++) {
-    traverseNode(node.childNodes[i], fn);
-  }
-} // Generate the `after`, `prepend`, `before`, `append`,
+}); // Generate the `after`, `prepend`, `before`, `append`,
 // `insertAfter`, `insertBefore`, `appendTo`, and `prependTo` methods.
-
 
 adjacencyOperators.forEach(function (operator, operatorIndex) {
   var inside = operatorIndex % 2; //=> prepend, append
@@ -984,10 +1041,23 @@ adjacencyOperators.forEach(function (operator, operatorIndex) {
   // prepend  => prependTo
   // before   => insertBefore
   // append   => appendTo
+  // D.fn[inside ? operator + 'To' : 'insert' + (operatorIndex ? 'Before' : 'After')] = function (html) {
+  //     console.log(this)
+  //     D(html)[operator](this)
+  //     return this
+  // }
 
-
-  D.fn[inside ? operator + 'To' : 'insert' + (operatorIndex ? 'Before' : 'After')] = function (html) {
-    D(html)[operator](this);
+});
+D.each({
+  appendTo: "append",
+  prependTo: "prepend",
+  insertBefore: "before",
+  insertAfter: "after",
+  replaceAll: "replaceWith"
+}, function (name, original) {
+  D.fn[name] = function (html) {
+    console.log(this);
+    D(html)[original](this);
     return this;
   };
 });

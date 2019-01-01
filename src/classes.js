@@ -41,8 +41,9 @@ D.fn.extend({
             var $this = D(this),
                 names = funcArg(this, name, idx, className(this))
             names.split(/\s+/g).forEach(function (klass) {
-                (when === undefined ? !$this.hasClass(klass) : when) ?
-                    $this.addClass(klass) : $this.removeClass(klass)
+                (when === undefined ? !$this.hasClass(klass) : when)
+                    ? $this.addClass(klass)
+                    : $this.removeClass(klass)
             })
         })
     }

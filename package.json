@@ -22,7 +22,7 @@
     "build": "rollup -c",
     "compress": "uglifyjs dist/domq.js -o dist/domq.min.js -c -m --comments /^!/ --source-map",
     "release": "run-s build compress",
-    "lint": "eslint src/js --fix"
+    "lint": "eslint src --fix"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.53",
