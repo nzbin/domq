@@ -18,12 +18,14 @@ D().append();
 D().prepend();
 D().after();
 D().before();
+...
 ```
 
 ## Static methods
 
 ```js
 D.extend();
-D.isPlainObject();
 D.isEmptyObject();
+D.isPlainObject();
+...
 ```
