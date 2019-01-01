@@ -72,7 +72,7 @@ D.fn.extend({
     offsetParent: function () {
         return this.map(function () {
             var parent = this.offsetParent || document.body
-            while (parent && !rootNodeRE.test(parent.nodeName) && D(parent).css("position") == "static")
+            while (parent && !rootNodeRE.test(parent.nodeName) && D(parent).css('position') == 'static')
                 parent = parent.offsetParent
             return parent
         })

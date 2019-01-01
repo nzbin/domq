@@ -120,7 +120,7 @@ D.extend = D.fn.extend = function () {
         deep = false;
 
     // Handle a deep copy situation
-    if (typeof target === "boolean") {
+    if (typeof target === 'boolean') {
         deep = target;
 
         // Skip the boolean and the target
@@ -128,7 +128,7 @@ D.extend = D.fn.extend = function () {
         i++;
     }
     // Handle case when target is a string or something (possible in deep copy)
-    if (typeof target !== "object" && !isFunction(target)) {
+    if (typeof target !== 'object' && !isFunction(target)) {
         target = {};
     }
     // Extend D itself if only one argument is passed
@@ -192,7 +192,7 @@ D.extend({
         return emptyArray.indexOf.call(array, elem, i)
     },
     trim: function (str) {
-        return str == null ? "" : String.prototype.trim.call(str)
+        return str == null ? '' : String.prototype.trim.call(str)
     },
     noop: function () { },
     map: function (elements, callback) {
@@ -244,7 +244,7 @@ D.extend({
 
         if (!dom) {
             if (html.replace) {
-                html = html.replace(tagExpanderRE, "<$1></$2>")
+                html = html.replace(tagExpanderRE, '<$1></$2>')
             }
             if (name === undefined) {
                 name = fragmentRE.test(html) && RegExp.$1
@@ -327,8 +327,8 @@ D.contains = document.documentElement.contains
     };
 
 // Populate the class2type map
-D.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function (i, name) {
-    class2type["[object " + name + "]"] = name.toLowerCase()
+D.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '), function (i, name) {
+    class2type['[object ' + name + ']'] = name.toLowerCase()
 });
 
 // Methods in Prototype

@@ -15,7 +15,7 @@ var domMani = function (elem, args, fn, inside) {
         nodes = D.map(args, function (arg) {
             var arr = []
             argType = type(arg)
-            if (argType == "array") {
+            if (argType == 'array') {
                 arg.forEach(function (el) {
                     if (el.nodeType !== undefined) return arr.push(el)
                     else if (D.isD(el)) return arr = arr.concat(el.get())
@@ -23,7 +23,7 @@ var domMani = function (elem, args, fn, inside) {
                 })
                 return arr
             }
-            return argType == "object" || arg == null ? arg : D.fragment(arg)
+            return argType == 'object' || arg == null ? arg : D.fragment(arg)
         }),
         copyByClone = elem.length > 1;
 
@@ -79,7 +79,7 @@ D.fn.extend({
                 var newText = funcArg(this, text, idx, this.textContent)
                 this.textContent = newText == null ? '' : '' + newText
             })
-            : (0 in this ? this.pluck('textContent').join("") : null)
+            : (0 in this ? this.pluck('textContent').join('') : null)
     },
     replaceWith: function (newContent) {
         return this.before(newContent).remove()
@@ -107,11 +107,11 @@ D.fn.extend({
 });
 
 D.each({
-    appendTo: "append",
-    prependTo: "prepend",
-    insertBefore: "before",
-    insertAfter: "after",
-    replaceAll: "replaceWith"
+    appendTo: 'append',
+    prependTo: 'prepend',
+    insertBefore: 'before',
+    insertAfter: 'after',
+    replaceAll: 'replaceWith'
 }, function (name, original) {
     D.fn[name] = function (html) {
         D(html)[original](this);
