@@ -109,7 +109,51 @@ D.fn = D.prototype = {
         }
         // create a new D collection from the nodes found
         return D.makeArray(dom, selector, this);
-    }
+    },
+    // Modify the collection by adding elements to it
+    concat: function () {
+        var i, value, args = []
+        for (i = 0; i < arguments.length; i++) {
+            value = arguments[i]
+            args[i] = D.isD(value) ? value.toArray() : value
+        }
+        return concat.apply(D.isD(this) ? this.toArray() : this, args)
+    },
+    // `pluck` is borrowed from Prototype.js
+    pluck: function (property) {
+        return D.map(this, function (el) { return el[property] })
+    },
+    toArray: function () {
+        return this.get()
+    },
+    get: function (idx) {
+        return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
+    },
+    each: function (callback) {
+        emptyArray.every.call(this, function (el, idx) {
+            return callback.call(el, idx, el) !== false
+        })
+        return this
+    },
+    map: function (fn) {
+        return D(
+            D.map(this, function (el, i) { return fn.call(el, i, el) })
+        )
+    },
+    slice: function () {
+        return D(slice.apply(this, arguments))
+    },
+    first: function () {
+        var el = this[0]
+        return el && !isObject(el) ? el : D(el)
+    },
+    last: function () {
+        var el = this[this.length - 1]
+        return el && !isObject(el) ? el : D(el)
+    },
+    eq: function (idx) {
+        return idx === -1 ? this.slice(idx) : this.slice(idx, +idx + 1)
+    },
 }
 
 D.extend = D.fn.extend = function () {
@@ -148,13 +192,13 @@ D.extend = D.fn.extend = function () {
                     continue;
                 }
                 // Recurse if we're merging plain objects or arrays
-                if (deep && copy && (D.isPlainObject(copy) ||
+                if (deep && copy && (isPlainObject(copy) ||
                     (copyIsArray = Array.isArray(copy)))) {
                     if (copyIsArray) {
                         copyIsArray = false;
                         clone = src && Array.isArray(src) ? src : [];
                     } else {
-                        clone = src && D.isPlainObject(src) ? src : {};
+                        clone = src && isPlainObject(src) ? src : {};
                     }
                     // Never move original objects, clone them
                     target[name] = D.extend(deep, clone, copy);
@@ -194,7 +238,18 @@ D.extend({
     trim: function (str) {
         return str == null ? '' : String.prototype.trim.call(str)
     },
-    noop: function () { },
+    each: function (elements, callback) {
+        var i, key
+        if (likeArray(elements)) {
+            for (i = 0; i < elements.length; i++)
+                if (callback.call(elements[i], i, elements[i]) === false) return elements
+        } else {
+            for (key in elements)
+                if (callback.call(elements[key], key, elements[key]) === false) return elements
+        }
+
+        return elements
+    },
     map: function (elements, callback) {
         var value, values = [],
             i, key
@@ -210,21 +265,10 @@ D.extend({
             }
         return flatten(values)
     },
-    each: function (elements, callback) {
-        var i, key
-        if (likeArray(elements)) {
-            for (i = 0; i < elements.length; i++)
-                if (callback.call(elements[i], i, elements[i]) === false) return elements
-        } else {
-            for (key in elements)
-                if (callback.call(elements[key], key, elements[key]) === false) return elements
-        }
-
-        return elements
-    },
     grep: function (elements, callback) {
         return filter.call(elements, callback)
     },
+    noop: function () { },
     // Make DOM Array
     makeArray: function (dom, selector, me) {
         var i, len = dom ? dom.length : 0
@@ -238,25 +282,18 @@ D.extend({
         var dom, nodes, container
 
         // A special case optimization for a single tag
-        if (singleTagRE.test(html)) {
-            dom = D(document.createElement(RegExp.$1))
-        }
+        if (singleTagRE.test(html)) dom = D(document.createElement(RegExp.$1))
 
         if (!dom) {
-            if (html.replace) {
-                html = html.replace(tagExpanderRE, '<$1></$2>')
-            }
-            if (name === undefined) {
-                name = fragmentRE.test(html) && RegExp.$1
-            }
-            if (!(name in containers)) {
-                name = '*'
-            }
+            if (html.replace) html = html.replace(tagExpanderRE, '<$1></$2>')
+            if (name === undefined) name = fragmentRE.test(html) && RegExp.$1
+            if (!(name in containers)) name = '*'
+
             container = containers[name]
             container.innerHTML = '' + html
             dom = D.each(slice.call(container.childNodes), function () {
                 container.removeChild(this)
-            })
+            });
         }
 
         if (isPlainObject(properties)) {
@@ -264,7 +301,7 @@ D.extend({
             D.each(properties, function (key, value) {
                 if (methodAttributes.indexOf(key) > -1) nodes[key](value)
                 else nodes.attr(key, value)
-            })
+            });
         }
 
         return dom
@@ -329,62 +366,6 @@ D.contains = document.documentElement.contains
 // Populate the class2type map
 D.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '), function (i, name) {
     class2type['[object ' + name + ']'] = name.toLowerCase()
-});
-
-// Methods in Prototype
-D.fn.extend({
-    // Modify the collection by adding elements to it
-    concat: function () {
-        var i, value, args = []
-        for (i = 0; i < arguments.length; i++) {
-            value = arguments[i]
-            args[i] = D.isD(value) ? value.toArray() : value
-        }
-        return concat.apply(D.isD(this) ? this.toArray() : this, args)
-    },
-    // `pluck` is borrowed from Prototype.js
-    pluck: function (property) {
-        return D.map(this, function (el) { return el[property] })
-    },
-    // Filtering
-    eq: function (idx) {
-        return idx === -1 ? this.slice(idx) : this.slice(idx, +idx + 1)
-    },
-    first: function () {
-        var el = this[0]
-        return el && !isObject(el) ? el : D(el)
-    },
-    last: function () {
-        var el = this[this.length - 1]
-        return el && !isObject(el) ? el : D(el)
-    },
-    slice: function () {
-        return D(slice.apply(this, arguments))
-    },
-    /* Miscellaneous */
-    toArray: function () {
-        return this.get()
-    },
-    each: function (callback) {
-        emptyArray.every.call(this, function (el, idx) {
-            return callback.call(el, idx, el) !== false
-        })
-        return this
-    },
-    map: function (fn) {
-        return D(
-            D.map(this, function (el, i) { return fn.call(el, i, el) })
-        )
-    },
-    get: function (idx) {
-        return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
-    },
-    size: function () {
-        return this.length
-    },
-    index: function (element) {
-        return element ? this.indexOf(D(element)[0]) : this.parent().children().indexOf(this[0])
-    }
 });
 
 D.fn.init.prototype = D.fn;

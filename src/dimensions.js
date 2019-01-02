@@ -31,6 +31,6 @@ function subtract(el, dimen) {
         else return this.each(function (idx) {
             el = D(this)
             el.css(dimension, funcArg(this, value, idx, el[dimension]()))
-        })
+        });
     }
 });
