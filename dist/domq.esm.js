@@ -242,6 +242,9 @@ D.fn = D.prototype = {
   get: function get(idx) {
     return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length];
   },
+  size: function size() {
+    return this.length;
+  },
   each: function each(callback) {
     emptyArray.every.call(this, function (el, idx) {
       return callback.call(el, idx, el) !== false;
