@@ -1,8 +1,14 @@
 {
   "name": "domq.js",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A shorthand version of Zepto.js.",
-  "main": "dist/domq.js",
+  "main": "dist/domq.common.js",
+  "module": "dist/domq.esm.js",
+  "browser": "dist/domq.js",
+  "files": [
+    "dist",
+    "src"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nzbin/domq.git"
@@ -12,12 +18,12 @@
     "zepto",
     "dom-library"
   ],
-  "author": "nzbin",
-  "license": "MIT",
+  "homepage": "https://github.com/nzbin/domq#readme",
   "bugs": {
     "url": "https://github.com/nzbin/domq/issues"
   },
-  "homepage": "https://github.com/nzbin/domq#readme",
+  "license": "MIT",
+  "author": "nzbin",
   "scripts": {
     "build": "rollup -c",
     "compress": "uglifyjs dist/domq.js -o dist/domq.min.js -c -m --comments /^!/ --source-map",
