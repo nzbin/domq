@@ -10,6 +10,8 @@
 
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 // Class D
 var D = function D(selector, context) {
   return new D.fn.init(selector, context);
@@ -1531,5 +1533,5 @@ D.fn.fadeToggle = function (speed, callback) {
 D.extend(D.fn, css$1, classes, offset$1, attr$1, prop$1, val$1, wrap$1, traversing);
 window.D = D;
 
-module.exports = D;
+exports.D = D;
 //# sourceMappingURL=domq.common.js.map

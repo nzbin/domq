@@ -1529,5 +1529,5 @@ D.fn.fadeToggle = function (speed, callback) {
 D.extend(D.fn, css$1, classes, offset$1, attr$1, prop$1, val$1, wrap$1, traversing);
 window.D = D;
 
-export default D;
+export { D };
 //# sourceMappingURL=domq.esm.js.map

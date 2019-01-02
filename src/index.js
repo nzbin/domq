@@ -18,4 +18,4 @@ D.extend(D.fn, css, classes, offset, attr, prop, val, wrap, traversing);
 
 window.D = D;
 
-export default D;
+export { D };
