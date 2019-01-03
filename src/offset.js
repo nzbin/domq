@@ -1,5 +1,5 @@
 import D from './d-class';
-import { document, rootNodeRE } from './vars';
+import { document, rootNodeRE, contains } from './vars';
 import { funcArg, isWindow } from './utils';
 
 function offset(coordinates) {
@@ -16,7 +16,7 @@ function offset(coordinates) {
         $this.css(props)
     })
     if (!this.length) return null
-    if (document.documentElement !== this[0] && !D.contains(document.documentElement, this[0]))
+    if (document.documentElement !== this[0] && !contains(document.documentElement, this[0]))
         return { top: 0, left: 0 }
     var obj = this[0].getBoundingClientRect()
     return {

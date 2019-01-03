@@ -1,5 +1,5 @@
 import D from './d-class';
-import './core';
+import * as core from './core';
 import * as css from './css';
 import * as classes from './classes';
 import * as offset from './offset';
@@ -8,13 +8,33 @@ import * as prop from './prop';
 import * as val from './val';
 import * as wrap from './wrap';
 import * as traversing from './traversing';
-import './dimensions';
-import './manipulation';
-import './event';
-import './animate';
-import './effects';
+import * as dimensions from './dimensions';
+import * as manipulation from './manipulation';
+import * as event from './event';
+import * as animate from './animate';
+import * as effects from './effects';
 
-D.extend(D.fn, css, classes, offset, attr, prop, val, wrap, traversing);
+D.extend(
+    D,
+    core
+);
+
+D.extend(
+    D.fn,
+    css,
+    classes,
+    offset,
+    attr,
+    prop,
+    val,
+    wrap,
+    traversing,
+    dimensions,
+    manipulation,
+    event,
+    animate,
+    effects
+);
 
 window.D = D;
 

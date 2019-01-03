@@ -1,45 +1,35 @@
 import D from './d-class';
 import {
-    emptyArray,
-    concat,
-    filter,
-    slice,
-    document,
-    fragmentRE,
-    singleTagRE,
-    tagExpanderRE,
-    rootNodeRE,
-    capitalRE,
-    methodAttributes,
-    containers,
-    simpleSelectorRE,
     class2type,
-    tempParent,
-    propMap,
-    isArray
+    concat,
+    containers,
+    contains,
+    document,
+    emptyArray,
+    filter,
+    fragmentRE,
+    isArray,
+    methodAttributes,
+    simpleSelectorRE,
+    singleTagRE,
+    slice,
+    tagExpanderRE,
+    tempParent
 } from './vars';
 import {
-    type,
-    isFunction,
-    isWindow,
-    isDocument,
-    isObject,
-    isPlainObject,
-    likeArray,
+    camelize,
     compact,
     flatten,
-    dasherize,
-    maybeAddPx,
-    uniq,
-    camelize,
-    classRE,
-    defaultDisplay,
-    deserializeValue,
-    children,
-    filtered,
-    funcArg,
-    setAttribute,
-    className
+    inArray,
+    isD,
+    isEmptyObject,
+    isFunction,
+    isNumeric,
+    isObject,
+    isPlainObject,
+    isWindow,
+    likeArray,
+    trim, type
 } from './utils';
 
 D.fn = D.prototype = {
@@ -87,7 +77,7 @@ D.fn = D.prototype = {
             return D(document).ready(selector)
         }
         // If a D collection is given, just return it
-        else if (D.isD(selector)) {
+        else if (isD(selector)) {
             return selector
         }
         // normalize array if an array of nodes is given
@@ -115,9 +105,9 @@ D.fn = D.prototype = {
         var i, value, args = []
         for (i = 0; i < arguments.length; i++) {
             value = arguments[i]
-            args[i] = D.isD(value) ? value.toArray() : value
+            args[i] = isD(value) ? value.toArray() : value
         }
-        return concat.apply(D.isD(this) ? this.toArray() : this, args)
+        return concat.apply(isD(this) ? this.toArray() : this, args)
     },
     // `pluck` is borrowed from Prototype.js
     pluck: function (property) {
@@ -127,7 +117,9 @@ D.fn = D.prototype = {
         return this.get()
     },
     get: function (idx) {
-        return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length]
+        return idx === undefined
+            ? slice.call(this)
+            : this[idx >= 0 ? idx : idx + this.length]
     },
     size: function () {
         return this.length
@@ -139,9 +131,7 @@ D.fn = D.prototype = {
         return this
     },
     map: function (fn) {
-        return D(
-            D.map(this, function (el, i) { return fn.call(el, i, el) })
-        )
+        return D(D.map(this, function (el, i) { return fn.call(el, i, el) }))
     },
     slice: function () {
         return D(slice.apply(this, arguments))
@@ -156,7 +146,7 @@ D.fn = D.prototype = {
     },
     eq: function (idx) {
         return idx === -1 ? this.slice(idx) : this.slice(idx, +idx + 1)
-    },
+    }
 }
 
 D.extend = D.fn.extend = function () {
@@ -217,61 +207,6 @@ D.extend = D.fn.extend = function () {
 }
 
 D.extend({
-    type: type,
-    isFunction: isFunction,
-    isWindow: isWindow,
-    isPlainObject: isPlainObject,
-    camelCase: camelize,
-    isArray: isArray,
-    isEmptyObject: function (obj) {
-        var name
-        for (name in obj) return false
-        return true
-    },
-    isNumeric: function (val) {
-        var num = Number(val),
-            type = typeof val
-        return val != null && type != 'boolean' &&
-            (type != 'string' || val.length) &&
-            !isNaN(num) && isFinite(num) || false
-    },
-    inArray: function (elem, array, i) {
-        return emptyArray.indexOf.call(array, elem, i)
-    },
-    trim: function (str) {
-        return str == null ? '' : String.prototype.trim.call(str)
-    },
-    each: function (elements, callback) {
-        var i, key
-        if (likeArray(elements)) {
-            for (i = 0; i < elements.length; i++)
-                if (callback.call(elements[i], i, elements[i]) === false) return elements
-        } else {
-            for (key in elements)
-                if (callback.call(elements[key], key, elements[key]) === false) return elements
-        }
-
-        return elements
-    },
-    map: function (elements, callback) {
-        var value, values = [],
-            i, key
-        if (likeArray(elements))
-            for (i = 0; i < elements.length; i++) {
-                value = callback(elements[i], i)
-                if (value != null) values.push(value)
-            }
-        else
-            for (key in elements) {
-                value = callback(elements[key], key)
-                if (value != null) values.push(value)
-            }
-        return flatten(values)
-    },
-    grep: function (elements, callback) {
-        return filter.call(elements, callback)
-    },
-    noop: function () { },
     // Make DOM Array
     makeArray: function (dom, selector, me) {
         var i, len = dom ? dom.length : 0
@@ -279,6 +214,34 @@ D.extend({
         me.length = len
         me.selector = selector || ''
         return me;
+    },
+    // D's CSS selector
+    qsa: function (element, selector) {
+        var found,
+            maybeID = selector[0] == '#',
+            maybeClass = !maybeID && selector[0] == '.',
+            // Ensure that a 1 char tag name still gets checked
+            nameOnly = maybeID || maybeClass ? selector.slice(1) : selector,
+            isSimple = simpleSelectorRE.test(nameOnly)
+        return (
+            // Safari DocumentFragment doesn't have getElementById
+            element.getElementById && isSimple && maybeID)
+            ? (found = element.getElementById(nameOnly))
+                ? [found]
+                : []
+            : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11
+                ? []
+                : slice.call(
+                    // DocumentFragment doesn't have getElementsByClassName/TagName
+                    isSimple && !maybeID && element.getElementsByClassName
+                        ? maybeClass
+                            // If it's simple, it could be a class
+                            ? element.getElementsByClassName(nameOnly)
+                            // Or a tag
+                            : element.getElementsByTagName(selector)
+                        // Or it's not simple, and we need to query all
+                        : element.querySelectorAll(selector)
+                )
     },
     // Html -> Node
     fragment: function (html, name, properties) {
@@ -309,37 +272,6 @@ D.extend({
 
         return dom
     },
-    // D's CSS selector
-    qsa: function (element, selector) {
-        var found,
-            maybeID = selector[0] == '#',
-            maybeClass = !maybeID && selector[0] == '.',
-            // Ensure that a 1 char tag name still gets checked
-            nameOnly = maybeID || maybeClass ? selector.slice(1) : selector,
-            isSimple = simpleSelectorRE.test(nameOnly)
-        return (
-            // Safari DocumentFragment doesn't have getElementById
-            element.getElementById && isSimple && maybeID)
-            ? (found = element.getElementById(nameOnly))
-                ? [found]
-                : []
-            : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11
-                ? []
-                : slice.call(
-                    // DocumentFragment doesn't have getElementsByClassName/TagName
-                    isSimple && !maybeID && element.getElementsByClassName
-                        ? maybeClass
-                            // If it's simple, it could be a class
-                            ? element.getElementsByClassName(nameOnly)
-                            // Or a tag
-                            : element.getElementsByTagName(selector)
-                        // Or it's not simple, and we need to query all
-                        : element.querySelectorAll(selector)
-                )
-    },
-    isD: function (object) {
-        return object instanceof D
-    },
     matches: function (element, selector) {
         if (!selector || !element || element.nodeType !== 1) return false
         var matchesSelector = element.matches || element.webkitMatchesSelector ||
@@ -353,18 +285,35 @@ D.extend({
         match = ~D.qsa(parent, selector).indexOf(element)
         temp && tempParent.removeChild(element)
         return match
+    },
+    each: function (elements, callback) {
+        var i, key
+        if (likeArray(elements)) {
+            for (i = 0; i < elements.length; i++)
+                if (callback.call(elements[i], i, elements[i]) === false) return elements
+        } else {
+            for (key in elements)
+                if (callback.call(elements[key], key, elements[key]) === false) return elements
+        }
+
+        return elements
+    },
+    map: function (elements, callback) {
+        var value, values = [],
+            i, key
+        if (likeArray(elements))
+            for (i = 0; i < elements.length; i++) {
+                value = callback(elements[i], i)
+                if (value != null) values.push(value)
+            }
+        else
+            for (key in elements) {
+                value = callback(elements[key], key)
+                if (value != null) values.push(value)
+            }
+        return flatten(values)
     }
 });
-
-D.contains = document.documentElement.contains
-    ? function (parent, node) {
-        return parent !== node && parent.contains(node)
-    }
-    : function (parent, node) {
-        while (node && (node = node.parentNode))
-            if (node === parent) return true
-        return false
-    };
 
 // Populate the class2type map
 D.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '), function (i, name) {
@@ -372,3 +321,27 @@ D.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '
 });
 
 D.fn.init.prototype = D.fn;
+
+// Export Static Methods
+function grep(elements, callback) {
+    return filter.call(elements, callback)
+}
+
+function noop() {
+}
+
+export {
+    type,
+    contains,
+    camelize as camelCase,
+    isFunction,
+    isWindow,
+    isPlainObject,
+    isEmptyObject,
+    isNumeric,
+    isArray,
+    inArray,
+    trim,
+    grep,
+    noop
+}

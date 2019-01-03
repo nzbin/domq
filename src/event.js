@@ -1,6 +1,6 @@
 import D from './d-class';
-import { document, slice } from './vars';
-import { isFunction } from './utils';
+import { document, slice, contains } from './vars';
+import { isFunction, isPlainObject } from './utils';
 
 var _zid = 1,
   handlers = {},
@@ -71,7 +71,7 @@ function add(element, events, fn, data, selector, delegator, capture) {
     // emulate mouseenter, mouseleave
     if (handler.e in hover) fn = function (e) {
       var related = e.relatedTarget
-      if (!related || (related !== this && !D.contains(this, related)))
+      if (!related || (related !== this && !contains(this, related)))
         return handler.fn.apply(this, arguments)
     }
     handler.del = delegator
@@ -162,11 +162,12 @@ D.proxy = function (fn, context) {
   }
 }
 
-D.fn.one = function (event, selector, data, callback) {
+// Export
+var one = function (event, selector, data, callback) {
   return this.on(event, selector, data, callback, 1)
 }
 
-D.fn.on = function (event, selector, data, callback, one) {
+var on = function (event, selector, data, callback, one) {
   var autoRemove, delegator, $this = this
   if (event && !isString(event)) {
     D.each(event, function (type, fn) {
@@ -200,7 +201,7 @@ D.fn.on = function (event, selector, data, callback, one) {
   })
 }
 
-D.fn.off = function (event, selector, callback) {
+var off = function (event, selector, callback) {
   var $this = this
   if (event && !isString(event)) {
     D.each(event, function (type, fn) {
@@ -219,8 +220,8 @@ D.fn.off = function (event, selector, callback) {
   })
 }
 
-D.fn.trigger = function (event, args) {
-  event = (isString(event) || D.isPlainObject(event)) ? D.Event(event) : compatible(event)
+var trigger = function (event, args) {
+  event = (isString(event) || isPlainObject(event)) ? D.Event(event) : compatible(event)
   event._args = args
   return this.each(function () {
     // handle focus(), blur() by calling them directly
@@ -233,7 +234,7 @@ D.fn.trigger = function (event, args) {
 
 // triggers event handlers on current element just as if an event occurred,
 // doesn't trigger an actual event, doesn't bubble
-D.fn.triggerHandler = function (event, args) {
+var triggerHandler = function (event, args) {
   var e, result
   this.each(function (i, element) {
     e = createProxy(isString(event) ? D.Event(event) : event)
@@ -257,3 +258,11 @@ D.fn.triggerHandler = function (event, args) {
           : this.trigger(event)
       }
     })
+
+export {
+  one,
+  on,
+  off,
+  trigger,
+  triggerHandler
+}

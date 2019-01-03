@@ -1,5 +1,6 @@
 import D from './d-class';
 import { document } from './vars';
+import { isFunction, isPlainObject } from './utils';
 
 var prefix = '', eventPrefix,
   vendors = { Webkit: 'webkit', Moz: '', O: 'o' },
@@ -39,12 +40,12 @@ D.fx = {
   animationEnd: normalizeEvent('AnimationEnd')
 }
 
-D.fn.animate = function (properties, duration, ease, callback, delay) {
-  if (D.isFunction(duration))
+var animate = function (properties, duration, ease, callback, delay) {
+  if (isFunction(duration))
     callback = duration, ease = undefined, duration = undefined
-  if (D.isFunction(ease))
+  if (isFunction(ease))
     callback = ease, ease = undefined
-  if (D.isPlainObject(duration))
+  if (isPlainObject(duration))
     ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration
   if (duration) duration = (typeof duration == 'number' ? duration :
     (D.fx.speeds[duration] || D.fx.speeds._default)) / 1000
@@ -52,7 +53,7 @@ D.fn.animate = function (properties, duration, ease, callback, delay) {
   return this.anim(properties, duration, ease, callback, delay)
 }
 
-D.fn.anim = function (properties, duration, ease, callback, delay) {
+var anim = function (properties, duration, ease, callback, delay) {
   var key, cssValues = {}, cssProperties, transforms = '',
     that = this, wrappedCallback, endEvent = D.fx.transitionEnd,
     fired = false
@@ -118,3 +119,8 @@ D.fn.anim = function (properties, duration, ease, callback, delay) {
 }
 
 testEl = null
+
+export {
+  animate,
+  anim
+}

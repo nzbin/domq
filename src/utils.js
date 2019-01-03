@@ -52,10 +52,6 @@ function compact(array) {
   })
 }
 
-function flatten(array) {
-  return array.length > 0 ? D.fn.concat.apply([], array) : array
-}
-
 function dasherize(str) {
   return str.replace(/::/g, '/')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
@@ -98,12 +94,24 @@ function defaultDisplay(nodeName) {
   return elementDisplay[nodeName]
 }
 
+function flatten(array) {
+  return array.length > 0 ? D.fn.concat.apply([], array) : array
+}
+
 function children(element) {
   return 'children' in element ?
     slice.call(element.children) :
     D.map(element.childNodes, function (node) {
       if (node.nodeType == 1) return node
     })
+}
+
+function isD(object) {
+  return object instanceof D
+}
+
+function filtered(nodes, selector) {
+  return selector == null ? D(nodes) : D(nodes).filter(selector)
 }
 
 // 'true'  => true
@@ -128,9 +136,6 @@ function deserializeValue(value) {
     return value
   }
 }
-function filtered(nodes, selector) {
-  return selector == null ? D(nodes) : D(nodes).filter(selector)
-}
 
 function funcArg(context, arg, idx, payload) {
   return isFunction(arg) ? arg.call(context, idx, payload) : arg
@@ -147,6 +152,28 @@ function className(node, value) {
 
   if (value === undefined) return svg ? klass.baseVal : klass
   svg ? (klass.baseVal = value) : (node.className = value)
+}
+
+function isEmptyObject(obj) {
+  var name
+  for (name in obj) return false
+  return true
+}
+
+function isNumeric(val) {
+  var num = Number(val),
+      type = typeof val
+  return val != null && type != 'boolean' &&
+      (type != 'string' || val.length) &&
+      !isNaN(num) && isFinite(num) || false
+}
+
+function inArray(elem, array, i) {
+  return emptyArray.indexOf.call(array, elem, i)
+}
+
+function trim(str) {
+  return str == null ? '' : String.prototype.trim.call(str)
 }
 
 export {
@@ -170,7 +197,12 @@ export {
   filtered,
   funcArg,
   setAttribute,
-  className
+  className,
+  isD,
+  isEmptyObject,
+  isNumeric,
+  inArray,
+  trim
 }
 
 

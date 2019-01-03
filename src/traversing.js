@@ -1,5 +1,5 @@
 import D from './d-class';
-import { emptyArray, filter, slice } from './vars';
+import { emptyArray, filter, slice, contains } from './vars';
 import { children, filtered, isDocument, isFunction, isObject, likeArray, uniq } from './utils';
 
 function find(selector) {
@@ -9,7 +9,7 @@ function find(selector) {
         result = D(selector).filter(function () {
             var node = this
             return emptyArray.some.call($this, function (parent) {
-                return D.contains(parent, node)
+                return contains(parent, node)
             })
         })
     else if (this.length == 1) result = D(D.qsa(this[0], selector))
@@ -26,9 +26,9 @@ function filter$1(selector) {
 
 function has(selector) {
     return this.filter(function () {
-        return isObject(selector) ?
-            D.contains(this, selector) :
-            D(this).find(selector).size()
+        return isObject(selector)
+            ? contains(this, selector)
+            : D(this).find(selector).size()
     })
 }
 

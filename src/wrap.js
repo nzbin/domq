@@ -1,7 +1,6 @@
 import D from './d-class';
 import { isFunction } from './utils';
 
-
 function wrap(structure) {
     var func = isFunction(structure)
     if (this[0] && !func)

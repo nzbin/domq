@@ -17,20 +17,32 @@ function subtract(el, dimen) {
         : parseFloat(el.css(dimen))
 };
 
-['width', 'height'].forEach(function (dimension) {
+function calc(dimension, value) {
     var dimensionProperty =
         dimension.replace(/./, function (m) { return m[0].toUpperCase() });
 
-    D.fn[dimension] = function (value) {
-        var el = this[0]
-        if (value === undefined) return isWindow(el)
-            ? el['inner' + dimensionProperty]
-            : isDocument(el)
-                ? el.documentElement['scroll' + dimensionProperty]
-                : subtract(this, dimension)
-        else return this.each(function (idx) {
-            el = D(this)
-            el.css(dimension, funcArg(this, value, idx, el[dimension]()))
-        });
-    }
-});
+    var el = this[0]
+    if (value === undefined) return isWindow(el)
+        ? el['inner' + dimensionProperty]
+        : isDocument(el)
+            ? el.documentElement['scroll' + dimensionProperty]
+            : subtract(this, dimension)
+    else return this.each(function (idx) {
+        el = D(this)
+        el.css(dimension, funcArg(this, value, idx, el[dimension]()))
+    });
+}
+
+// Export
+function width(value) {
+    return calc.call(this, 'width', value);
+}
+
+function height(value) {
+    return calc.call(this, 'height', value);
+}
+
+export {
+    width,
+    height
+}

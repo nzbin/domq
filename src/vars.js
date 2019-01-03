@@ -54,7 +54,16 @@ var document = window.document,
   },
   isArray = Array.isArray || function (arg) {
     return Object.prototype.toString.call(arg) === '[object Array]';
-  };
+  },
+  contains = document.documentElement.contains
+    ? function (parent, node) {
+      return parent !== node && parent.contains(node)
+    }
+    : function (parent, node) {
+      while (node && (node = node.parentNode))
+        if (node === parent) return true
+      return false
+    };
 
 export {
   document,
@@ -77,5 +86,6 @@ export {
   toString,
   tempParent,
   propMap,
-  isArray
+  isArray,
+  contains
 }
