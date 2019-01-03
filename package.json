@@ -16,7 +16,11 @@
   "keywords": [
     "jquery",
     "zepto",
-    "dom-library"
+    "dom-library",
+    "query-engine",
+    "module-system",
+    "modular",
+    "animation"
   ],
   "homepage": "https://github.com/nzbin/domq#readme",
   "bugs": {
@@ -26,7 +30,7 @@
   "author": "nzbin",
   "scripts": {
     "build": "rollup -c",
-    "compress": "uglifyjs dist/domq.js -o dist/domq.min.js -c -m --comments /^!/ --source-map",
+    "compress": "uglifyjs dist/domq.js -o dist/domq.min.js -c -m --comments /^!/",
     "release": "run-s build compress",
     "lint": "eslint src --fix"
   },
