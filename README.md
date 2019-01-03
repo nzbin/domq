@@ -5,10 +5,10 @@
 
 A shorthand version of Zepto.js. 
 
-## Installing
+## Installation
 
 ```sh
-$ npm install domq --save
+$ npm install domq.js --save
 ```
 
 ## Instance methods
