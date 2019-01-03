@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.4.1
+ * domq.js - v0.5.0
  * A shorthand version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
@@ -14,10 +14,10 @@ var D = function D(selector, context) {
 };
 
 var document = window.document,
-    emptyArray = [],
-    concat = emptyArray.concat,
-    filter = emptyArray.filter,
-    slice = emptyArray.slice,
+    emptyArray$1 = [],
+    concat = emptyArray$1.concat,
+    filter = emptyArray$1.filter,
+    slice = emptyArray$1.slice,
     classCache = {},
     cssNumber = {
   'column-count': 1,
@@ -65,6 +65,15 @@ methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'of
 },
     isArray = Array.isArray || function (arg) {
   return Object.prototype.toString.call(arg) === '[object Array]';
+},
+    contains = document.documentElement.contains ? function (parent, node) {
+  return parent !== node && parent.contains(node);
+} : function (parent, node) {
+  while (node && (node = node.parentNode)) {
+    if (node === parent) return true;
+  }
+
+  return false;
 };
 
 function type(obj) {
@@ -103,10 +112,6 @@ function compact(array) {
   });
 }
 
-function flatten(array) {
-  return array.length > 0 ? D.fn.concat.apply([], array) : array;
-}
-
 function dasherize(str) {
   return str.replace(/::/g, '/').replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2').replace(/([a-z\d])([A-Z])/g, '$1_$2').replace(/_/g, '-').toLowerCase();
 }
@@ -131,15 +136,23 @@ function classRE(name) {
   return name in classCache ? classCache[name] : classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)');
 }
 
+function flatten(array) {
+  return array.length > 0 ? D.fn.concat.apply([], array) : array;
+}
+
 function children(element) {
   return 'children' in element ? slice.call(element.children) : D.map(element.childNodes, function (node) {
     if (node.nodeType == 1) return node;
   });
-} // 'true'  => true
+}
+
+function isD(object) {
+  return object instanceof D;
+}
 
 function filtered(nodes, selector) {
   return selector == null ? D(nodes) : D(nodes).filter(selector);
-}
+} // 'true'  => true
 
 function funcArg(context, arg, idx, payload) {
   return isFunction(arg) ? arg.call(context, idx, payload) : arg;
@@ -157,17 +170,41 @@ function className(node, value) {
   svg ? klass.baseVal = value : node.className = value;
 }
 
+function isEmptyObject(obj) {
+  var name;
+
+  for (name in obj) {
+    return false;
+  }
+
+  return true;
+}
+
+function isNumeric(val) {
+  var num = Number(val),
+      type = typeof val;
+  return val != null && type != 'boolean' && (type != 'string' || val.length) && !isNaN(num) && isFinite(num) || false;
+}
+
+function inArray(elem, array, i) {
+  return emptyArray.indexOf.call(array, elem, i);
+}
+
+function trim(str) {
+  return str == null ? '' : String.prototype.trim.call(str);
+}
+
 D.fn = D.prototype = {
   constuctor: D,
   length: 0,
   // Because a collection acts like an array
   // copy over these useful array functions.
-  forEach: emptyArray.forEach,
-  reduce: emptyArray.reduce,
-  push: emptyArray.push,
-  sort: emptyArray.sort,
-  splice: emptyArray.splice,
-  indexOf: emptyArray.indexOf,
+  forEach: emptyArray$1.forEach,
+  reduce: emptyArray$1.reduce,
+  push: emptyArray$1.push,
+  sort: emptyArray$1.sort,
+  splice: emptyArray$1.splice,
+  indexOf: emptyArray$1.indexOf,
   // D's counterpart to jQuery's `$.fn.init` and
   // takes a CSS selector and an optional context (and handles various
   // special cases).
@@ -197,7 +234,7 @@ D.fn = D.prototype = {
       else if (isFunction(selector)) {
           return D(document).ready(selector);
         } // If a D collection is given, just return it
-        else if (D.isD(selector)) {
+        else if (isD(selector)) {
             return selector;
           } // normalize array if an array of nodes is given
           else if (isArray(selector)) {
@@ -225,10 +262,10 @@ D.fn = D.prototype = {
 
     for (i = 0; i < arguments.length; i++) {
       value = arguments[i];
-      args[i] = D.isD(value) ? value.toArray() : value;
+      args[i] = isD(value) ? value.toArray() : value;
     }
 
-    return concat.apply(D.isD(this) ? this.toArray() : this, args);
+    return concat.apply(isD(this) ? this.toArray() : this, args);
   },
   // `pluck` is borrowed from Prototype.js
   pluck: function pluck(property) {
@@ -246,7 +283,7 @@ D.fn = D.prototype = {
     return this.length;
   },
   each: function each(callback) {
-    emptyArray.every.call(this, function (el, idx) {
+    emptyArray$1.every.call(this, function (el, idx) {
       return callback.call(el, idx, el) !== false;
     });
     return this;
@@ -337,31 +374,73 @@ D.extend = D.fn.extend = function () {
 };
 
 D.extend({
-  type: type,
-  isFunction: isFunction,
-  isWindow: isWindow,
-  isPlainObject: isPlainObject,
-  camelCase: camelize,
-  isArray: isArray,
-  isEmptyObject: function isEmptyObject(obj) {
-    var name;
+  // Make DOM Array
+  makeArray: function makeArray(dom, selector, me) {
+    var i,
+        len = dom ? dom.length : 0;
 
-    for (name in obj) {
-      return false;
+    for (i = 0; i < len; i++) {
+      me[i] = dom[i];
     }
 
-    return true;
+    me.length = len;
+    me.selector = selector || '';
+    return me;
   },
-  isNumeric: function isNumeric(val) {
-    var num = Number(val),
-        type$$1 = typeof val;
-    return val != null && type$$1 != 'boolean' && (type$$1 != 'string' || val.length) && !isNaN(num) && isFinite(num) || false;
+  // D's CSS selector
+  qsa: function qsa(element, selector) {
+    var found,
+        maybeID = selector[0] == '#',
+        maybeClass = !maybeID && selector[0] == '.',
+        // Ensure that a 1 char tag name still gets checked
+    nameOnly = maybeID || maybeClass ? selector.slice(1) : selector,
+        isSimple = simpleSelectorRE.test(nameOnly);
+    return (// Safari DocumentFragment doesn't have getElementById
+      element.getElementById && isSimple && maybeID ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
+      isSimple && !maybeID && element.getElementsByClassName ? maybeClass // If it's simple, it could be a class
+      ? element.getElementsByClassName(nameOnly) // Or a tag
+      : element.getElementsByTagName(selector) // Or it's not simple, and we need to query all
+      : element.querySelectorAll(selector))
+    );
   },
-  inArray: function inArray(elem, array, i) {
-    return emptyArray.indexOf.call(array, elem, i);
+  // Html -> Node
+  fragment: function fragment(html, name, properties) {
+    var dom, nodes, container; // A special case optimization for a single tag
+
+    if (singleTagRE.test(html)) dom = D(document.createElement(RegExp.$1));
+
+    if (!dom) {
+      if (html.replace) html = html.replace(tagExpanderRE, '<$1></$2>');
+      if (name === undefined) name = fragmentRE.test(html) && RegExp.$1;
+      if (!(name in containers)) name = '*';
+      container = containers[name];
+      container.innerHTML = '' + html;
+      dom = D.each(slice.call(container.childNodes), function () {
+        container.removeChild(this);
+      });
+    }
+
+    if (isPlainObject(properties)) {
+      nodes = D(dom);
+      D.each(properties, function (key, value) {
+        if (methodAttributes.indexOf(key) > -1) nodes[key](value);else nodes.attr(key, value);
+      });
+    }
+
+    return dom;
   },
-  trim: function trim(str) {
-    return str == null ? '' : String.prototype.trim.call(str);
+  matches: function matches(element, selector) {
+    if (!selector || !element || element.nodeType !== 1) return false;
+    var matchesSelector = element.matches || element.webkitMatchesSelector || element.mozMatchesSelector || element.oMatchesSelector || element.matchesSelector;
+    if (matchesSelector) return matchesSelector.call(element, selector); // fall back to performing a selector:
+
+    var match,
+        parent = element.parentNode,
+        temp = !parent;
+    if (temp) (parent = tempParent).appendChild(element);
+    match = ~D.qsa(parent, selector).indexOf(element);
+    temp && tempParent.removeChild(element);
+    return match;
   },
   each: function each(elements, callback) {
     var i, key;
@@ -391,97 +470,35 @@ D.extend({
       if (value != null) values.push(value);
     }
     return flatten(values);
-  },
-  grep: function grep(elements, callback) {
-    return filter.call(elements, callback);
-  },
-  noop: function noop() {},
-  // Make DOM Array
-  makeArray: function makeArray(dom, selector, me) {
-    var i,
-        len = dom ? dom.length : 0;
-
-    for (i = 0; i < len; i++) {
-      me[i] = dom[i];
-    }
-
-    me.length = len;
-    me.selector = selector || '';
-    return me;
-  },
-  // Html -> Node
-  fragment: function fragment(html, name, properties) {
-    var dom, nodes, container; // A special case optimization for a single tag
-
-    if (singleTagRE.test(html)) dom = D(document.createElement(RegExp.$1));
-
-    if (!dom) {
-      if (html.replace) html = html.replace(tagExpanderRE, '<$1></$2>');
-      if (name === undefined) name = fragmentRE.test(html) && RegExp.$1;
-      if (!(name in containers)) name = '*';
-      container = containers[name];
-      container.innerHTML = '' + html;
-      dom = D.each(slice.call(container.childNodes), function () {
-        container.removeChild(this);
-      });
-    }
-
-    if (isPlainObject(properties)) {
-      nodes = D(dom);
-      D.each(properties, function (key, value) {
-        if (methodAttributes.indexOf(key) > -1) nodes[key](value);else nodes.attr(key, value);
-      });
-    }
-
-    return dom;
-  },
-  // D's CSS selector
-  qsa: function qsa(element, selector) {
-    var found,
-        maybeID = selector[0] == '#',
-        maybeClass = !maybeID && selector[0] == '.',
-        // Ensure that a 1 char tag name still gets checked
-    nameOnly = maybeID || maybeClass ? selector.slice(1) : selector,
-        isSimple = simpleSelectorRE.test(nameOnly);
-    return (// Safari DocumentFragment doesn't have getElementById
-      element.getElementById && isSimple && maybeID ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
-      isSimple && !maybeID && element.getElementsByClassName ? maybeClass // If it's simple, it could be a class
-      ? element.getElementsByClassName(nameOnly) // Or a tag
-      : element.getElementsByTagName(selector) // Or it's not simple, and we need to query all
-      : element.querySelectorAll(selector))
-    );
-  },
-  isD: function isD(object) {
-    return object instanceof D;
-  },
-  matches: function matches(element, selector) {
-    if (!selector || !element || element.nodeType !== 1) return false;
-    var matchesSelector = element.matches || element.webkitMatchesSelector || element.mozMatchesSelector || element.oMatchesSelector || element.matchesSelector;
-    if (matchesSelector) return matchesSelector.call(element, selector); // fall back to performing a selector:
-
-    var match,
-        parent = element.parentNode,
-        temp = !parent;
-    if (temp) (parent = tempParent).appendChild(element);
-    match = ~D.qsa(parent, selector).indexOf(element);
-    temp && tempParent.removeChild(element);
-    return match;
   }
-});
-D.contains = document.documentElement.contains ? function (parent, node) {
-  return parent !== node && parent.contains(node);
-} : function (parent, node) {
-  while (node && (node = node.parentNode)) {
-    if (node === parent) return true;
-  }
-
-  return false;
-}; // Populate the class2type map
+}); // Populate the class2type map
 
 D.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '), function (i, name) {
   class2type['[object ' + name + ']'] = name.toLowerCase();
 });
-D.fn.init.prototype = D.fn;
+D.fn.init.prototype = D.fn; // Export Static Methods
+
+function grep(elements, callback) {
+  return filter.call(elements, callback);
+}
+
+function noop() {}
+
+var core = /*#__PURE__*/Object.freeze({
+    type: type,
+    contains: contains,
+    camelCase: camelize,
+    isFunction: isFunction,
+    isWindow: isWindow,
+    isPlainObject: isPlainObject,
+    isEmptyObject: isEmptyObject,
+    isNumeric: isNumeric,
+    isArray: isArray,
+    inArray: inArray,
+    trim: trim,
+    grep: grep,
+    noop: noop
+});
 
 function css(property, value) {
   if (arguments.length < 2) {
@@ -534,7 +551,7 @@ var css$1 = /*#__PURE__*/Object.freeze({
 
 function hasClass(name) {
   if (!name) return false;
-  return emptyArray.some.call(this, function (el) {
+  return emptyArray$1.some.call(this, function (el) {
     return this.test(className(el));
   }, classRE(name));
 }
@@ -598,7 +615,7 @@ function offset(coordinates) {
     $this.css(props);
   });
   if (!this.length) return null;
-  if (document.documentElement !== this[0] && !D.contains(document.documentElement, this[0])) return {
+  if (document.documentElement !== this[0] && !contains(document.documentElement, this[0])) return {
     top: 0,
     left: 0
   };
@@ -793,8 +810,8 @@ function find(selector) {
       $this = this;
   if (!selector) result = D();else if (typeof selector == 'object') result = D(selector).filter(function () {
     var node = this;
-    return emptyArray.some.call($this, function (parent) {
-      return D.contains(parent, node);
+    return emptyArray$1.some.call($this, function (parent) {
+      return contains(parent, node);
     });
   });else if (this.length == 1) result = D(D.qsa(this[0], selector));else result = this.map(function () {
     return D.qsa(this, selector);
@@ -811,7 +828,7 @@ function filter$1(selector) {
 
 function has(selector) {
   return this.filter(function () {
-    return isObject(selector) ? D.contains(this, selector) : D(this).find(selector).size();
+    return isObject(selector) ? contains(this, selector) : D(this).find(selector).size();
   });
 }
 
@@ -922,18 +939,30 @@ var traversing = /*#__PURE__*/Object.freeze({
 function subtract(el, dimen) {
   return el.css('box-sizing') === 'border-box' ? dimen === 'width' ? parseFloat(el.css(dimen)) - parseFloat(el.css('padding-left')) - parseFloat(el.css('padding-right')) - parseFloat(el.css('border-left')) - parseFloat(el.css('border-right')) : parseFloat(el.css(dimen)) - parseFloat(el.css('padding-top')) - parseFloat(el.css('padding-bottom')) - parseFloat(el.css('border-top')) - parseFloat(el.css('border-bottom')) : parseFloat(el.css(dimen));
 }
-['width', 'height'].forEach(function (dimension) {
+
+function calc(dimension, value) {
   var dimensionProperty = dimension.replace(/./, function (m) {
     return m[0].toUpperCase();
   });
+  var el = this[0];
+  if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] : isDocument(el) ? el.documentElement['scroll' + dimensionProperty] : subtract(this, dimension);else return this.each(function (idx) {
+    el = D(this);
+    el.css(dimension, funcArg(this, value, idx, el[dimension]()));
+  });
+} // Export
 
-  D.fn[dimension] = function (value) {
-    var el = this[0];
-    if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] : isDocument(el) ? el.documentElement['scroll' + dimensionProperty] : subtract(this, dimension);else return this.each(function (idx) {
-      el = D(this);
-      el.css(dimension, funcArg(this, value, idx, el[dimension]()));
-    });
-  };
+
+function width(value) {
+  return calc.call(this, 'width', value);
+}
+
+function height(value) {
+  return calc.call(this, 'height', value);
+}
+
+var dimensions = /*#__PURE__*/Object.freeze({
+    width: width,
+    height: height
 });
 
 var traverseNode = function traverseNode(node, fn) {
@@ -954,7 +983,7 @@ var domMani = function domMani(elem, args, fn, inside) {
 
     if (argType == 'array') {
       arg.forEach(function (el) {
-        if (el.nodeType !== undefined) return arr.push(el);else if (D.isD(el)) return arr = arr.concat(el.get());
+        if (el.nodeType !== undefined) return arr.push(el);else if (isD(el)) return arr = arr.concat(el.get());
         arr = arr.concat(D.fragment(el));
       });
       return arr;
@@ -966,7 +995,7 @@ var domMani = function domMani(elem, args, fn, inside) {
   if (nodes.length < 1) return elem;
   return elem.each(function (_, target) {
     parent = inside ? target : target.parentNode;
-    var parentInDocument = D.contains(document.documentElement, parent);
+    var parentInDocument = contains(document.documentElement, parent);
     nodes.forEach(function (node) {
       if (copyByClone) node = node.cloneNode(true);else if (!parent) return D(node).remove();
       fn.call(target, node);
@@ -981,71 +1010,115 @@ var domMani = function domMani(elem, args, fn, inside) {
       }
     });
   });
-};
+}; // Export
 
-D.fn.extend({
-  remove: function remove() {
-    return this.each(function () {
-      if (this.parentNode != null) this.parentNode.removeChild(this);
-    });
-  },
-  empty: function empty() {
-    return this.each(function () {
-      this.innerHTML = '';
-    });
-  },
-  clone: function clone() {
-    return this.map(function () {
-      return this.cloneNode(true);
-    });
-  },
-  html: function html(_html) {
-    return 0 in arguments ? this.each(function (idx) {
-      var originHtml = this.innerHTML;
-      D(this).empty().append(funcArg(this, _html, idx, originHtml));
-    }) : 0 in this ? this[0].innerHTML : null;
-  },
-  text: function text(_text) {
-    return 0 in arguments ? this.each(function (idx) {
-      var newText = funcArg(this, _text, idx, this.textContent);
-      this.textContent = newText == null ? '' : '' + newText;
-    }) : 0 in this ? this.pluck('textContent').join('') : null;
-  },
-  replaceWith: function replaceWith(newContent) {
-    return this.before(newContent).remove();
-  },
-  append: function append() {
-    return domMani(this, arguments, function (elem) {
-      this.insertBefore(elem, null);
-    }, true);
-  },
-  prepend: function prepend() {
-    return domMani(this, arguments, function (elem) {
-      this.insertBefore(elem, this.firstChild);
-    }, true);
-  },
-  after: function after() {
-    return domMani(this, arguments, function (elem) {
-      this.parentNode.insertBefore(elem, this.nextSibling);
-    }, false);
-  },
-  before: function before() {
-    return domMani(this, arguments, function (elem) {
-      this.parentNode.insertBefore(elem, this);
-    }, false);
-  }
-});
-D.each({
-  appendTo: 'append',
-  prependTo: 'prepend',
-  insertBefore: 'before',
-  insertAfter: 'after',
-  replaceAll: 'replaceWith'
-}, function (name, original) {
-  D.fn[name] = function (html) {
-    D(html)[original](this);
-    return this;
-  };
+
+function remove() {
+  return this.each(function () {
+    if (this.parentNode != null) this.parentNode.removeChild(this);
+  });
+}
+
+function empty() {
+  return this.each(function () {
+    this.innerHTML = '';
+  });
+}
+
+function clone() {
+  return this.map(function () {
+    return this.cloneNode(true);
+  });
+}
+
+function html(html) {
+  return 0 in arguments ? this.each(function (idx) {
+    var originHtml = this.innerHTML;
+    D(this).empty().append(funcArg(this, html, idx, originHtml));
+  }) : 0 in this ? this[0].innerHTML : null;
+}
+
+function text(text) {
+  return 0 in arguments ? this.each(function (idx) {
+    var newText = funcArg(this, text, idx, this.textContent);
+    this.textContent = newText == null ? '' : '' + newText;
+  }) : 0 in this ? this.pluck('textContent').join('') : null;
+}
+
+function replaceWith(newContent) {
+  return this.before(newContent).remove();
+}
+
+function append() {
+  return domMani(this, arguments, function (elem) {
+    this.insertBefore(elem, null);
+  }, true);
+}
+
+function prepend() {
+  return domMani(this, arguments, function (elem) {
+    this.insertBefore(elem, this.firstChild);
+  }, true);
+}
+
+function after() {
+  return domMani(this, arguments, function (elem) {
+    this.parentNode.insertBefore(elem, this.nextSibling);
+  }, false);
+}
+
+function before() {
+  return domMani(this, arguments, function (elem) {
+    this.parentNode.insertBefore(elem, this);
+  }, false);
+} // appendTo -> append
+// prependTo -> prepend
+// insertBefore -> before
+// insertAfter -> after
+// replaceAll -> replaceWith
+
+
+function appendTo(html) {
+  D(html)['append'](this);
+  return this;
+}
+
+function prependTo(html) {
+  D(html)['prepend'](this);
+  return this;
+}
+
+function insertAfter(html) {
+  D(html)['after'](this);
+  return this;
+}
+
+function insertBefore(html) {
+  D(html)['before'](this);
+  return this;
+}
+
+function replaceAll(html) {
+  D(html)['replaceWith'](this);
+  return this;
+}
+
+var manipulation = /*#__PURE__*/Object.freeze({
+    remove: remove,
+    empty: empty,
+    clone: clone,
+    html: html,
+    text: text,
+    replaceWith: replaceWith,
+    append: append,
+    prepend: prepend,
+    after: after,
+    before: before,
+    appendTo: appendTo,
+    prependTo: prependTo,
+    insertAfter: insertAfter,
+    insertBefore: insertBefore,
+    replaceAll: replaceAll
 });
 
 var _zid = 1,
@@ -1127,7 +1200,7 @@ function add$1(element, events, fn, data, selector, delegator, capture) {
 
     if (handler.e in hover) fn = function fn(e) {
       var related = e.relatedTarget;
-      if (!related || related !== this && !D.contains(this, related)) return handler.fn.apply(this, arguments);
+      if (!related || related !== this && !contains(this, related)) return handler.fn.apply(this, arguments);
     };
     handler.del = delegator;
     var callback = delegator || fn;
@@ -1147,7 +1220,7 @@ function add$1(element, events, fn, data, selector, delegator, capture) {
   });
 }
 
-function remove(element, events, fn, selector, capture) {
+function remove$1(element, events, fn, selector, capture) {
   var id = zid(element);
   (events || '').split(/\s/).forEach(function (event) {
     findHandlers(element, event, fn, selector).forEach(function (handler) {
@@ -1196,7 +1269,7 @@ function createProxy(event) {
 
 D.event = {
   add: add$1,
-  remove: remove
+  remove: remove$1
 };
 
 D.Event = function (type$$1, props) {
@@ -1230,13 +1303,14 @@ D.proxy = function (fn, context) {
   } else {
     throw new TypeError('expected function');
   }
-};
+}; // Export
 
-D.fn.one = function (event, selector, data, callback) {
+
+var one = function one(event, selector, data, callback) {
   return this.on(event, selector, data, callback, 1);
 };
 
-D.fn.on = function (event, selector, data, callback, one) {
+var on = function on(event, selector, data, callback, one) {
   var autoRemove,
       delegator,
       $this = this;
@@ -1253,7 +1327,7 @@ D.fn.on = function (event, selector, data, callback, one) {
   if (callback === false) callback = returnFalse;
   return $this.each(function (_, element) {
     if (one) autoRemove = function autoRemove(e) {
-      remove(element, e.type, callback);
+      remove$1(element, e.type, callback);
       return callback.apply(this, arguments);
     };
     if (selector) delegator = function delegator(e) {
@@ -1272,7 +1346,7 @@ D.fn.on = function (event, selector, data, callback, one) {
   });
 };
 
-D.fn.off = function (event, selector, callback) {
+var off = function off(event, selector, callback) {
   var $this = this;
 
   if (event && !isString(event)) {
@@ -1285,12 +1359,12 @@ D.fn.off = function (event, selector, callback) {
   if (!isString(selector) && !isFunction(callback) && callback !== false) callback = selector, selector = undefined;
   if (callback === false) callback = returnFalse;
   return $this.each(function () {
-    remove(this, event, callback, selector);
+    remove$1(this, event, callback, selector);
   });
 };
 
-D.fn.trigger = function (event, args) {
-  event = isString(event) || D.isPlainObject(event) ? D.Event(event) : compatible(event);
+var trigger = function trigger(event, args) {
+  event = isString(event) || isPlainObject(event) ? D.Event(event) : compatible(event);
   event._args = args;
   return this.each(function () {
     // handle focus(), blur() by calling them directly
@@ -1301,7 +1375,7 @@ D.fn.trigger = function (event, args) {
 // doesn't trigger an actual event, doesn't bubble
 
 
-D.fn.triggerHandler = function (event, args) {
+var triggerHandler = function triggerHandler(event, args) {
   var e, result;
   this.each(function (i, element) {
     e = createProxy(isString(event) ? D.Event(event) : event);
@@ -1320,6 +1394,14 @@ D.fn.triggerHandler = function (event, args) {
   D.fn[event] = function (callback) {
     return 0 in arguments ? this.on(event, callback) : this.trigger(event);
   };
+});
+
+var event = /*#__PURE__*/Object.freeze({
+    one: one,
+    on: on,
+    off: off,
+    trigger: trigger,
+    triggerHandler: triggerHandler
 });
 
 var prefix = '',
@@ -1371,16 +1453,16 @@ D.fx = {
   animationEnd: normalizeEvent('AnimationEnd')
 };
 
-D.fn.animate = function (properties, duration, ease, callback, delay) {
-  if (D.isFunction(duration)) callback = duration, ease = undefined, duration = undefined;
-  if (D.isFunction(ease)) callback = ease, ease = undefined;
-  if (D.isPlainObject(duration)) ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration;
+var animate = function animate(properties, duration, ease, callback, delay) {
+  if (isFunction(duration)) callback = duration, ease = undefined, duration = undefined;
+  if (isFunction(ease)) callback = ease, ease = undefined;
+  if (isPlainObject(duration)) ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration;
   if (duration) duration = (typeof duration == 'number' ? duration : D.fx.speeds[duration] || D.fx.speeds._default) / 1000;
   if (delay) delay = parseFloat(delay) / 1000;
   return this.anim(properties, duration, ease, callback, delay);
 };
 
-D.fn.anim = function (properties, duration, ease, callback, delay) {
+var anim = function anim(properties, duration, ease, callback, delay) {
   var key,
       cssValues = {},
       cssProperties,
@@ -1455,22 +1537,30 @@ D.fn.anim = function (properties, duration, ease, callback, delay) {
 
 testEl = null;
 
-D.fn.extend({
-  show: function show() {
-    return this.each(function () {
-      this.style.display == "none" && (this.style.display = '');
-      if (getComputedStyle(this, '').getPropertyValue("display") == "none") this.style.display = defaultDisplay(this.nodeName);
-    });
-  },
-  hide: function hide() {
-    return this.css("display", "none");
-  }
+var animate$1 = /*#__PURE__*/Object.freeze({
+    animate: animate,
+    anim: anim
 });
-var origShow = D.fn.show,
-    origHide = D.fn.hide,
-    origToggle = D.fn.toggle;
 
-function anim(el, speed, opacity, scale, callback) {
+var origShow = function origShow() {
+  return this.each(function () {
+    this.style.display == "none" && (this.style.display = '');
+    if (getComputedStyle(this, '').getPropertyValue("display") == "none") this.style.display = defaultDisplay(this.nodeName);
+  });
+};
+
+var origHide = function origHide() {
+  return this.css("display", "none");
+};
+
+var origToggle = function origToggle(setting) {
+  return this.each(function () {
+    var el = $(this);
+    (setting === undefined ? el.css("display") == "none" : setting) ? el.show() : el.hide();
+  });
+};
+
+function anim$1(el, speed, opacity, scale, callback) {
   if (typeof speed == 'function' && !callback) callback = speed, speed = undefined;
   var props = {
     opacity: opacity
@@ -1484,53 +1574,64 @@ function anim(el, speed, opacity, scale, callback) {
   return el.animate(props, speed, null, callback);
 }
 
-function hide(el, speed, scale, callback) {
-  return anim(el, speed, 0, scale, function () {
+function hideHelper(el, speed, scale, callback) {
+  return anim$1(el, speed, 0, scale, function () {
     origHide.call(D(this));
     callback && callback.call(this);
   });
-}
+} // Export
 
-D.fn.show = function (speed, callback) {
+
+var show = function show(speed, callback) {
   origShow.call(this);
   if (speed === undefined) speed = 0;else this.css('opacity', 0);
-  return anim(this, speed, 1, '1,1', callback);
+  return anim$1(this, speed, 1, '1,1', callback);
 };
 
-D.fn.hide = function (speed, callback) {
-  if (speed === undefined) return origHide.call(this);else return hide(this, speed, '0,0', callback);
+var hide = function hide(speed, callback) {
+  if (speed === undefined) return origHide.call(this);else return hideHelper(this, speed, '0,0', callback);
 };
 
-D.fn.toggle = function (speed, callback) {
+var toggle = function toggle(speed, callback) {
   if (speed === undefined || typeof speed == 'boolean') return origToggle.call(this, speed);else return this.each(function () {
     var el = D(this);
     el[el.css('display') == 'none' ? 'show' : 'hide'](speed, callback);
   });
 };
 
-D.fn.fadeTo = function (speed, opacity, callback) {
-  return anim(this, speed, opacity, null, callback);
+var fadeTo = function fadeTo(speed, opacity, callback) {
+  return anim$1(this, speed, opacity, null, callback);
 };
 
-D.fn.fadeIn = function (speed, callback) {
+var fadeIn = function fadeIn(speed, callback) {
   var target = this.css('opacity');
   if (target > 0) this.css('opacity', 0);else target = 1;
   return origShow.call(this).fadeTo(speed, target, callback);
 };
 
-D.fn.fadeOut = function (speed, callback) {
-  return hide(this, speed, null, callback);
+var fadeOut = function fadeOut(speed, callback) {
+  return hideHelper(this, speed, null, callback);
 };
 
-D.fn.fadeToggle = function (speed, callback) {
+var fadeToggle = function fadeToggle(speed, callback) {
   return this.each(function () {
     var el = D(this);
     el[el.css('opacity') == 0 || el.css('display') == 'none' ? 'fadeIn' : 'fadeOut'](speed, callback);
   });
 };
 
-D.extend(D.fn, css$1, classes, offset$1, attr$1, prop$1, val$1, wrap$1, traversing);
+var effects = /*#__PURE__*/Object.freeze({
+    show: show,
+    hide: hide,
+    toggle: toggle,
+    fadeTo: fadeTo,
+    fadeIn: fadeIn,
+    fadeOut: fadeOut,
+    fadeToggle: fadeToggle
+});
+
+D.extend(D, core);
+D.extend(D.fn, css$1, classes, offset$1, attr$1, prop$1, val$1, wrap$1, traversing, dimensions, manipulation, event, animate$1, effects);
 window.D = D;
 
 export { D };
-//# sourceMappingURL=domq.esm.js.map
