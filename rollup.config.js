@@ -23,20 +23,17 @@ export default [
         name: 'domq',
         banner,
         file: "dist/domq.js",
-        format: 'umd',
-        sourcemap: true
+        format: 'umd'
       },
       {
         banner,
         file: 'dist/domq.common.js',
-        format: 'cjs',
-        sourcemap: true
+        format: 'cjs'
       },
       {
         banner,
         file: 'dist/domq.esm.js',
-        format: 'es',
-        sourcemap: true
+        format: 'es'
       }
     ],
     plugins: [
