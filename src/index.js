@@ -11,6 +11,7 @@ import * as traversing from './traversing';
 import * as dimensions from './dimensions';
 import * as manipulation from './manipulation';
 import * as event from './event';
+import * as shortcuts from './event-shortcuts';
 import * as animate from './animate';
 import * as effects from './effects';
 
@@ -33,7 +34,8 @@ D.extend(
     manipulation,
     event,
     animate,
-    effects
+    effects,
+    shortcuts['events']
 );
 
 window.D = D;

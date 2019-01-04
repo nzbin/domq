@@ -7,15 +7,15 @@ function subtract(el, dimen) {
             ? (parseFloat(el.css(dimen))
                 - parseFloat(el.css('padding-left'))
                 - parseFloat(el.css('padding-right'))
-                - parseFloat(el.css('border-left'))
-                - parseFloat(el.css('border-right')))
+                - parseFloat(el.css('border-left-width'))
+                - parseFloat(el.css('border-right-width')))
             : (parseFloat(el.css(dimen))
                 - parseFloat(el.css('padding-top'))
                 - parseFloat(el.css('padding-bottom'))
-                - parseFloat(el.css('border-top'))
-                - parseFloat(el.css('border-bottom')))
+                - parseFloat(el.css('border-top-width'))
+                - parseFloat(el.css('border-bottom-width')))
         : parseFloat(el.css(dimen))
-};
+}
 
 function calc(dimension, value) {
     var dimensionProperty =

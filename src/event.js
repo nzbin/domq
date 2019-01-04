@@ -23,15 +23,19 @@ var _zid = 1,
 function isString(obj) {
   return typeof obj == 'string'
 }
+
 function returnTrue() {
   return true
 }
+
 function returnFalse() {
   return false
 }
+
 function zid(element) {
   return element._zid || (element._zid = _zid++)
 }
+
 function findHandlers(element, event, fn, selector) {
   event = parse(event)
   if (event.ns) var matcher = matcherFor(event.ns)
@@ -43,6 +47,7 @@ function findHandlers(element, event, fn, selector) {
       && (!selector || handler.sel == selector)
   })
 }
+
 function parse(event) {
   var parts = ('' + event).split('.')
   return { e: parts[0], ns: parts.slice(1).sort().join(' ') }
@@ -90,6 +95,7 @@ function add(element, events, fn, data, selector, delegator, capture) {
       element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture))
   })
 }
+
 function remove(element, events, fn, selector, capture) {
   var id = zid(element)
     ; (events || '').split(/\s/).forEach(function (event) {
@@ -247,17 +253,6 @@ var triggerHandler = function (event, args) {
   })
   return result
 }
-
-  // shortcut methods for `.on(event, fn)` for each event type
-  ; ('focusin focusout focus blur load resize scroll unload click dblclick ' +
-    'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave ' +
-    'change select keydown keypress keyup error').split(' ').forEach(function (event) {
-      D.fn[event] = function (callback) {
-        return (0 in arguments)
-          ? this.on(event, callback)
-          : this.trigger(event)
-      }
-    })
 
 export {
   one,
