@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.5.1
+ * domq.js - v0.5.2
  * A shorthand version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
@@ -892,7 +892,7 @@ function parents(selector) {
   return filtered(ancestors, selector);
 }
 
-function parent$1(selector) {
+function parent(selector) {
   return filtered(uniq(this.pluck('parentNode')), selector);
 }
 
@@ -932,7 +932,7 @@ var traversing = /*#__PURE__*/Object.freeze({
     contents: contents,
     closest: closest,
     parents: parents,
-    parent: parent$1,
+    parent: parent,
     children: children$1,
     siblings: siblings,
     prev: prev,
@@ -995,6 +995,7 @@ var domMani = function domMani(elem, args, fn, inside) {
 
     return argType == 'object' || arg == null ? arg : D.fragment(arg);
   }),
+      parent,
       copyByClone = elem.length > 1;
   if (nodes.length < 1) return elem;
   return elem.each(function (_, target) {
@@ -1113,11 +1114,11 @@ var manipulation = /*#__PURE__*/Object.freeze({
     clone: clone,
     html: html,
     text: text,
-    replaceWith: replaceWith,
     append: append,
     prepend: prepend,
     after: after,
     before: before,
+    replaceWith: replaceWith,
     appendTo: appendTo,
     prependTo: prependTo,
     insertAfter: insertAfter,
