@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.5.0
+ * domq.js - v0.5.1
  * A shorthand version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
@@ -943,7 +943,7 @@
     });
 
     function subtract(el, dimen) {
-      return el.css('box-sizing') === 'border-box' ? dimen === 'width' ? parseFloat(el.css(dimen)) - parseFloat(el.css('padding-left')) - parseFloat(el.css('padding-right')) - parseFloat(el.css('border-left')) - parseFloat(el.css('border-right')) : parseFloat(el.css(dimen)) - parseFloat(el.css('padding-top')) - parseFloat(el.css('padding-bottom')) - parseFloat(el.css('border-top')) - parseFloat(el.css('border-bottom')) : parseFloat(el.css(dimen));
+      return el.css('box-sizing') === 'border-box' ? dimen === 'width' ? parseFloat(el.css(dimen)) - parseFloat(el.css('padding-left')) - parseFloat(el.css('padding-right')) - parseFloat(el.css('border-left-width')) - parseFloat(el.css('border-right-width')) : parseFloat(el.css(dimen)) - parseFloat(el.css('padding-top')) - parseFloat(el.css('padding-bottom')) - parseFloat(el.css('border-top-width')) - parseFloat(el.css('border-bottom-width')) : parseFloat(el.css(dimen));
     }
 
     function calc(dimension, value) {
@@ -1393,14 +1393,7 @@
         });
       });
       return result;
-    } // shortcut methods for `.on(event, fn)` for each event type
-    ;
-
-    ('focusin focusout focus blur load resize scroll unload click dblclick ' + 'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave ' + 'change select keydown keypress keyup error').split(' ').forEach(function (event) {
-      D.fn[event] = function (callback) {
-        return 0 in arguments ? this.on(event, callback) : this.trigger(event);
-      };
-    });
+    };
 
     var event = /*#__PURE__*/Object.freeze({
         one: one,
@@ -1408,6 +1401,14 @@
         off: off,
         trigger: trigger,
         triggerHandler: triggerHandler
+    });
+
+    var events = {}; // shortcut methods for `.on(event, fn)` for each event type
+
+    ('focusin focusout focus blur load resize scroll unload click dblclick ' + 'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave ' + 'change select keydown keypress keyup error').split(' ').forEach(function (event) {
+      events[event] = function (callback) {
+        return 0 in arguments ? this.on(event, callback) : this.trigger(event);
+      };
     });
 
     var prefix = '',
@@ -1637,7 +1638,7 @@
     });
 
     D.extend(D, core);
-    D.extend(D.fn, css$1, classes, offset$1, attr$1, prop$1, val$1, wrap$1, traversing, dimensions, manipulation, event, animate$1, effects);
+    D.extend(D.fn, css$1, classes, offset$1, attr$1, prop$1, val$1, wrap$1, traversing, dimensions, manipulation, event, animate$1, effects, events);
     window.D = D;
 
     exports.D = D;

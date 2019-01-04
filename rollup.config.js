@@ -14,7 +14,6 @@ const banner = `
  */
 `;
 
-
 export default [
   {
     input: 'src/index.js',
