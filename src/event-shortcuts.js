@@ -1,7 +1,7 @@
 import D from './d-class';
 import { on, trigger } from './event';
 
-const events = {};
+var events = {};
 
 // shortcut methods for `.on(event, fn)` for each event type
 ('focusin focusout focus blur load resize scroll unload click dblclick ' +

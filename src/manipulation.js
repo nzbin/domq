@@ -25,6 +25,7 @@ var domMani = function (elem, args, fn, inside) {
             }
             return argType == 'object' || arg == null ? arg : D.fragment(arg)
         }),
+        parent,
         copyByClone = elem.length > 1;
 
     if (nodes.length < 1) return elem
@@ -150,11 +151,11 @@ export {
     clone,
     html,
     text,
-    replaceWith,
     append,
     prepend,
     after,
     before,
+    replaceWith,
     appendTo,
     prependTo,
     insertAfter,
