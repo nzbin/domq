@@ -32,7 +32,8 @@
     "build": "rollup -c",
     "compress": "uglifyjs dist/domq.js -o dist/domq.min.js -c -m --comments /^!/",
     "release": "run-s build compress",
-    "lint": "eslint src --fix"
+    "lint": "eslint src --fix",
+    "clean": "rimraf dist"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.53",
@@ -41,6 +42,7 @@
     "eslint": "^4.17.0",
     "npm-run-all": "^4.1.2",
     "onchange": "^3.2.1",
+    "rimraf": "^2.6.3",
     "rollup": "^0.62.0",
     "rollup-plugin-babel": "^4.0.0-beta.5",
     "rollup-plugin-commonjs": "^9.1.3",
