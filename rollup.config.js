@@ -16,7 +16,7 @@ const banner = `
 
 export default [
   {
-    input: 'src/index.js',
+    input: 'src/domq.js',
     output: [
       {
         name: 'domq',
@@ -32,6 +32,21 @@ export default [
       {
         banner,
         file: 'dist/domq.esm.js',
+        format: 'es'
+      }
+    ],
+    plugins: [
+      babel({ exclude: 'node_modules/**' }),
+      resolve(),
+      commonjs(),
+    ],
+  },
+  {
+    input: 'src/domq.modular.js',
+    output: [
+      {
+        banner,
+        file: 'dist/domq.modular.js',
         format: 'es'
       }
     ],
