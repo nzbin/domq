@@ -484,22 +484,6 @@ function grep(elements, callback) {
 
 function noop() {}
 
-var core = /*#__PURE__*/Object.freeze({
-    type: type,
-    contains: contains,
-    camelCase: camelize,
-    isFunction: isFunction,
-    isWindow: isWindow,
-    isPlainObject: isPlainObject,
-    isEmptyObject: isEmptyObject,
-    isNumeric: isNumeric,
-    isArray: isArray,
-    inArray: inArray,
-    trim: trim,
-    grep: grep,
-    noop: noop
-});
-
 function css(property, value) {
   if (arguments.length < 2) {
     var element = this[0];
@@ -544,10 +528,6 @@ function css(property, value) {
     this.style.cssText += ';' + css;
   });
 }
-
-var css$1 = /*#__PURE__*/Object.freeze({
-    css: css
-});
 
 function hasClass(name) {
   if (!name) return false;
@@ -594,13 +574,6 @@ function toggleClass(name, when) {
     });
   });
 }
-
-var classes = /*#__PURE__*/Object.freeze({
-    hasClass: hasClass,
-    addClass: addClass,
-    removeClass: removeClass,
-    toggleClass: toggleClass
-});
 
 function offset(coordinates) {
   if (coordinates) return this.each(function (index) {
@@ -688,14 +661,6 @@ function offsetParent() {
   });
 }
 
-var offset$1 = /*#__PURE__*/Object.freeze({
-    offset: offset,
-    position: position,
-    scrollTop: scrollTop,
-    scrollLeft: scrollLeft,
-    offsetParent: offsetParent
-});
-
 function attr(name, value) {
   var result;
   return typeof name == 'string' && !(1 in arguments) ? 0 in this && this[0].nodeType == 1 && (result = this[0].getAttribute(name)) != null ? result : undefined : this.each(function (idx) {
@@ -714,11 +679,6 @@ function removeAttr(name) {
   });
 }
 
-var attr$1 = /*#__PURE__*/Object.freeze({
-    attr: attr,
-    removeAttr: removeAttr
-});
-
 function prop(name, value) {
   name = propMap[name] || name;
   return typeof name == 'string' && !(1 in arguments) ? this[0] && this[0][name] : this.each(function (idx) {
@@ -735,11 +695,6 @@ function removeProp(name) {
   });
 }
 
-var prop$1 = /*#__PURE__*/Object.freeze({
-    prop: prop,
-    removeProp: removeProp
-});
-
 function val(value) {
   if (0 in arguments) {
     if (value == null) value = '';
@@ -752,10 +707,6 @@ function val(value) {
     }).pluck('value') : this[0].value);
   }
 }
-
-var val$1 = /*#__PURE__*/Object.freeze({
-    val: val
-});
 
 function wrap(structure) {
   var func = isFunction(structure);
@@ -797,13 +748,6 @@ function unwrap() {
   });
   return this;
 }
-
-var wrap$1 = /*#__PURE__*/Object.freeze({
-    wrap: wrap,
-    wrapAll: wrapAll,
-    wrapInner: wrapInner,
-    unwrap: unwrap
-});
 
 function find(selector) {
   var result,
@@ -918,24 +862,6 @@ function index(element) {
   return element ? this.indexOf(D(element)[0]) : this.parent().children().indexOf(this[0]);
 }
 
-var traversing = /*#__PURE__*/Object.freeze({
-    find: find,
-    filter: filter$1,
-    has: has,
-    not: not,
-    is: is,
-    add: add,
-    contents: contents,
-    closest: closest,
-    parents: parents,
-    parent: parent,
-    children: children$1,
-    siblings: siblings,
-    prev: prev,
-    next: next,
-    index: index
-});
-
 function subtract(el, dimen) {
   return el.css('box-sizing') === 'border-box' ? dimen === 'width' ? parseFloat(el.css(dimen)) - parseFloat(el.css('padding-left')) - parseFloat(el.css('padding-right')) - parseFloat(el.css('border-left-width')) - parseFloat(el.css('border-right-width')) : parseFloat(el.css(dimen)) - parseFloat(el.css('padding-top')) - parseFloat(el.css('padding-bottom')) - parseFloat(el.css('border-top-width')) - parseFloat(el.css('border-bottom-width')) : parseFloat(el.css(dimen));
 }
@@ -959,11 +885,6 @@ function width(value) {
 function height(value) {
   return calc.call(this, 'height', value);
 }
-
-var dimensions = /*#__PURE__*/Object.freeze({
-    width: width,
-    height: height
-});
 
 var traverseNode = function traverseNode(node, fn) {
   fn(node);
@@ -1103,24 +1024,6 @@ function replaceAll(html) {
   D(html)['replaceWith'](this);
   return this;
 }
-
-var manipulation = /*#__PURE__*/Object.freeze({
-    remove: remove,
-    empty: empty,
-    clone: clone,
-    html: html,
-    text: text,
-    append: append,
-    prepend: prepend,
-    after: after,
-    before: before,
-    replaceWith: replaceWith,
-    appendTo: appendTo,
-    prependTo: prependTo,
-    insertAfter: insertAfter,
-    insertBefore: insertBefore,
-    replaceAll: replaceAll
-});
 
 var _zid = 1,
     handlers = {},
@@ -1390,22 +1293,6 @@ var triggerHandler = function triggerHandler(event, args) {
   return result;
 };
 
-var event = /*#__PURE__*/Object.freeze({
-    one: one,
-    on: on,
-    off: off,
-    trigger: trigger,
-    triggerHandler: triggerHandler
-});
-
-var events = {}; // shortcut methods for `.on(event, fn)` for each event type
-
-('focusin focusout focus blur load resize scroll unload click dblclick ' + 'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave ' + 'change select keydown keypress keyup error').split(' ').forEach(function (event) {
-  events[event] = function (callback) {
-    return 0 in arguments ? this.on(event, callback) : this.trigger(event);
-  };
-});
-
 var prefix = '',
     eventPrefix,
     vendors = {
@@ -1539,11 +1426,6 @@ var anim = function anim(properties, duration, ease, callback, delay) {
 
 testEl = null;
 
-var animate$1 = /*#__PURE__*/Object.freeze({
-    animate: animate,
-    anim: anim
-});
-
 var origShow = function origShow() {
   return this.each(function () {
     this.style.display == "none" && (this.style.display = '');
@@ -1622,18 +1504,4 @@ var fadeToggle = function fadeToggle(speed, callback) {
   });
 };
 
-var effects = /*#__PURE__*/Object.freeze({
-    show: show,
-    hide: hide,
-    toggle: toggle,
-    fadeTo: fadeTo,
-    fadeIn: fadeIn,
-    fadeOut: fadeOut,
-    fadeToggle: fadeToggle
-});
-
-D.extend(D, core);
-D.extend(D.fn, css$1, classes, offset$1, attr$1, prop$1, val$1, wrap$1, traversing, dimensions, manipulation, event, animate$1, effects, events);
-window.D = D;
-
-export { D };
+export { D, type, contains, camelize as camelCase, isFunction, isWindow, isPlainObject, isEmptyObject, isNumeric, isArray, inArray, trim, grep, noop, css, hasClass, addClass, removeClass, toggleClass, offset, position, scrollTop, scrollLeft, offsetParent, attr, removeAttr, prop, removeProp, val, wrap, wrapAll, wrapInner, unwrap, find, filter$1 as filter, has, not, is, add, contents, closest, parents, parent, children$1 as children, siblings, prev, next, index, width, height, remove, empty, clone, html, text, append, prepend, after, before, replaceWith, appendTo, prependTo, insertAfter, insertBefore, replaceAll, one, on, off, trigger, triggerHandler, animate, anim, show, hide, toggle, fadeTo, fadeIn, fadeOut, fadeToggle };

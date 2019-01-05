@@ -1,6 +1,6 @@
 {
   "name": "domq.js",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "A shorthand version of Zepto.js.",
   "main": "dist/domq.common.js",
   "module": "dist/domq.esm.js",
@@ -31,7 +31,7 @@
   "scripts": {
     "build": "rollup -c",
     "compress": "uglifyjs dist/domq.js -o dist/domq.min.js -c -m --comments /^!/",
-    "release": "run-s build compress",
+    "release": "run-s clean build compress",
     "lint": "eslint src --fix",
     "clean": "rimraf dist"
   },

@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.5.2
+ * domq.js - v0.6.0
  * A shorthand version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
