@@ -1,4 +1,5 @@
 import D from './d-class';
+import { document } from './vars';
 
 var prefix = '',
   eventPrefix,

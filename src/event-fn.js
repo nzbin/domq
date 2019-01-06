@@ -1,4 +1,5 @@
 import D from './d-class';
+import { document, slice } from './vars';
 import { isFunction } from './utils';
 import { isString, zid, compatible } from './event-utils';
 
