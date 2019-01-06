@@ -1361,6 +1361,51 @@
         triggerHandler: triggerHandler
     });
 
+    var specialEvents = {
+      click: 'MouseEvents',
+      mousedown: 'MouseEvents',
+      mouseup: 'MouseEvents',
+      mousemove: 'MouseEvents'
+    };
+
+    var Event = function Event(type$$1, props) {
+      if (!isString(type$$1)) props = type$$1, type$$1 = props.type;
+      var event = document.createEvent(specialEvents[type$$1] || 'Events'),
+          bubbles = true;
+      if (props) for (var name in props) {
+        name == 'bubbles' ? bubbles = !!props[name] : event[name] = props[name];
+      }
+      event.initEvent(type$$1, bubbles, true);
+      return compatible(event);
+    };
+
+    var proxy = function proxy(fn, context) {
+      var args = 2 in arguments && slice.call(arguments, 2);
+
+      if (isFunction(fn)) {
+        var proxyFn = function proxyFn() {
+          return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments);
+        };
+
+        proxyFn._zid = zid(fn);
+        return proxyFn;
+      } else if (isString(context)) {
+        if (args) {
+          args.unshift(fn[context], fn);
+          return D.proxy.apply(null, args);
+        } else {
+          return D.proxy(fn[context], fn);
+        }
+      } else {
+        throw new TypeError('expected function');
+      }
+    };
+
+    var efn = /*#__PURE__*/Object.freeze({
+        Event: Event,
+        proxy: proxy
+    });
+
     var events = {}; // shortcut methods for `.on(event, fn)` for each event type
 
     ('focusin focusout focus blur load resize scroll unload click dblclick ' + 'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave ' + 'change select keydown keypress keyup error').split(' ').forEach(function (event) {
@@ -1376,7 +1421,8 @@
       Moz: '',
       O: 'o'
     },
-        testEl = document.createElement('div');
+        testEl = document.createElement('div'),
+        testTransitionProperty = testEl.style.transitionProperty;
     if (testEl.style.transform === undefined) D.each(vendors, function (vendor, event) {
       if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
         prefix = '-' + vendor.toLowerCase() + '-';
@@ -1384,9 +1430,23 @@
         return false;
       }
     });
-    var testTransitionProperty = testEl.style.transitionProperty;
     testEl = null;
 
+    function normalizeEvent(name) {
+      return eventPrefix ? eventPrefix + name : name.toLowerCase();
+    }
+
+    D.fx = {
+      off: eventPrefix === undefined && testTransitionProperty === undefined,
+      speeds: {
+        _default: 400,
+        fast: 200,
+        slow: 600
+      },
+      cssPrefix: prefix,
+      transitionEnd: normalizeEvent('TransitionEnd'),
+      animationEnd: normalizeEvent('AnimationEnd')
+    };
     var supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
         transform,
         transitionProperty,
@@ -1401,24 +1461,10 @@
 
     function dasherize$1(str) {
       return str.replace(/([A-Z])/g, '-$1').toLowerCase();
-    } // function normalizeEvent(name) { return eventPrefix ? eventPrefix + name : name.toLowerCase() }
-    // if (testEl.style.transform === undefined) D.each(vendors, function (vendor, event) {
-    //   if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
-    //     prefix = '-' + vendor.toLowerCase() + '-'
-    //     eventPrefix = event
-    //     return false
-    //   }
-    // })
-
+    }
 
     transform = prefix + 'transform';
-    cssReset[transitionProperty = prefix + 'transition-property'] = cssReset[transitionDuration = prefix + 'transition-duration'] = cssReset[transitionDelay = prefix + 'transition-delay'] = cssReset[transitionTiming = prefix + 'transition-timing-function'] = cssReset[animationName = prefix + 'animation-name'] = cssReset[animationDuration = prefix + 'animation-duration'] = cssReset[animationDelay = prefix + 'animation-delay'] = cssReset[animationTiming = prefix + 'animation-timing-function'] = ''; // var fx = {
-    //   off: (eventPrefix === undefined && testEl.style.transitionProperty === undefined),
-    //   speeds: { _default: 400, fast: 200, slow: 600 },
-    //   cssPrefix: prefix,
-    //   transitionEnd: normalizeEvent('TransitionEnd'),
-    //   animationEnd: normalizeEvent('AnimationEnd')
-    // }
+    cssReset[transitionProperty = prefix + 'transition-property'] = cssReset[transitionDuration = prefix + 'transition-duration'] = cssReset[transitionDelay = prefix + 'transition-delay'] = cssReset[transitionTiming = prefix + 'transition-timing-function'] = cssReset[animationName = prefix + 'animation-name'] = cssReset[animationDuration = prefix + 'animation-duration'] = cssReset[animationDelay = prefix + 'animation-delay'] = cssReset[animationTiming = prefix + 'animation-timing-function'] = '';
 
     var anim = function anim(properties, duration, ease, callback, delay) {
       var key,
@@ -1500,7 +1546,7 @@
       if (duration) duration = (typeof duration == 'number' ? duration : D.fx.speeds[duration] || D.fx.speeds._default) / 1000;
       if (delay) delay = parseFloat(delay) / 1000;
       return this.anim(properties, duration, ease, callback, delay);
-    }; // testEl = null
+    };
 
     var animate$1 = /*#__PURE__*/Object.freeze({
         anim: anim,
@@ -1595,70 +1641,7 @@
         fadeToggle: fadeToggle
     });
 
-    var specialEvents = {
-      click: 'MouseEvents',
-      mousedown: 'MouseEvents',
-      mouseup: 'MouseEvents',
-      mousemove: 'MouseEvents'
-    };
-
-    var Event = function Event(type$$1, props) {
-      if (!isString(type$$1)) props = type$$1, type$$1 = props.type;
-      var event = document.createEvent(specialEvents[type$$1] || 'Events'),
-          bubbles = true;
-      if (props) for (var name in props) {
-        name == 'bubbles' ? bubbles = !!props[name] : event[name] = props[name];
-      }
-      event.initEvent(type$$1, bubbles, true);
-      return compatible(event);
-    };
-
-    var proxy = function proxy(fn, context) {
-      var args = 2 in arguments && slice.call(arguments, 2);
-
-      if (isFunction(fn)) {
-        var proxyFn = function proxyFn() {
-          return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments);
-        };
-
-        proxyFn._zid = zid(fn);
-        return proxyFn;
-      } else if (isString(context)) {
-        if (args) {
-          args.unshift(fn[context], fn);
-          return D.proxy.apply(null, args);
-        } else {
-          return D.proxy(fn[context], fn);
-        }
-      } else {
-        throw new TypeError('expected function');
-      }
-    }; // Animate
-
-
-    function normalizeEvent(name) {
-      return eventPrefix ? eventPrefix + name : name.toLowerCase();
-    }
-
-    var fx = {
-      off: eventPrefix === undefined && testTransitionProperty === undefined,
-      speeds: {
-        _default: 400,
-        fast: 200,
-        slow: 600
-      },
-      cssPrefix: prefix,
-      transitionEnd: normalizeEvent('TransitionEnd'),
-      animationEnd: normalizeEvent('AnimationEnd')
-    };
-
-    var sfn = /*#__PURE__*/Object.freeze({
-        Event: Event,
-        proxy: proxy,
-        fx: fx
-    });
-
-    D.extend(D, core, sfn);
+    D.extend(D, core, efn);
     D.extend(D.fn, css$1, classes, offset$1, attr$1, prop$1, val$1, wrap$1, traversing, dimensions, manipulation, event, animate$1, effects, events);
     window.D = D;
 

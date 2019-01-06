@@ -11,15 +11,15 @@ import * as traversing from './traversing';
 import * as dimensions from './dimensions';
 import * as manipulation from './manipulation';
 import * as event from './event';
+import * as efn from './event-fn';
 import * as shortcuts from './event-shortcuts';
 import * as animate from './animate';
 import * as effects from './effects';
-import * as sfn from './static-fn';
 
 D.extend(
     D,
     core,
-    sfn
+    efn
 );
 
 D.extend(

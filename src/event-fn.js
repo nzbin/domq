@@ -1,7 +1,6 @@
 import D from './d-class';
 import { isFunction } from './utils';
 import { isString, zid, compatible } from './event-utils';
-import { prefix, eventPrefix, testTransitionProperty } from './animate-utils';
 
 // Event
 var specialEvents = {
@@ -37,21 +36,7 @@ var proxy = function (fn, context) {
     }
 }
 
-// Animate
-function normalizeEvent(name) {
-    return eventPrefix ? eventPrefix + name : name.toLowerCase()
-}
-
-var fx = {
-    off: (eventPrefix === undefined && testTransitionProperty === undefined),
-    speeds: { _default: 400, fast: 200, slow: 600 },
-    cssPrefix: prefix,
-    transitionEnd: normalizeEvent('TransitionEnd'),
-    animationEnd: normalizeEvent('AnimationEnd')
-}
-
 export {
     Event,
-    proxy,
-    fx
+    proxy
 }

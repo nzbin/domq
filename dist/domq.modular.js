@@ -1250,6 +1250,46 @@ var triggerHandler = function triggerHandler(event, args) {
   return result;
 };
 
+var specialEvents = {
+  click: 'MouseEvents',
+  mousedown: 'MouseEvents',
+  mouseup: 'MouseEvents',
+  mousemove: 'MouseEvents'
+};
+
+var Event = function Event(type$$1, props) {
+  if (!isString(type$$1)) props = type$$1, type$$1 = props.type;
+  var event = document.createEvent(specialEvents[type$$1] || 'Events'),
+      bubbles = true;
+  if (props) for (var name in props) {
+    name == 'bubbles' ? bubbles = !!props[name] : event[name] = props[name];
+  }
+  event.initEvent(type$$1, bubbles, true);
+  return compatible(event);
+};
+
+var proxy = function proxy(fn, context) {
+  var args = 2 in arguments && slice.call(arguments, 2);
+
+  if (isFunction(fn)) {
+    var proxyFn = function proxyFn() {
+      return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments);
+    };
+
+    proxyFn._zid = zid(fn);
+    return proxyFn;
+  } else if (isString(context)) {
+    if (args) {
+      args.unshift(fn[context], fn);
+      return D.proxy.apply(null, args);
+    } else {
+      return D.proxy(fn[context], fn);
+    }
+  } else {
+    throw new TypeError('expected function');
+  }
+};
+
 var prefix = '',
     eventPrefix,
     vendors = {
@@ -1257,7 +1297,8 @@ var prefix = '',
   Moz: '',
   O: 'o'
 },
-    testEl = document.createElement('div');
+    testEl = document.createElement('div'),
+    testTransitionProperty = testEl.style.transitionProperty;
 if (testEl.style.transform === undefined) D.each(vendors, function (vendor, event) {
   if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
     prefix = '-' + vendor.toLowerCase() + '-';
@@ -1265,9 +1306,23 @@ if (testEl.style.transform === undefined) D.each(vendors, function (vendor, even
     return false;
   }
 });
-var testTransitionProperty = testEl.style.transitionProperty;
 testEl = null;
 
+function normalizeEvent(name) {
+  return eventPrefix ? eventPrefix + name : name.toLowerCase();
+}
+
+D.fx = {
+  off: eventPrefix === undefined && testTransitionProperty === undefined,
+  speeds: {
+    _default: 400,
+    fast: 200,
+    slow: 600
+  },
+  cssPrefix: prefix,
+  transitionEnd: normalizeEvent('TransitionEnd'),
+  animationEnd: normalizeEvent('AnimationEnd')
+};
 var supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
     transform,
     transitionProperty,
@@ -1282,24 +1337,10 @@ var supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|per
 
 function dasherize$1(str) {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase();
-} // function normalizeEvent(name) { return eventPrefix ? eventPrefix + name : name.toLowerCase() }
-// if (testEl.style.transform === undefined) D.each(vendors, function (vendor, event) {
-//   if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
-//     prefix = '-' + vendor.toLowerCase() + '-'
-//     eventPrefix = event
-//     return false
-//   }
-// })
-
+}
 
 transform = prefix + 'transform';
-cssReset[transitionProperty = prefix + 'transition-property'] = cssReset[transitionDuration = prefix + 'transition-duration'] = cssReset[transitionDelay = prefix + 'transition-delay'] = cssReset[transitionTiming = prefix + 'transition-timing-function'] = cssReset[animationName = prefix + 'animation-name'] = cssReset[animationDuration = prefix + 'animation-duration'] = cssReset[animationDelay = prefix + 'animation-delay'] = cssReset[animationTiming = prefix + 'animation-timing-function'] = ''; // var fx = {
-//   off: (eventPrefix === undefined && testEl.style.transitionProperty === undefined),
-//   speeds: { _default: 400, fast: 200, slow: 600 },
-//   cssPrefix: prefix,
-//   transitionEnd: normalizeEvent('TransitionEnd'),
-//   animationEnd: normalizeEvent('AnimationEnd')
-// }
+cssReset[transitionProperty = prefix + 'transition-property'] = cssReset[transitionDuration = prefix + 'transition-duration'] = cssReset[transitionDelay = prefix + 'transition-delay'] = cssReset[transitionTiming = prefix + 'transition-timing-function'] = cssReset[animationName = prefix + 'animation-name'] = cssReset[animationDuration = prefix + 'animation-duration'] = cssReset[animationDelay = prefix + 'animation-delay'] = cssReset[animationTiming = prefix + 'animation-timing-function'] = '';
 
 var anim = function anim(properties, duration, ease, callback, delay) {
   var key,
@@ -1381,7 +1422,7 @@ var animate = function animate(properties, duration, ease, callback, delay) {
   if (duration) duration = (typeof duration == 'number' ? duration : D.fx.speeds[duration] || D.fx.speeds._default) / 1000;
   if (delay) delay = parseFloat(delay) / 1000;
   return this.anim(properties, duration, ease, callback, delay);
-}; // testEl = null
+};
 
 var origShow = function origShow() {
   return this.each(function () {
@@ -1461,61 +1502,4 @@ var fadeToggle = function fadeToggle(speed, callback) {
   });
 };
 
-var specialEvents = {
-  click: 'MouseEvents',
-  mousedown: 'MouseEvents',
-  mouseup: 'MouseEvents',
-  mousemove: 'MouseEvents'
-};
-
-var Event = function Event(type$$1, props) {
-  if (!isString(type$$1)) props = type$$1, type$$1 = props.type;
-  var event = document.createEvent(specialEvents[type$$1] || 'Events'),
-      bubbles = true;
-  if (props) for (var name in props) {
-    name == 'bubbles' ? bubbles = !!props[name] : event[name] = props[name];
-  }
-  event.initEvent(type$$1, bubbles, true);
-  return compatible(event);
-};
-
-var proxy = function proxy(fn, context) {
-  var args = 2 in arguments && slice.call(arguments, 2);
-
-  if (isFunction(fn)) {
-    var proxyFn = function proxyFn() {
-      return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments);
-    };
-
-    proxyFn._zid = zid(fn);
-    return proxyFn;
-  } else if (isString(context)) {
-    if (args) {
-      args.unshift(fn[context], fn);
-      return D.proxy.apply(null, args);
-    } else {
-      return D.proxy(fn[context], fn);
-    }
-  } else {
-    throw new TypeError('expected function');
-  }
-}; // Animate
-
-
-function normalizeEvent(name) {
-  return eventPrefix ? eventPrefix + name : name.toLowerCase();
-}
-
-var fx = {
-  off: eventPrefix === undefined && testTransitionProperty === undefined,
-  speeds: {
-    _default: 400,
-    fast: 200,
-    slow: 600
-  },
-  cssPrefix: prefix,
-  transitionEnd: normalizeEvent('TransitionEnd'),
-  animationEnd: normalizeEvent('AnimationEnd')
-};
-
-export { D, type, contains, camelize as camelCase, isFunction, isWindow, isPlainObject, isEmptyObject, isNumeric, isArray, inArray, trim, grep, noop, css, hasClass, addClass, removeClass, toggleClass, offset, position, scrollTop, scrollLeft, offsetParent, attr, removeAttr, prop, removeProp, val, wrap, wrapAll, wrapInner, unwrap, find, filter$1 as filter, has, not, is, add, contents, closest, parents, parent, children$1 as children, siblings, prev, next, index, width, height, remove, empty, clone, html, text, append, prepend, after, before, replaceWith, appendTo, prependTo, insertAfter, insertBefore, replaceAll, one, on, off, trigger, triggerHandler, anim, animate, show, hide, toggle, fadeTo, fadeIn, fadeOut, fadeToggle, Event, proxy, fx };
+export { D, type, contains, camelize as camelCase, isFunction, isWindow, isPlainObject, isEmptyObject, isNumeric, isArray, inArray, trim, grep, noop, css, hasClass, addClass, removeClass, toggleClass, offset, position, scrollTop, scrollLeft, offsetParent, attr, removeAttr, prop, removeProp, val, wrap, wrapAll, wrapInner, unwrap, find, filter$1 as filter, has, not, is, add, contents, closest, parents, parent, children$1 as children, siblings, prev, next, index, width, height, remove, empty, clone, html, text, append, prepend, after, before, replaceWith, appendTo, prependTo, insertAfter, insertBefore, replaceAll, one, on, off, trigger, triggerHandler, Event, proxy, anim, animate, show, hide, toggle, fadeTo, fadeIn, fadeOut, fadeToggle };

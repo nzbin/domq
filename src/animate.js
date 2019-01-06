@@ -1,7 +1,20 @@
 import D from './d-class';
 import { document } from './vars';
 import { isFunction, isPlainObject } from './utils';
-import { prefix } from './animate-utils';
+import { prefix, eventPrefix, testTransitionProperty } from './animate-utils';
+
+// fx cannot seperate
+function normalizeEvent(name) {
+  return eventPrefix ? eventPrefix + name : name.toLowerCase()
+}
+
+D.fx = {
+  off: (eventPrefix === undefined && testTransitionProperty === undefined),
+  speeds: { _default: 400, fast: 200, slow: 600 },
+  cssPrefix: prefix,
+  transitionEnd: normalizeEvent('TransitionEnd'),
+  animationEnd: normalizeEvent('AnimationEnd')
+}
 
 var supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
   transform,
