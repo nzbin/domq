@@ -1,7 +1,7 @@
 
 /*!
- * domq.js - v0.6.0
- * A shorthand version of Zepto.js.
+ * domq.js - v0.6.1
+ * A modular version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
  * Copyright (c) 2018 nzbin
