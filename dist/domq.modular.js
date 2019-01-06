@@ -13,11 +13,11 @@ var D = function D(selector, context) {
   return new D.fn.init(selector, context);
 };
 
-var document = window.document,
+var document$1 = window.document,
     emptyArray$1 = [],
     concat = emptyArray$1.concat,
     filter = emptyArray$1.filter,
-    slice = emptyArray$1.slice,
+    slice$1 = emptyArray$1.slice,
     classCache = {},
     cssNumber = {
   'column-count': 1,
@@ -34,21 +34,21 @@ var document = window.document,
     rootNodeRE = /^(?:body|html)$/i,
     // special attributes that should be get/set via method calls
 methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
-    table = document.createElement('table'),
-    tableRow = document.createElement('tr'),
+    table = document$1.createElement('table'),
+    tableRow = document$1.createElement('tr'),
     containers = {
-  'tr': document.createElement('tbody'),
+  'tr': document$1.createElement('tbody'),
   'tbody': table,
   'thead': table,
   'tfoot': table,
   'td': tableRow,
   'th': tableRow,
-  '*': document.createElement('div')
+  '*': document$1.createElement('div')
 },
     simpleSelectorRE = /^[\w-]*$/,
     class2type = {},
     toString = class2type.toString,
-    tempParent = document.createElement('div'),
+    tempParent = document$1.createElement('div'),
     propMap = {
   'tabindex': 'tabIndex',
   'readonly': 'readOnly',
@@ -66,7 +66,7 @@ methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'of
     isArray = Array.isArray || function (arg) {
   return Object.prototype.toString.call(arg) === '[object Array]';
 },
-    contains = document.documentElement.contains ? function (parent, node) {
+    contains = document$1.documentElement.contains ? function (parent, node) {
   return parent !== node && parent.contains(node);
 } : function (parent, node) {
   while (node && (node = node.parentNode)) {
@@ -141,7 +141,7 @@ function flatten(array) {
 }
 
 function children(element) {
-  return 'children' in element ? slice.call(element.children) : D.map(element.childNodes, function (node) {
+  return 'children' in element ? slice$1.call(element.children) : D.map(element.childNodes, function (node) {
     if (node.nodeType == 1) return node;
   });
 }
@@ -228,11 +228,11 @@ D.fn = D.prototype = {
             return D(context).find(selector);
           } // If it's a CSS selector, use it to select nodes.
           else {
-              dom = D.qsa(document, selector);
+              dom = D.qsa(document$1, selector);
             }
       } // If a function is given, call it when the DOM is ready
       else if (isFunction(selector)) {
-          return D(document).ready(selector);
+          return D(document$1).ready(selector);
         } // If a D collection is given, just return it
         else if (isD(selector)) {
             return selector;
@@ -248,7 +248,7 @@ D.fn = D.prototype = {
                   return D(context).find(selector);
                 } // And last but no least, if it's a CSS selector, use it to select nodes.
                 else {
-                    dom = D.qsa(document, selector);
+                    dom = D.qsa(document$1, selector);
                   } // create a new D collection from the nodes found
 
 
@@ -277,7 +277,7 @@ D.fn = D.prototype = {
     return this.get();
   },
   get: function get(idx) {
-    return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length];
+    return idx === undefined ? slice$1.call(this) : this[idx >= 0 ? idx : idx + this.length];
   },
   size: function size() {
     return this.length;
@@ -294,7 +294,7 @@ D.fn = D.prototype = {
     }));
   },
   slice: function slice$$1() {
-    return D(slice.apply(this, arguments));
+    return D(slice$1.apply(this, arguments));
   },
   first: function first() {
     var el = this[0];
@@ -396,7 +396,7 @@ D.extend({
     nameOnly = maybeID || maybeClass ? selector.slice(1) : selector,
         isSimple = simpleSelectorRE.test(nameOnly);
     return (// Safari DocumentFragment doesn't have getElementById
-      element.getElementById && isSimple && maybeID ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
+      element.getElementById && isSimple && maybeID ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice$1.call( // DocumentFragment doesn't have getElementsByClassName/TagName
       isSimple && !maybeID && element.getElementsByClassName ? maybeClass // If it's simple, it could be a class
       ? element.getElementsByClassName(nameOnly) // Or a tag
       : element.getElementsByTagName(selector) // Or it's not simple, and we need to query all
@@ -407,7 +407,7 @@ D.extend({
   fragment: function fragment(html, name, properties) {
     var dom, nodes, container; // A special case optimization for a single tag
 
-    if (singleTagRE.test(html)) dom = D(document.createElement(RegExp.$1));
+    if (singleTagRE.test(html)) dom = D(document$1.createElement(RegExp.$1));
 
     if (!dom) {
       if (html.replace) html = html.replace(tagExpanderRE, '<$1></$2>');
@@ -415,7 +415,7 @@ D.extend({
       if (!(name in containers)) name = '*';
       container = containers[name];
       container.innerHTML = '' + html;
-      dom = D.each(slice.call(container.childNodes), function () {
+      dom = D.each(slice$1.call(container.childNodes), function () {
         container.removeChild(this);
       });
     }
@@ -476,7 +476,7 @@ D.extend({
 D.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '), function (i, name) {
   class2type['[object ' + name + ']'] = name.toLowerCase();
 });
-D.fn.init.prototype = D.fn; // Export Static Methods
+D.fn.init.prototype = D.fn; // Export Static
 
 function grep(elements, callback) {
   return filter.call(elements, callback);
@@ -588,7 +588,7 @@ function offset(coordinates) {
     $this.css(props);
   });
   if (!this.length) return null;
-  if (document.documentElement !== this[0] && !contains(document.documentElement, this[0])) return {
+  if (document$1.documentElement !== this[0] && !contains(document$1.documentElement, this[0])) return {
     top: 0,
     left: 0
   };
@@ -651,7 +651,7 @@ function scrollLeft(value) {
 
 function offsetParent() {
   return this.map(function () {
-    var parent = this.offsetParent || document.body;
+    var parent = this.offsetParent || document$1.body;
 
     while (parent && !rootNodeRE.test(parent.nodeName) && D(parent).css('position') == 'static') {
       parent = parent.offsetParent;
@@ -781,7 +781,7 @@ function not(selector) {
   if (isFunction(selector) && selector.call !== undefined) this.each(function (idx) {
     if (!selector.call(this, idx)) nodes.push(this);
   });else {
-    var excludes = typeof selector == 'string' ? this.filter(selector) : likeArray(selector) && isFunction(selector.item) ? slice.call(selector) : D(selector);
+    var excludes = typeof selector == 'string' ? this.filter(selector) : likeArray(selector) && isFunction(selector.item) ? slice$1.call(selector) : D(selector);
     this.forEach(function (el) {
       if (excludes.indexOf(el) < 0) nodes.push(el);
     });
@@ -799,7 +799,7 @@ function add(selector, context) {
 
 function contents() {
   return this.map(function () {
-    return this.contentDocument || slice.call(this.childNodes);
+    return this.contentDocument || slice$1.call(this.childNodes);
   });
 }
 
@@ -917,7 +917,7 @@ var domMani = function domMani(elem, args, fn, inside) {
   if (nodes.length < 1) return elem;
   return elem.each(function (_, target) {
     parent = inside ? target : target.parentNode;
-    var parentInDocument = contains(document.documentElement, parent);
+    var parentInDocument = contains(document$1.documentElement, parent);
     nodes.forEach(function (node) {
       if (copyByClone) node = node.cloneNode(true);else if (!parent) return D(node).remove();
       fn.call(target, node);
@@ -1025,14 +1025,53 @@ function replaceAll(html) {
   return this;
 }
 
-var _zid = 1,
-    handlers = {},
-    specialEvents = {
-  click: 'MouseEvents',
-  mousedown: 'MouseEvents',
-  mouseup: 'MouseEvents',
-  mousemove: 'MouseEvents'
+var _zid = 1;
+
+function zid(element) {
+  return element._zid || (element._zid = _zid++);
+}
+
+function isString(obj) {
+  return typeof obj == 'string';
+}
+
+var returnTrue = function returnTrue() {
+  return true;
 },
+    returnFalse = function returnFalse() {
+  return false;
+},
+    eventMethods = {
+  preventDefault: 'isDefaultPrevented',
+  stopImmediatePropagation: 'isImmediatePropagationStopped',
+  stopPropagation: 'isPropagationStopped'
+};
+
+function compatible(event, source) {
+  if (source || !event.isDefaultPrevented) {
+    source || (source = event);
+    D.each(eventMethods, function (name, predicate) {
+      var sourceMethod = source[name];
+
+      event[name] = function () {
+        this[predicate] = returnTrue;
+        return sourceMethod && sourceMethod.apply(source, arguments);
+      };
+
+      event[predicate] = returnFalse;
+    });
+
+    try {
+      event.timeStamp || (event.timeStamp = Date.now());
+    } catch (ignored) {}
+
+    if (source.defaultPrevented !== undefined ? source.defaultPrevented : 'returnValue' in source ? source.returnValue === false : source.getPreventDefault && source.getPreventDefault()) event.isDefaultPrevented = returnTrue;
+  }
+
+  return event;
+}
+
+var handlers = {},
     focusinSupported = 'onfocusin' in window,
     focus = {
   focus: 'focusin',
@@ -1042,36 +1081,7 @@ var _zid = 1,
   mouseenter: 'mouseover',
   mouseleave: 'mouseout'
 },
-    ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
-    eventMethods = {
-  preventDefault: 'isDefaultPrevented',
-  stopImmediatePropagation: 'isImmediatePropagationStopped',
-  stopPropagation: 'isPropagationStopped'
-};
-
-function isString(obj) {
-  return typeof obj == 'string';
-}
-
-function returnTrue() {
-  return true;
-}
-
-function returnFalse() {
-  return false;
-}
-
-function zid(element) {
-  return element._zid || (element._zid = _zid++);
-}
-
-function findHandlers(element, event, fn, selector) {
-  event = parse(event);
-  if (event.ns) var matcher = matcherFor(event.ns);
-  return (handlers[zid(element)] || []).filter(function (handler) {
-    return handler && (!event.e || handler.e == event.e) && (!event.ns || matcher.test(handler.ns)) && (!fn || zid(handler.fn) === zid(fn)) && (!selector || handler.sel == selector);
-  });
-}
+    ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/;
 
 function parse(event) {
   var parts = ('' + event).split('.');
@@ -1083,6 +1093,14 @@ function parse(event) {
 
 function matcherFor(ns) {
   return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)');
+}
+
+function findHandlers(element, event, fn, selector) {
+  event = parse(event);
+  if (event.ns) var matcher = matcherFor(event.ns);
+  return (handlers[zid(element)] || []).filter(function (handler) {
+    return handler && (!event.e || handler.e == event.e) && (!event.ns || matcher.test(handler.ns)) && (!fn || zid(handler.fn) === zid(fn)) && (!selector || handler.sel == selector);
+  });
 }
 
 function eventCapture(handler, captureSetting) {
@@ -1097,7 +1115,7 @@ function add$1(element, events, fn, data, selector, delegator, capture) {
   var id = zid(element),
       set = handlers[id] || (handlers[id] = []);
   events.split(/\s/).forEach(function (event) {
-    if (event == 'ready') return D(document).ready(fn);
+    if (event == 'ready') return D(document$1).ready(fn);
     var handler = parse(event);
     handler.fn = fn;
     handler.sel = selector; // emulate mouseenter, mouseleave
@@ -1134,30 +1152,6 @@ function remove$1(element, events, fn, selector, capture) {
   });
 }
 
-function compatible(event, source) {
-  if (source || !event.isDefaultPrevented) {
-    source || (source = event);
-    D.each(eventMethods, function (name, predicate) {
-      var sourceMethod = source[name];
-
-      event[name] = function () {
-        this[predicate] = returnTrue;
-        return sourceMethod && sourceMethod.apply(source, arguments);
-      };
-
-      event[predicate] = returnFalse;
-    });
-
-    try {
-      event.timeStamp || (event.timeStamp = Date.now());
-    } catch (ignored) {}
-
-    if (source.defaultPrevented !== undefined ? source.defaultPrevented : 'returnValue' in source ? source.returnValue === false : source.getPreventDefault && source.getPreventDefault()) event.isDefaultPrevented = returnTrue;
-  }
-
-  return event;
-}
-
 function createProxy(event) {
   var key,
       proxy = {
@@ -1169,45 +1163,8 @@ function createProxy(event) {
   }
 
   return compatible(proxy, event);
-}
-
-D.event = {
-  add: add$1,
-  remove: remove$1
-};
-
-D.Event = function (type$$1, props) {
-  if (!isString(type$$1)) props = type$$1, type$$1 = props.type;
-  var event = document.createEvent(specialEvents[type$$1] || 'Events'),
-      bubbles = true;
-  if (props) for (var name in props) {
-    name == 'bubbles' ? bubbles = !!props[name] : event[name] = props[name];
-  }
-  event.initEvent(type$$1, bubbles, true);
-  return compatible(event);
-};
-
-D.proxy = function (fn, context) {
-  var args = 2 in arguments && slice.call(arguments, 2);
-
-  if (isFunction(fn)) {
-    var proxyFn = function proxyFn() {
-      return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments);
-    };
-
-    proxyFn._zid = zid(fn);
-    return proxyFn;
-  } else if (isString(context)) {
-    if (args) {
-      args.unshift(fn[context], fn);
-      return D.proxy.apply(null, args);
-    } else {
-      return D.proxy(fn[context], fn);
-    }
-  } else {
-    throw new TypeError('expected function');
-  }
-}; // Export
+} // D.event = { add: add, remove: remove }
+// Export
 
 
 var one = function one(event, selector, data, callback) {
@@ -1243,7 +1200,7 @@ var on = function on(event, selector, data, callback, one) {
           currentTarget: match,
           liveFired: element
         });
-        return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)));
+        return (autoRemove || callback).apply(match, [evt].concat(slice$1.call(arguments, 1)));
       }
     };
     add$1(element, event, callback, data, selector, delegator || autoRemove);
@@ -1300,8 +1257,18 @@ var prefix = '',
   Moz: '',
   O: 'o'
 },
-    testEl = document.createElement('div'),
-    supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
+    testEl = document.createElement('div');
+if (testEl.style.transform === undefined) D.each(vendors, function (vendor, event) {
+  if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
+    prefix = '-' + vendor.toLowerCase() + '-';
+    eventPrefix = event;
+    return false;
+  }
+});
+var testTransitionProperty = testEl.style.transitionProperty;
+testEl = null;
+
+var supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
     transform,
     transitionProperty,
     transitionDuration,
@@ -1315,41 +1282,24 @@ var prefix = '',
 
 function dasherize$1(str) {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase();
-}
+} // function normalizeEvent(name) { return eventPrefix ? eventPrefix + name : name.toLowerCase() }
+// if (testEl.style.transform === undefined) D.each(vendors, function (vendor, event) {
+//   if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
+//     prefix = '-' + vendor.toLowerCase() + '-'
+//     eventPrefix = event
+//     return false
+//   }
+// })
 
-function normalizeEvent(name) {
-  return eventPrefix ? eventPrefix + name : name.toLowerCase();
-}
 
-if (testEl.style.transform === undefined) D.each(vendors, function (vendor, event) {
-  if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
-    prefix = '-' + vendor.toLowerCase() + '-';
-    eventPrefix = event;
-    return false;
-  }
-});
 transform = prefix + 'transform';
-cssReset[transitionProperty = prefix + 'transition-property'] = cssReset[transitionDuration = prefix + 'transition-duration'] = cssReset[transitionDelay = prefix + 'transition-delay'] = cssReset[transitionTiming = prefix + 'transition-timing-function'] = cssReset[animationName = prefix + 'animation-name'] = cssReset[animationDuration = prefix + 'animation-duration'] = cssReset[animationDelay = prefix + 'animation-delay'] = cssReset[animationTiming = prefix + 'animation-timing-function'] = '';
-D.fx = {
-  off: eventPrefix === undefined && testEl.style.transitionProperty === undefined,
-  speeds: {
-    _default: 400,
-    fast: 200,
-    slow: 600
-  },
-  cssPrefix: prefix,
-  transitionEnd: normalizeEvent('TransitionEnd'),
-  animationEnd: normalizeEvent('AnimationEnd')
-};
-
-var animate = function animate(properties, duration, ease, callback, delay) {
-  if (isFunction(duration)) callback = duration, ease = undefined, duration = undefined;
-  if (isFunction(ease)) callback = ease, ease = undefined;
-  if (isPlainObject(duration)) ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration;
-  if (duration) duration = (typeof duration == 'number' ? duration : D.fx.speeds[duration] || D.fx.speeds._default) / 1000;
-  if (delay) delay = parseFloat(delay) / 1000;
-  return this.anim(properties, duration, ease, callback, delay);
-};
+cssReset[transitionProperty = prefix + 'transition-property'] = cssReset[transitionDuration = prefix + 'transition-duration'] = cssReset[transitionDelay = prefix + 'transition-delay'] = cssReset[transitionTiming = prefix + 'transition-timing-function'] = cssReset[animationName = prefix + 'animation-name'] = cssReset[animationDuration = prefix + 'animation-duration'] = cssReset[animationDelay = prefix + 'animation-delay'] = cssReset[animationTiming = prefix + 'animation-timing-function'] = ''; // var fx = {
+//   off: (eventPrefix === undefined && testEl.style.transitionProperty === undefined),
+//   speeds: { _default: 400, fast: 200, slow: 600 },
+//   cssPrefix: prefix,
+//   transitionEnd: normalizeEvent('TransitionEnd'),
+//   animationEnd: normalizeEvent('AnimationEnd')
+// }
 
 var anim = function anim(properties, duration, ease, callback, delay) {
   var key,
@@ -1424,7 +1374,14 @@ var anim = function anim(properties, duration, ease, callback, delay) {
   return this;
 };
 
-testEl = null;
+var animate = function animate(properties, duration, ease, callback, delay) {
+  if (isFunction(duration)) callback = duration, ease = undefined, duration = undefined;
+  if (isFunction(ease)) callback = ease, ease = undefined;
+  if (isPlainObject(duration)) ease = duration.easing, callback = duration.complete, delay = duration.delay, duration = duration.duration;
+  if (duration) duration = (typeof duration == 'number' ? duration : D.fx.speeds[duration] || D.fx.speeds._default) / 1000;
+  if (delay) delay = parseFloat(delay) / 1000;
+  return this.anim(properties, duration, ease, callback, delay);
+}; // testEl = null
 
 var origShow = function origShow() {
   return this.each(function () {
@@ -1504,4 +1461,61 @@ var fadeToggle = function fadeToggle(speed, callback) {
   });
 };
 
-export { D, type, contains, camelize as camelCase, isFunction, isWindow, isPlainObject, isEmptyObject, isNumeric, isArray, inArray, trim, grep, noop, css, hasClass, addClass, removeClass, toggleClass, offset, position, scrollTop, scrollLeft, offsetParent, attr, removeAttr, prop, removeProp, val, wrap, wrapAll, wrapInner, unwrap, find, filter$1 as filter, has, not, is, add, contents, closest, parents, parent, children$1 as children, siblings, prev, next, index, width, height, remove, empty, clone, html, text, append, prepend, after, before, replaceWith, appendTo, prependTo, insertAfter, insertBefore, replaceAll, one, on, off, trigger, triggerHandler, animate, anim, show, hide, toggle, fadeTo, fadeIn, fadeOut, fadeToggle };
+var specialEvents = {
+  click: 'MouseEvents',
+  mousedown: 'MouseEvents',
+  mouseup: 'MouseEvents',
+  mousemove: 'MouseEvents'
+};
+
+var Event = function Event(type$$1, props) {
+  if (!isString(type$$1)) props = type$$1, type$$1 = props.type;
+  var event = document.createEvent(specialEvents[type$$1] || 'Events'),
+      bubbles = true;
+  if (props) for (var name in props) {
+    name == 'bubbles' ? bubbles = !!props[name] : event[name] = props[name];
+  }
+  event.initEvent(type$$1, bubbles, true);
+  return compatible(event);
+};
+
+var proxy = function proxy(fn, context) {
+  var args = 2 in arguments && slice.call(arguments, 2);
+
+  if (isFunction(fn)) {
+    var proxyFn = function proxyFn() {
+      return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments);
+    };
+
+    proxyFn._zid = zid(fn);
+    return proxyFn;
+  } else if (isString(context)) {
+    if (args) {
+      args.unshift(fn[context], fn);
+      return D.proxy.apply(null, args);
+    } else {
+      return D.proxy(fn[context], fn);
+    }
+  } else {
+    throw new TypeError('expected function');
+  }
+}; // Animate
+
+
+function normalizeEvent(name) {
+  return eventPrefix ? eventPrefix + name : name.toLowerCase();
+}
+
+var fx = {
+  off: eventPrefix === undefined && testTransitionProperty === undefined,
+  speeds: {
+    _default: 400,
+    fast: 200,
+    slow: 600
+  },
+  cssPrefix: prefix,
+  transitionEnd: normalizeEvent('TransitionEnd'),
+  animationEnd: normalizeEvent('AnimationEnd')
+};
+
+export { D, type, contains, camelize as camelCase, isFunction, isWindow, isPlainObject, isEmptyObject, isNumeric, isArray, inArray, trim, grep, noop, css, hasClass, addClass, removeClass, toggleClass, offset, position, scrollTop, scrollLeft, offsetParent, attr, removeAttr, prop, removeProp, val, wrap, wrapAll, wrapInner, unwrap, find, filter$1 as filter, has, not, is, add, contents, closest, parents, parent, children$1 as children, siblings, prev, next, index, width, height, remove, empty, clone, html, text, append, prepend, after, before, replaceWith, appendTo, prependTo, insertAfter, insertBefore, replaceAll, one, on, off, trigger, triggerHandler, anim, animate, show, hide, toggle, fadeTo, fadeIn, fadeOut, fadeToggle, Event, proxy, fx };

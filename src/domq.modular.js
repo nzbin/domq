@@ -14,4 +14,5 @@ export * from './manipulation';
 export * from './event';
 export * from './animate';
 export * from './effects';
+export * from './static-fn';
 export { D };

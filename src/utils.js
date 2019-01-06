@@ -162,10 +162,10 @@ function isEmptyObject(obj) {
 
 function isNumeric(val) {
   var num = Number(val),
-      type = typeof val
+    type = typeof val
   return val != null && type != 'boolean' &&
-      (type != 'string' || val.length) &&
-      !isNaN(num) && isFinite(num) || false
+    (type != 'string' || val.length) &&
+    !isNaN(num) && isFinite(num) || false
 }
 
 function inArray(elem, array, i) {

@@ -29,7 +29,8 @@ import {
     isPlainObject,
     isWindow,
     likeArray,
-    trim, type
+    trim,
+    type
 } from './utils';
 
 D.fn = D.prototype = {
@@ -322,7 +323,7 @@ D.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '
 
 D.fn.init.prototype = D.fn;
 
-// Export Static Methods
+// Export Static
 function grep(elements, callback) {
     return filter.call(elements, callback)
 }

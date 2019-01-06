@@ -14,10 +14,12 @@ import * as event from './event';
 import * as shortcuts from './event-shortcuts';
 import * as animate from './animate';
 import * as effects from './effects';
+import * as sfn from './static-fn';
 
 D.extend(
     D,
-    core
+    core,
+    sfn
 );
 
 D.extend(

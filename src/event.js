@@ -1,39 +1,20 @@
 import D from './d-class';
 import { document, slice, contains } from './vars';
 import { isFunction, isPlainObject } from './utils';
+import { zid, isString, returnFalse, compatible} from './event-utils'
 
-var _zid = 1,
-  handlers = {},
-  specialEvents = {
-    click: 'MouseEvents',
-    mousedown: 'MouseEvents',
-    mouseup: 'MouseEvents',
-    mousemove: 'MouseEvents',
-  },
+var handlers = {},
   focusinSupported = 'onfocusin' in window,
   focus = { focus: 'focusin', blur: 'focusout' },
   hover = { mouseenter: 'mouseover', mouseleave: 'mouseout' },
-  ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/,
-  eventMethods = {
-    preventDefault: 'isDefaultPrevented',
-    stopImmediatePropagation: 'isImmediatePropagationStopped',
-    stopPropagation: 'isPropagationStopped'
-  };
+  ignoreProperties = /^([A-Z]|returnValue$|layer[XY]$|webkitMovement[XY]$)/;
 
-function isString(obj) {
-  return typeof obj == 'string'
+function parse(event) {
+  var parts = ('' + event).split('.')
+  return { e: parts[0], ns: parts.slice(1).sort().join(' ') }
 }
-
-function returnTrue() {
-  return true
-}
-
-function returnFalse() {
-  return false
-}
-
-function zid(element) {
-  return element._zid || (element._zid = _zid++)
+function matcherFor(ns) {
+  return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
 }
 
 function findHandlers(element, event, fn, selector) {
@@ -46,14 +27,6 @@ function findHandlers(element, event, fn, selector) {
       && (!fn || zid(handler.fn) === zid(fn))
       && (!selector || handler.sel == selector)
   })
-}
-
-function parse(event) {
-  var parts = ('' + event).split('.')
-  return { e: parts[0], ns: parts.slice(1).sort().join(' ') }
-}
-function matcherFor(ns) {
-  return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)')
 }
 
 function eventCapture(handler, captureSetting) {
@@ -107,31 +80,6 @@ function remove(element, events, fn, selector, capture) {
     })
 }
 
-function compatible(event, source) {
-  if (source || !event.isDefaultPrevented) {
-    source || (source = event)
-
-    D.each(eventMethods, function (name, predicate) {
-      var sourceMethod = source[name]
-      event[name] = function () {
-        this[predicate] = returnTrue
-        return sourceMethod && sourceMethod.apply(source, arguments)
-      }
-      event[predicate] = returnFalse
-    })
-
-    try {
-      event.timeStamp || (event.timeStamp = Date.now())
-    } catch (ignored) { }
-
-    if (source.defaultPrevented !== undefined ? source.defaultPrevented :
-      'returnValue' in source ? source.returnValue === false :
-        source.getPreventDefault && source.getPreventDefault())
-      event.isDefaultPrevented = returnTrue
-  }
-  return event
-}
-
 function createProxy(event) {
   var key, proxy = { originalEvent: event }
   for (key in event)
@@ -140,33 +88,7 @@ function createProxy(event) {
   return compatible(proxy, event)
 }
 
-D.event = { add: add, remove: remove }
-
-D.Event = function (type, props) {
-  if (!isString(type)) props = type, type = props.type
-  var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true
-  if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name])
-  event.initEvent(type, bubbles, true)
-  return compatible(event)
-}
-
-D.proxy = function (fn, context) {
-  var args = (2 in arguments) && slice.call(arguments, 2)
-  if (isFunction(fn)) {
-    var proxyFn = function () { return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments) }
-    proxyFn._zid = zid(fn)
-    return proxyFn
-  } else if (isString(context)) {
-    if (args) {
-      args.unshift(fn[context], fn)
-      return D.proxy.apply(null, args)
-    } else {
-      return D.proxy(fn[context], fn)
-    }
-  } else {
-    throw new TypeError('expected function')
-  }
-}
+// D.event = { add: add, remove: remove }
 
 // Export
 var one = function (event, selector, data, callback) {
