@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.6.1
+ * domq.js - v0.6.2
  * A modular version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
@@ -13,11 +13,11 @@ var D = function D(selector, context) {
   return new D.fn.init(selector, context);
 };
 
-var document$1 = window.document,
-    emptyArray$1 = [],
-    concat = emptyArray$1.concat,
-    filter = emptyArray$1.filter,
-    slice$1 = emptyArray$1.slice,
+var document = window.document,
+    emptyArray = [],
+    concat = emptyArray.concat,
+    filter = emptyArray.filter,
+    slice = emptyArray.slice,
     classCache = {},
     cssNumber = {
   'column-count': 1,
@@ -34,21 +34,21 @@ var document$1 = window.document,
     rootNodeRE = /^(?:body|html)$/i,
     // special attributes that should be get/set via method calls
 methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
-    table = document$1.createElement('table'),
-    tableRow = document$1.createElement('tr'),
+    table = document.createElement('table'),
+    tableRow = document.createElement('tr'),
     containers = {
-  'tr': document$1.createElement('tbody'),
+  'tr': document.createElement('tbody'),
   'tbody': table,
   'thead': table,
   'tfoot': table,
   'td': tableRow,
   'th': tableRow,
-  '*': document$1.createElement('div')
+  '*': document.createElement('div')
 },
     simpleSelectorRE = /^[\w-]*$/,
     class2type = {},
     toString = class2type.toString,
-    tempParent = document$1.createElement('div'),
+    tempParent = document.createElement('div'),
     propMap = {
   'tabindex': 'tabIndex',
   'readonly': 'readOnly',
@@ -66,7 +66,7 @@ methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'of
     isArray = Array.isArray || function (arg) {
   return Object.prototype.toString.call(arg) === '[object Array]';
 },
-    contains = document$1.documentElement.contains ? function (parent, node) {
+    contains = document.documentElement.contains ? function (parent, node) {
   return parent !== node && parent.contains(node);
 } : function (parent, node) {
   while (node && (node = node.parentNode)) {
@@ -141,7 +141,7 @@ function flatten(array) {
 }
 
 function children(element) {
-  return 'children' in element ? slice$1.call(element.children) : D.map(element.childNodes, function (node) {
+  return 'children' in element ? slice.call(element.children) : D.map(element.childNodes, function (node) {
     if (node.nodeType == 1) return node;
   });
 }
@@ -199,12 +199,12 @@ D.fn = D.prototype = {
   length: 0,
   // Because a collection acts like an array
   // copy over these useful array functions.
-  forEach: emptyArray$1.forEach,
-  reduce: emptyArray$1.reduce,
-  push: emptyArray$1.push,
-  sort: emptyArray$1.sort,
-  splice: emptyArray$1.splice,
-  indexOf: emptyArray$1.indexOf,
+  forEach: emptyArray.forEach,
+  reduce: emptyArray.reduce,
+  push: emptyArray.push,
+  sort: emptyArray.sort,
+  splice: emptyArray.splice,
+  indexOf: emptyArray.indexOf,
   // D's counterpart to jQuery's `$.fn.init` and
   // takes a CSS selector and an optional context (and handles various
   // special cases).
@@ -228,11 +228,11 @@ D.fn = D.prototype = {
             return D(context).find(selector);
           } // If it's a CSS selector, use it to select nodes.
           else {
-              dom = D.qsa(document$1, selector);
+              dom = D.qsa(document, selector);
             }
       } // If a function is given, call it when the DOM is ready
       else if (isFunction(selector)) {
-          return D(document$1).ready(selector);
+          return D(document).ready(selector);
         } // If a D collection is given, just return it
         else if (isD(selector)) {
             return selector;
@@ -248,7 +248,7 @@ D.fn = D.prototype = {
                   return D(context).find(selector);
                 } // And last but no least, if it's a CSS selector, use it to select nodes.
                 else {
-                    dom = D.qsa(document$1, selector);
+                    dom = D.qsa(document, selector);
                   } // create a new D collection from the nodes found
 
 
@@ -277,13 +277,13 @@ D.fn = D.prototype = {
     return this.get();
   },
   get: function get(idx) {
-    return idx === undefined ? slice$1.call(this) : this[idx >= 0 ? idx : idx + this.length];
+    return idx === undefined ? slice.call(this) : this[idx >= 0 ? idx : idx + this.length];
   },
   size: function size() {
     return this.length;
   },
   each: function each(callback) {
-    emptyArray$1.every.call(this, function (el, idx) {
+    emptyArray.every.call(this, function (el, idx) {
       return callback.call(el, idx, el) !== false;
     });
     return this;
@@ -294,7 +294,7 @@ D.fn = D.prototype = {
     }));
   },
   slice: function slice$$1() {
-    return D(slice$1.apply(this, arguments));
+    return D(slice.apply(this, arguments));
   },
   first: function first() {
     var el = this[0];
@@ -352,10 +352,10 @@ D.extend = D.fn.extend = function () {
         } // Recurse if we're merging plain objects or arrays
 
 
-        if (deep && copy && (isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
+        if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
           if (copyIsArray) {
             copyIsArray = false;
-            clone = src && Array.isArray(src) ? src : [];
+            clone = src && isArray(src) ? src : [];
           } else {
             clone = src && isPlainObject(src) ? src : {};
           } // Never move original objects, clone them
@@ -396,7 +396,7 @@ D.extend({
     nameOnly = maybeID || maybeClass ? selector.slice(1) : selector,
         isSimple = simpleSelectorRE.test(nameOnly);
     return (// Safari DocumentFragment doesn't have getElementById
-      element.getElementById && isSimple && maybeID ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice$1.call( // DocumentFragment doesn't have getElementsByClassName/TagName
+      element.getElementById && isSimple && maybeID ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
       isSimple && !maybeID && element.getElementsByClassName ? maybeClass // If it's simple, it could be a class
       ? element.getElementsByClassName(nameOnly) // Or a tag
       : element.getElementsByTagName(selector) // Or it's not simple, and we need to query all
@@ -407,7 +407,7 @@ D.extend({
   fragment: function fragment(html, name, properties) {
     var dom, nodes, container; // A special case optimization for a single tag
 
-    if (singleTagRE.test(html)) dom = D(document$1.createElement(RegExp.$1));
+    if (singleTagRE.test(html)) dom = D(document.createElement(RegExp.$1));
 
     if (!dom) {
       if (html.replace) html = html.replace(tagExpanderRE, '<$1></$2>');
@@ -415,7 +415,7 @@ D.extend({
       if (!(name in containers)) name = '*';
       container = containers[name];
       container.innerHTML = '' + html;
-      dom = D.each(slice$1.call(container.childNodes), function () {
+      dom = D.each(slice.call(container.childNodes), function () {
         container.removeChild(this);
       });
     }
@@ -531,7 +531,7 @@ function css(property, value) {
 
 function hasClass(name) {
   if (!name) return false;
-  return emptyArray$1.some.call(this, function (el) {
+  return emptyArray.some.call(this, function (el) {
     return this.test(className(el));
   }, classRE(name));
 }
@@ -588,7 +588,7 @@ function offset(coordinates) {
     $this.css(props);
   });
   if (!this.length) return null;
-  if (document$1.documentElement !== this[0] && !contains(document$1.documentElement, this[0])) return {
+  if (document.documentElement !== this[0] && !contains(document.documentElement, this[0])) return {
     top: 0,
     left: 0
   };
@@ -651,7 +651,7 @@ function scrollLeft(value) {
 
 function offsetParent() {
   return this.map(function () {
-    var parent = this.offsetParent || document$1.body;
+    var parent = this.offsetParent || document.body;
 
     while (parent && !rootNodeRE.test(parent.nodeName) && D(parent).css('position') == 'static') {
       parent = parent.offsetParent;
@@ -754,7 +754,7 @@ function find(selector) {
       $this = this;
   if (!selector) result = D();else if (typeof selector == 'object') result = D(selector).filter(function () {
     var node = this;
-    return emptyArray$1.some.call($this, function (parent) {
+    return emptyArray.some.call($this, function (parent) {
       return contains(parent, node);
     });
   });else if (this.length == 1) result = D(D.qsa(this[0], selector));else result = this.map(function () {
@@ -781,7 +781,7 @@ function not(selector) {
   if (isFunction(selector) && selector.call !== undefined) this.each(function (idx) {
     if (!selector.call(this, idx)) nodes.push(this);
   });else {
-    var excludes = typeof selector == 'string' ? this.filter(selector) : likeArray(selector) && isFunction(selector.item) ? slice$1.call(selector) : D(selector);
+    var excludes = typeof selector == 'string' ? this.filter(selector) : likeArray(selector) && isFunction(selector.item) ? slice.call(selector) : D(selector);
     this.forEach(function (el) {
       if (excludes.indexOf(el) < 0) nodes.push(el);
     });
@@ -799,7 +799,7 @@ function add(selector, context) {
 
 function contents() {
   return this.map(function () {
-    return this.contentDocument || slice$1.call(this.childNodes);
+    return this.contentDocument || slice.call(this.childNodes);
   });
 }
 
@@ -917,7 +917,7 @@ var domMani = function domMani(elem, args, fn, inside) {
   if (nodes.length < 1) return elem;
   return elem.each(function (_, target) {
     parent = inside ? target : target.parentNode;
-    var parentInDocument = contains(document$1.documentElement, parent);
+    var parentInDocument = contains(document.documentElement, parent);
     nodes.forEach(function (node) {
       if (copyByClone) node = node.cloneNode(true);else if (!parent) return D(node).remove();
       fn.call(target, node);
@@ -1115,7 +1115,7 @@ function add$1(element, events, fn, data, selector, delegator, capture) {
   var id = zid(element),
       set = handlers[id] || (handlers[id] = []);
   events.split(/\s/).forEach(function (event) {
-    if (event == 'ready') return D(document$1).ready(fn);
+    if (event == 'ready') return D(document).ready(fn);
     var handler = parse(event);
     handler.fn = fn;
     handler.sel = selector; // emulate mouseenter, mouseleave
@@ -1200,7 +1200,7 @@ var on = function on(event, selector, data, callback, one) {
           currentTarget: match,
           liveFired: element
         });
-        return (autoRemove || callback).apply(match, [evt].concat(slice$1.call(arguments, 1)));
+        return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)));
       }
     };
     add$1(element, event, callback, data, selector, delegator || autoRemove);
