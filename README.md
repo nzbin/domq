@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/domq.js.svg)](https://www.npmjs.com/package/domq.js)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/nzbin/domq)
 
-A modular version of Zepto.js. 
+Domq is a modular DOM manipulation library. It's built according to Zepto.js. 
 
 ## Installation
 
