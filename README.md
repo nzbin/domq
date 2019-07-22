@@ -11,6 +11,53 @@ Domq is a modular DOM manipulation library. It's built according to Zepto.js.
 $ npm install domq.js --save
 ```
 
+There have four files in `dist` after build.
+
+```plain
+dist
+├── domq.js (UMD)
+├── domq.common.js (CJS)
+├── domq.esm.js (ESM)
+└── domq.modular.js (MODULAR)
+```
+
+It's used `domq.modular.js` by default.
+
+```js
+import { D } from 'domq.js'
+```
+
+Or you can also import the other file as needed.
+
+```js
+import { D } from 'domq.js/dist/domq.esm.js'
+```
+
+## Modular Usage
+
+You should put the methods as needed on `D` function manually.
+
+```js
+import {
+  D,
+  isArray,
+  addClass
+} from 'domq.js/src/domq.modular';
+
+// Static methods
+const methods = {
+  isArray
+}
+
+// Instance methods
+const fnMethods = {
+  addClass
+}
+
+D.extend(methods);
+D.fn.extend(fnMethods);
+```
+
 ## Instance methods
 
 The methods as below is optional.
@@ -104,3 +151,4 @@ D.noop()
 D.Event()
 D.proxy()
 ```
+
