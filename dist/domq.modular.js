@@ -255,7 +255,7 @@ D.fn = D.prototype = {
     return D.makeArray(dom, selector, this);
   },
   // Modify the collection by adding elements to it
-  concat: function concat$$1() {
+  concat: function concat$1() {
     var i,
         value,
         args = [];
@@ -293,7 +293,7 @@ D.fn = D.prototype = {
       return fn.call(el, i, el);
     }));
   },
-  slice: function slice$$1() {
+  slice: function slice$1() {
     return D(slice.apply(this, arguments));
   },
   first: function first() {
@@ -629,7 +629,7 @@ function position() {
 
 function scrollTop(value) {
   if (!this.length) return;
-  var hasScrollTop = 'scrollTop' in this[0];
+  var hasScrollTop = ('scrollTop' in this[0]);
   if (value === undefined) return hasScrollTop ? this[0].scrollTop : isWindow(this[0]) ? this[0].pageYOffset : this[0].defaultView.pageYOffset;
   return this.each(hasScrollTop ? function () {
     this.scrollTop = value;
@@ -640,7 +640,7 @@ function scrollTop(value) {
 
 function scrollLeft(value) {
   if (!this.length) return;
-  var hasScrollLeft = 'scrollLeft' in this[0];
+  var hasScrollLeft = ('scrollLeft' in this[0]);
   if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : isWindow(this[0]) ? this[0].pageXOffset : this[0].defaultView.pageXOffset;
   return this.each(hasScrollLeft ? function () {
     this.scrollLeft = value;
@@ -720,10 +720,10 @@ function wrap(structure) {
 function wrapAll(structure) {
   if (this[0]) {
     D(this[0]).before(structure = D(structure));
-    var children$$1; // drill down to the inmost element
+    var children; // drill down to the inmost element
 
-    while ((children$$1 = structure.children()).length) {
-      structure = children$$1.first();
+    while ((children = structure.children()).length) {
+      structure = children.first();
     }
 
     D(structure).append(this);
@@ -1072,7 +1072,7 @@ function compatible(event, source) {
 }
 
 var handlers = {},
-    focusinSupported = 'onfocusin' in window,
+    focusinSupported = ('onfocusin' in window),
     focus = {
   focus: 'focusin',
   blur: 'focusout'
@@ -1107,8 +1107,8 @@ function eventCapture(handler, captureSetting) {
   return handler.del && !focusinSupported && handler.e in focus || !!captureSetting;
 }
 
-function realEvent(type$$1) {
-  return hover[type$$1] || focusinSupported && focus[type$$1] || type$$1;
+function realEvent(type) {
+  return hover[type] || focusinSupported && focus[type] || type;
 }
 
 function add$1(element, events, fn, data, selector, delegator, capture) {
@@ -1177,8 +1177,8 @@ var on = function on(event, selector, data, callback, one) {
       $this = this;
 
   if (event && !isString(event)) {
-    D.each(event, function (type$$1, fn) {
-      $this.on(type$$1, selector, data, fn, one);
+    D.each(event, function (type, fn) {
+      $this.on(type, selector, data, fn, one);
     });
     return $this;
   }
@@ -1211,8 +1211,8 @@ var off = function off(event, selector, callback) {
   var $this = this;
 
   if (event && !isString(event)) {
-    D.each(event, function (type$$1, fn) {
-      $this.off(type$$1, selector, fn);
+    D.each(event, function (type, fn) {
+      $this.off(type, selector, fn);
     });
     return $this;
   }
@@ -1257,14 +1257,14 @@ var specialEvents = {
   mousemove: 'MouseEvents'
 };
 
-var Event = function Event(type$$1, props) {
-  if (!isString(type$$1)) props = type$$1, type$$1 = props.type;
-  var event = document.createEvent(specialEvents[type$$1] || 'Events'),
+var Event = function Event(type, props) {
+  if (!isString(type)) props = type, type = props.type;
+  var event = document.createEvent(specialEvents[type] || 'Events'),
       bubbles = true;
   if (props) for (var name in props) {
     name == 'bubbles' ? bubbles = !!props[name] : event[name] = props[name];
   }
-  event.initEvent(type$$1, bubbles, true);
+  event.initEvent(type, bubbles, true);
   return compatible(event);
 };
 
@@ -1502,4 +1502,4 @@ var fadeToggle = function fadeToggle(speed, callback) {
   });
 };
 
-export { D, type, contains, camelize as camelCase, isFunction, isWindow, isPlainObject, isEmptyObject, isNumeric, isArray, inArray, trim, grep, noop, css, hasClass, addClass, removeClass, toggleClass, offset, position, scrollTop, scrollLeft, offsetParent, attr, removeAttr, prop, removeProp, val, wrap, wrapAll, wrapInner, unwrap, find, filter$1 as filter, has, not, is, add, contents, closest, parents, parent, children$1 as children, siblings, prev, next, index, width, height, remove, empty, clone, html, text, append, prepend, after, before, replaceWith, appendTo, prependTo, insertAfter, insertBefore, replaceAll, one, on, off, trigger, triggerHandler, Event, proxy, anim, animate, show, hide, toggle, fadeTo, fadeIn, fadeOut, fadeToggle };
+export { D, Event, add, addClass, after, anim, animate, append, appendTo, attr, before, camelize as camelCase, children$1 as children, clone, closest, contains, contents, css, empty, fadeIn, fadeOut, fadeTo, fadeToggle, filter$1 as filter, find, grep, has, hasClass, height, hide, html, inArray, index, insertAfter, insertBefore, is, isArray, isEmptyObject, isFunction, isNumeric, isPlainObject, isWindow, next, noop, not, off, offset, offsetParent, on, one, parent, parents, position, prepend, prependTo, prev, prop, proxy, remove, removeAttr, removeClass, removeProp, replaceAll, replaceWith, scrollLeft, scrollTop, show, siblings, text, toggle, toggleClass, trigger, triggerHandler, trim, type, unwrap, val, width, wrap, wrapAll, wrapInner };

@@ -21,7 +21,7 @@ export default [
       {
         name: 'domq',
         banner,
-        file: "dist/domq.js",
+        file: 'dist/domq.js',
         format: 'umd'
       },
       {

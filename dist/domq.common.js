@@ -259,7 +259,7 @@ D.fn = D.prototype = {
     return D.makeArray(dom, selector, this);
   },
   // Modify the collection by adding elements to it
-  concat: function concat$$1() {
+  concat: function concat$1() {
     var i,
         value,
         args = [];
@@ -297,7 +297,7 @@ D.fn = D.prototype = {
       return fn.call(el, i, el);
     }));
   },
-  slice: function slice$$1() {
+  slice: function slice$1() {
     return D(slice.apply(this, arguments));
   },
   first: function first() {
@@ -489,6 +489,7 @@ function grep(elements, callback) {
 function noop() {}
 
 var core = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     type: type,
     contains: contains,
     camelCase: camelize,
@@ -550,6 +551,7 @@ function css(property, value) {
 }
 
 var css$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     css: css
 });
 
@@ -600,6 +602,7 @@ function toggleClass(name, when) {
 }
 
 var classes = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     hasClass: hasClass,
     addClass: addClass,
     removeClass: removeClass,
@@ -660,7 +663,7 @@ function position() {
 
 function scrollTop(value) {
   if (!this.length) return;
-  var hasScrollTop = 'scrollTop' in this[0];
+  var hasScrollTop = ('scrollTop' in this[0]);
   if (value === undefined) return hasScrollTop ? this[0].scrollTop : isWindow(this[0]) ? this[0].pageYOffset : this[0].defaultView.pageYOffset;
   return this.each(hasScrollTop ? function () {
     this.scrollTop = value;
@@ -671,7 +674,7 @@ function scrollTop(value) {
 
 function scrollLeft(value) {
   if (!this.length) return;
-  var hasScrollLeft = 'scrollLeft' in this[0];
+  var hasScrollLeft = ('scrollLeft' in this[0]);
   if (value === undefined) return hasScrollLeft ? this[0].scrollLeft : isWindow(this[0]) ? this[0].pageXOffset : this[0].defaultView.pageXOffset;
   return this.each(hasScrollLeft ? function () {
     this.scrollLeft = value;
@@ -693,6 +696,7 @@ function offsetParent() {
 }
 
 var offset$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     offset: offset,
     position: position,
     scrollTop: scrollTop,
@@ -719,6 +723,7 @@ function removeAttr(name) {
 }
 
 var attr$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     attr: attr,
     removeAttr: removeAttr
 });
@@ -740,6 +745,7 @@ function removeProp(name) {
 }
 
 var prop$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     prop: prop,
     removeProp: removeProp
 });
@@ -758,6 +764,7 @@ function val(value) {
 }
 
 var val$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     val: val
 });
 
@@ -773,10 +780,10 @@ function wrap(structure) {
 function wrapAll(structure) {
   if (this[0]) {
     D(this[0]).before(structure = D(structure));
-    var children$$1; // drill down to the inmost element
+    var children; // drill down to the inmost element
 
-    while ((children$$1 = structure.children()).length) {
-      structure = children$$1.first();
+    while ((children = structure.children()).length) {
+      structure = children.first();
     }
 
     D(structure).append(this);
@@ -803,6 +810,7 @@ function unwrap() {
 }
 
 var wrap$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     wrap: wrap,
     wrapAll: wrapAll,
     wrapInner: wrapInner,
@@ -923,6 +931,7 @@ function index(element) {
 }
 
 var traversing = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     find: find,
     filter: filter$1,
     has: has,
@@ -965,6 +974,7 @@ function height(value) {
 }
 
 var dimensions = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     width: width,
     height: height
 });
@@ -1109,6 +1119,7 @@ function replaceAll(html) {
 }
 
 var manipulation = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     remove: remove,
     empty: empty,
     clone: clone,
@@ -1173,7 +1184,7 @@ function compatible(event, source) {
 }
 
 var handlers = {},
-    focusinSupported = 'onfocusin' in window,
+    focusinSupported = ('onfocusin' in window),
     focus = {
   focus: 'focusin',
   blur: 'focusout'
@@ -1208,8 +1219,8 @@ function eventCapture(handler, captureSetting) {
   return handler.del && !focusinSupported && handler.e in focus || !!captureSetting;
 }
 
-function realEvent(type$$1) {
-  return hover[type$$1] || focusinSupported && focus[type$$1] || type$$1;
+function realEvent(type) {
+  return hover[type] || focusinSupported && focus[type] || type;
 }
 
 function add$1(element, events, fn, data, selector, delegator, capture) {
@@ -1278,8 +1289,8 @@ var on = function on(event, selector, data, callback, one) {
       $this = this;
 
   if (event && !isString(event)) {
-    D.each(event, function (type$$1, fn) {
-      $this.on(type$$1, selector, data, fn, one);
+    D.each(event, function (type, fn) {
+      $this.on(type, selector, data, fn, one);
     });
     return $this;
   }
@@ -1312,8 +1323,8 @@ var off = function off(event, selector, callback) {
   var $this = this;
 
   if (event && !isString(event)) {
-    D.each(event, function (type$$1, fn) {
-      $this.off(type$$1, selector, fn);
+    D.each(event, function (type, fn) {
+      $this.off(type, selector, fn);
     });
     return $this;
   }
@@ -1352,6 +1363,7 @@ var triggerHandler = function triggerHandler(event, args) {
 };
 
 var event = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     one: one,
     on: on,
     off: off,
@@ -1366,14 +1378,14 @@ var specialEvents = {
   mousemove: 'MouseEvents'
 };
 
-var Event = function Event(type$$1, props) {
-  if (!isString(type$$1)) props = type$$1, type$$1 = props.type;
-  var event = document.createEvent(specialEvents[type$$1] || 'Events'),
+var Event = function Event(type, props) {
+  if (!isString(type)) props = type, type = props.type;
+  var event = document.createEvent(specialEvents[type] || 'Events'),
       bubbles = true;
   if (props) for (var name in props) {
     name == 'bubbles' ? bubbles = !!props[name] : event[name] = props[name];
   }
-  event.initEvent(type$$1, bubbles, true);
+  event.initEvent(type, bubbles, true);
   return compatible(event);
 };
 
@@ -1400,6 +1412,7 @@ var proxy = function proxy(fn, context) {
 };
 
 var efn = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     Event: Event,
     proxy: proxy
 });
@@ -1547,6 +1560,7 @@ var animate = function animate(properties, duration, ease, callback, delay) {
 };
 
 var animate$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     anim: anim,
     animate: animate
 });
@@ -1630,6 +1644,7 @@ var fadeToggle = function fadeToggle(speed, callback) {
 };
 
 var effects = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     show: show,
     hide: hide,
     toggle: toggle,
