@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.6.2
+ * domq.js - v0.6.3
  * A modular version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
@@ -18,6 +18,7 @@ var document = window.document,
     concat = emptyArray.concat,
     filter = emptyArray.filter,
     slice = emptyArray.slice,
+    elementDisplay = {},
     classCache = {},
     cssNumber = {
   'column-count': 1,
@@ -134,6 +135,21 @@ function camelize(str) {
 
 function classRE(name) {
   return name in classCache ? classCache[name] : classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)');
+}
+
+function defaultDisplay(nodeName) {
+  var element, display;
+
+  if (!elementDisplay[nodeName]) {
+    element = document.createElement(nodeName);
+    document.body.appendChild(element);
+    display = getComputedStyle(element, '').getPropertyValue('display');
+    element.parentNode.removeChild(element);
+    display == 'none' && (display = 'block');
+    elementDisplay[nodeName] = display;
+  }
+
+  return elementDisplay[nodeName];
 }
 
 function flatten(array) {
@@ -396,7 +412,8 @@ D.extend({
     nameOnly = maybeID || maybeClass ? selector.slice(1) : selector,
         isSimple = simpleSelectorRE.test(nameOnly);
     return (// Safari DocumentFragment doesn't have getElementById
-      element.getElementById && isSimple && maybeID ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
+      element.getElementById && isSimple && maybeID ? // eslint-disable-next-line no-cond-assign
+      (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
       isSimple && !maybeID && element.getElementsByClassName ? maybeClass // If it's simple, it could be a class
       ? element.getElementsByClassName(nameOnly) // Or a tag
       : element.getElementsByTagName(selector) // Or it's not simple, and we need to query all
@@ -485,20 +502,20 @@ function grep(elements, callback) {
 function noop() {}
 
 var core = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    type: type,
-    contains: contains,
-    camelCase: camelize,
-    isFunction: isFunction,
-    isWindow: isWindow,
-    isPlainObject: isPlainObject,
-    isEmptyObject: isEmptyObject,
-    isNumeric: isNumeric,
-    isArray: isArray,
-    inArray: inArray,
-    trim: trim,
-    grep: grep,
-    noop: noop
+  __proto__: null,
+  type: type,
+  contains: contains,
+  camelCase: camelize,
+  isFunction: isFunction,
+  isWindow: isWindow,
+  isPlainObject: isPlainObject,
+  isEmptyObject: isEmptyObject,
+  isNumeric: isNumeric,
+  isArray: isArray,
+  inArray: inArray,
+  trim: trim,
+  grep: grep,
+  noop: noop
 });
 
 function css(property, value) {
@@ -527,7 +544,7 @@ function css(property, value) {
         this.style.removeProperty(dasherize(property));
       });
     } else {
-      css = dasherize(property) + ":" + maybeAddPx(property, value);
+      css = dasherize(property) + ':' + maybeAddPx(property, value);
     }
   } else {
     for (var key in property) {
@@ -547,8 +564,8 @@ function css(property, value) {
 }
 
 var css$1 = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    css: css
+  __proto__: null,
+  css: css
 });
 
 function hasClass(name) {
@@ -598,11 +615,11 @@ function toggleClass(name, when) {
 }
 
 var classes = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    hasClass: hasClass,
-    addClass: addClass,
-    removeClass: removeClass,
-    toggleClass: toggleClass
+  __proto__: null,
+  hasClass: hasClass,
+  addClass: addClass,
+  removeClass: removeClass,
+  toggleClass: toggleClass
 });
 
 function offset(coordinates) {
@@ -692,12 +709,12 @@ function offsetParent() {
 }
 
 var offset$1 = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    offset: offset,
-    position: position,
-    scrollTop: scrollTop,
-    scrollLeft: scrollLeft,
-    offsetParent: offsetParent
+  __proto__: null,
+  offset: offset,
+  position: position,
+  scrollTop: scrollTop,
+  scrollLeft: scrollLeft,
+  offsetParent: offsetParent
 });
 
 function attr(name, value) {
@@ -719,9 +736,9 @@ function removeAttr(name) {
 }
 
 var attr$1 = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    attr: attr,
-    removeAttr: removeAttr
+  __proto__: null,
+  attr: attr,
+  removeAttr: removeAttr
 });
 
 function prop(name, value) {
@@ -741,9 +758,9 @@ function removeProp(name) {
 }
 
 var prop$1 = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    prop: prop,
-    removeProp: removeProp
+  __proto__: null,
+  prop: prop,
+  removeProp: removeProp
 });
 
 function val(value) {
@@ -760,8 +777,8 @@ function val(value) {
 }
 
 var val$1 = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    val: val
+  __proto__: null,
+  val: val
 });
 
 function wrap(structure) {
@@ -806,11 +823,11 @@ function unwrap() {
 }
 
 var wrap$1 = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    wrap: wrap,
-    wrapAll: wrapAll,
-    wrapInner: wrapInner,
-    unwrap: unwrap
+  __proto__: null,
+  wrap: wrap,
+  wrapAll: wrapAll,
+  wrapInner: wrapInner,
+  unwrap: unwrap
 });
 
 function find(selector) {
@@ -927,26 +944,31 @@ function index(element) {
 }
 
 var traversing = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    find: find,
-    filter: filter$1,
-    has: has,
-    not: not,
-    is: is,
-    add: add,
-    contents: contents,
-    closest: closest,
-    parents: parents,
-    parent: parent,
-    children: children$1,
-    siblings: siblings,
-    prev: prev,
-    next: next,
-    index: index
+  __proto__: null,
+  find: find,
+  filter: filter$1,
+  has: has,
+  not: not,
+  is: is,
+  add: add,
+  contents: contents,
+  closest: closest,
+  parents: parents,
+  parent: parent,
+  children: children$1,
+  siblings: siblings,
+  prev: prev,
+  next: next,
+  index: index
 });
 
 function subtract(el, dimen) {
-  return el.css('box-sizing') === 'border-box' ? dimen === 'width' ? parseFloat(el.css(dimen)) - parseFloat(el.css('padding-left')) - parseFloat(el.css('padding-right')) - parseFloat(el.css('border-left-width')) - parseFloat(el.css('border-right-width')) : parseFloat(el.css(dimen)) - parseFloat(el.css('padding-top')) - parseFloat(el.css('padding-bottom')) - parseFloat(el.css('border-top-width')) - parseFloat(el.css('border-bottom-width')) : parseFloat(el.css(dimen));
+  var offset = el.offset(),
+      offsetMap = {
+    width: ['padding-left', 'padding-right', 'border-left-width', 'border-right-width'],
+    height: ['padding-top', 'padding-bottom', 'border-top-width', 'border-bottom-width']
+  };
+  return offset[dimen] - parseFloat(el.css(offsetMap[dimen][0])) - parseFloat(el.css(offsetMap[dimen][1])) - parseFloat(el.css(offsetMap[dimen][2])) - parseFloat(el.css(offsetMap[dimen][3]));
 }
 
 function calc(dimension, value) {
@@ -970,9 +992,9 @@ function height(value) {
 }
 
 var dimensions = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    width: width,
-    height: height
+  __proto__: null,
+  width: width,
+  height: height
 });
 
 var traverseNode = function traverseNode(node, fn) {
@@ -1115,22 +1137,22 @@ function replaceAll(html) {
 }
 
 var manipulation = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    remove: remove,
-    empty: empty,
-    clone: clone,
-    html: html,
-    text: text,
-    append: append,
-    prepend: prepend,
-    after: after,
-    before: before,
-    replaceWith: replaceWith,
-    appendTo: appendTo,
-    prependTo: prependTo,
-    insertAfter: insertAfter,
-    insertBefore: insertBefore,
-    replaceAll: replaceAll
+  __proto__: null,
+  remove: remove,
+  empty: empty,
+  clone: clone,
+  html: html,
+  text: text,
+  append: append,
+  prepend: prepend,
+  after: after,
+  before: before,
+  replaceWith: replaceWith,
+  appendTo: appendTo,
+  prependTo: prependTo,
+  insertAfter: insertAfter,
+  insertBefore: insertBefore,
+  replaceAll: replaceAll
 });
 
 var _zid = 1;
@@ -1171,7 +1193,9 @@ function compatible(event, source) {
 
     try {
       event.timeStamp || (event.timeStamp = Date.now());
-    } catch (ignored) {}
+    } catch (ignored) {
+      console.warn(ignored);
+    }
 
     if (source.defaultPrevented !== undefined ? source.defaultPrevented : 'returnValue' in source ? source.returnValue === false : source.getPreventDefault && source.getPreventDefault()) event.isDefaultPrevented = returnTrue;
   }
@@ -1359,12 +1383,12 @@ var triggerHandler = function triggerHandler(event, args) {
 };
 
 var event = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    one: one,
-    on: on,
-    off: off,
-    trigger: trigger,
-    triggerHandler: triggerHandler
+  __proto__: null,
+  one: one,
+  on: on,
+  off: off,
+  trigger: trigger,
+  triggerHandler: triggerHandler
 });
 
 var specialEvents = {
@@ -1408,9 +1432,9 @@ var proxy = function proxy(fn, context) {
 };
 
 var efn = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    Event: Event,
-    proxy: proxy
+  __proto__: null,
+  Event: Event,
+  proxy: proxy
 });
 
 var events = {}; // shortcut methods for `.on(event, fn)` for each event type
@@ -1556,26 +1580,26 @@ var animate = function animate(properties, duration, ease, callback, delay) {
 };
 
 var animate$1 = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    anim: anim,
-    animate: animate
+  __proto__: null,
+  anim: anim,
+  animate: animate
 });
 
 var origShow = function origShow() {
   return this.each(function () {
-    this.style.display == "none" && (this.style.display = '');
-    if (getComputedStyle(this, '').getPropertyValue("display") == "none") this.style.display = defaultDisplay(this.nodeName);
+    this.style.display == 'none' && (this.style.display = '');
+    if (getComputedStyle(this, '').getPropertyValue('display') == 'none') this.style.display = defaultDisplay(this.nodeName);
   });
 };
 
 var origHide = function origHide() {
-  return this.css("display", "none");
+  return this.css('display', 'none');
 };
 
 var origToggle = function origToggle(setting) {
   return this.each(function () {
-    var el = $(this);
-    (setting === undefined ? el.css("display") == "none" : setting) ? el.show() : el.hide();
+    var el = D(this);
+    (setting === undefined ? el.css('display') == 'none' : setting) ? el.show() : el.hide();
   });
 };
 
@@ -1640,14 +1664,14 @@ var fadeToggle = function fadeToggle(speed, callback) {
 };
 
 var effects = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    show: show,
-    hide: hide,
-    toggle: toggle,
-    fadeTo: fadeTo,
-    fadeIn: fadeIn,
-    fadeOut: fadeOut,
-    fadeToggle: fadeToggle
+  __proto__: null,
+  show: show,
+  hide: hide,
+  toggle: toggle,
+  fadeTo: fadeTo,
+  fadeIn: fadeIn,
+  fadeOut: fadeOut,
+  fadeToggle: fadeToggle
 });
 
 D.extend(D, core, efn);
