@@ -2,19 +2,16 @@ import D from './d-class';
 import { funcArg, isDocument, isWindow } from './utils';
 
 function subtract(el, dimen) {
-  return el.css('box-sizing') === 'border-box'
-    ? dimen === 'width'
-      ? (parseFloat(el.css(dimen))
-        - parseFloat(el.css('padding-left'))
-        - parseFloat(el.css('padding-right'))
-        - parseFloat(el.css('border-left-width'))
-        - parseFloat(el.css('border-right-width')))
-      : (parseFloat(el.css(dimen))
-        - parseFloat(el.css('padding-top'))
-        - parseFloat(el.css('padding-bottom'))
-        - parseFloat(el.css('border-top-width'))
-        - parseFloat(el.css('border-bottom-width')))
-    : parseFloat(el.css(dimen));
+  var offset = el.offset(),
+    offsetMap = {
+      width: ['padding-left', 'padding-right', 'border-left-width', 'border-right-width'],
+      height: ['padding-top', 'padding-bottom', 'border-top-width', 'border-bottom-width']
+    };
+  return offset[dimen]
+    - parseFloat(el.css(offsetMap[dimen][0]))
+    - parseFloat(el.css(offsetMap[dimen][1]))
+    - parseFloat(el.css(offsetMap[dimen][2]))
+    - parseFloat(el.css(offsetMap[dimen][3]));
 }
 
 function calc(dimension, value) {
