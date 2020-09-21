@@ -4,7 +4,9 @@ import { funcArg, isObject, setAttribute } from './utils';
 function attr(name, value) {
   var result;
   return (typeof name == 'string' && !(1 in arguments))
-    ? (0 in this && this[0].nodeType == 1 && (result = this[0].getAttribute(name)) != null ? result : undefined)
+    ? (0 in this && this[0].nodeType == 1 && (result = this[0].getAttribute(name)) != null
+      ? result
+      : undefined)
     : this.each(function (idx) {
       if (this.nodeType !== 1) return;
       if (isObject(name))

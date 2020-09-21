@@ -8,10 +8,7 @@ function wrap(structure) {
       clone = dom.parentNode || this.length > 1;
 
   return this.each(function (index) {
-    D(this).wrapAll(func
-      ? structure.call(this, index)
-      : clone ? dom.cloneNode(true) : dom
-    );
+    D(this).wrapAll(func ? structure.call(this, index) : clone ? dom.cloneNode(true) : dom);
   });
 }
 
