@@ -14,27 +14,27 @@ import {
 function type(obj) {
   return obj == null
     ? String(obj)
-    : class2type[toString.call(obj)] || 'object'
+    : class2type[toString.call(obj)] || 'object';
 }
 
 function isFunction(value) {
-  return type(value) == 'function'
+  return type(value) == 'function';
 }
 
 function isWindow(obj) {
-  return obj != null && obj == obj.window
+  return obj != null && obj == obj.window;
 }
 
 function isDocument(obj) {
-  return obj != null && obj.nodeType == obj.DOCUMENT_NODE
+  return obj != null && obj.nodeType == obj.DOCUMENT_NODE;
 }
 
 function isObject(obj) {
-  return type(obj) == 'object'
+  return type(obj) == 'object';
 }
 
 function isPlainObject(obj) {
-  return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype
+  return isObject(obj) && !isWindow(obj) && Object.getPrototypeOf(obj) == Object.prototype;
 }
 
 function likeArray(obj) {
@@ -44,13 +44,13 @@ function likeArray(obj) {
   return 'function' != typeRes && !isWindow(obj) && (
     'array' == typeRes || length === 0 ||
     (typeof length == 'number' && length > 0 && (length - 1) in obj)
-  )
+  );
 }
 
 function compact(array) {
   return filter.call(array, function (item) {
-    return item != null
-  })
+    return item != null;
+  });
 }
 
 function dasherize(str) {
@@ -58,61 +58,61 @@ function dasherize(str) {
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
     .replace(/([a-z\d])([A-Z])/g, '$1_$2')
     .replace(/_/g, '-')
-    .toLowerCase()
+    .toLowerCase();
 }
 
 function maybeAddPx(name, value) {
-  return (typeof value == 'number' && !cssNumber[dasherize(name)]) ? value + 'px' : value
+  return (typeof value == 'number' && !cssNumber[dasherize(name)]) ? value + 'px' : value;
 }
 
 function uniq(array) {
   return filter.call(array, function (item, idx) {
-    return array.indexOf(item) == idx
-  })
+    return array.indexOf(item) == idx;
+  });
 }
 
 function camelize(str) {
   return str.replace(/-+(.)?/g, function (match, chr) {
-    return chr ? chr.toUpperCase() : ''
-  })
+    return chr ? chr.toUpperCase() : '';
+  });
 }
 
 function classRE(name) {
   return name in classCache ?
-    classCache[name] : (classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)'))
+    classCache[name] : (classCache[name] = new RegExp('(^|\\s)' + name + '(\\s|$)'));
 }
 
 function defaultDisplay(nodeName) {
-  var element, display
+  var element, display;
   if (!elementDisplay[nodeName]) {
-    element = document.createElement(nodeName)
-    document.body.appendChild(element)
-    display = getComputedStyle(element, '').getPropertyValue('display')
-    element.parentNode.removeChild(element)
-    display == 'none' && (display = 'block')
-    elementDisplay[nodeName] = display
+    element = document.createElement(nodeName);
+    document.body.appendChild(element);
+    display = getComputedStyle(element, '').getPropertyValue('display');
+    element.parentNode.removeChild(element);
+    display == 'none' && (display = 'block');
+    elementDisplay[nodeName] = display;
   }
-  return elementDisplay[nodeName]
+  return elementDisplay[nodeName];
 }
 
 function flatten(array) {
-  return array.length > 0 ? D.fn.concat.apply([], array) : array
+  return array.length > 0 ? D.fn.concat.apply([], array) : array;
 }
 
 function children(element) {
   return 'children' in element ?
     slice.call(element.children) :
     D.map(element.childNodes, function (node) {
-      if (node.nodeType == 1) return node
-    })
+      if (node.nodeType == 1) return node;
+    });
 }
 
 function isD(object) {
-  return object instanceof D
+  return object instanceof D;
 }
 
 function filtered(nodes, selector) {
-  return selector == null ? D(nodes) : D(nodes).filter(selector)
+  return selector == null ? D(nodes) : D(nodes).filter(selector);
 }
 
 // 'true'  => true
@@ -125,56 +125,60 @@ function filtered(nodes, selector) {
 // String  => self
 function deserializeValue(value) {
   try {
-    return value ?
-      value == 'true' ||
-      (value == 'false' ? false :
-        value == 'null' ? null :
-          +value + '' == value ? +value :
-            /^[\[\{]/.test(value) ? JSON.parse(value) :
-              value) :
-      value
-  } catch (e) {
     return value
+      ? value == 'true' || (value == 'false'
+        ? false
+        : value == 'null'
+          ? null
+          : +value + '' == value
+            ? +value
+            // eslint-disable-next-line no-useless-escape
+            : /^[\[\{]/.test(value)
+              ? JSON.parse(value)
+              : value)
+      : value;
+  } catch (e) {
+    return value;
   }
 }
 
 function funcArg(context, arg, idx, payload) {
-  return isFunction(arg) ? arg.call(context, idx, payload) : arg
+  return isFunction(arg) ? arg.call(context, idx, payload) : arg;
 }
 
 function setAttribute(node, name, value) {
-  value == null ? node.removeAttribute(name) : node.setAttribute(name, value)
+  value == null ? node.removeAttribute(name) : node.setAttribute(name, value);
 }
 
 // access className property while respecting SVGAnimatedString
 function className(node, value) {
   var klass = node.className || '',
-    svg = klass && klass.baseVal !== undefined
+    svg = klass && klass.baseVal !== undefined;
 
-  if (value === undefined) return svg ? klass.baseVal : klass
-  svg ? (klass.baseVal = value) : (node.className = value)
+  if (value === undefined) return svg ? klass.baseVal : klass;
+  svg ? (klass.baseVal = value) : (node.className = value);
 }
 
 function isEmptyObject(obj) {
-  var name
-  for (name in obj) return false
-  return true
+  var name;
+  for (name in obj) return false;
+  return true;
 }
 
 function isNumeric(val) {
   var num = Number(val),
-    type = typeof val
+    type = typeof val;
   return val != null && type != 'boolean' &&
     (type != 'string' || val.length) &&
-    !isNaN(num) && isFinite(num) || false
+    !isNaN(num) && isFinite(num) || false;
 }
 
 function inArray(elem, array, i) {
-  return emptyArray.indexOf.call(array, elem, i)
+  return emptyArray.indexOf.call(array, elem, i);
 }
 
 function trim(str) {
-  return str == null ? '' : String.prototype.trim.call(str)
+  return str == null ? '' : String.prototype.trim.call(str);
 }
 
 export {
@@ -204,6 +208,6 @@ export {
   isNumeric,
   inArray,
   trim
-}
+};
 
 

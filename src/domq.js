@@ -17,27 +17,27 @@ import * as animate from './animate';
 import * as effects from './effects';
 
 D.extend(
-    D,
-    core,
-    efn
+  D,
+  core,
+  efn
 );
 
 D.extend(
-    D.fn,
-    css,
-    classes,
-    offset,
-    attr,
-    prop,
-    val,
-    wrap,
-    traversing,
-    dimensions,
-    manipulation,
-    event,
-    animate,
-    effects,
-    shortcuts['events']
+  D.fn,
+  css,
+  classes,
+  offset,
+  attr,
+  prop,
+  val,
+  wrap,
+  traversing,
+  dimensions,
+  manipulation,
+  event,
+  animate,
+  effects,
+  shortcuts['events']
 );
 
 window.D = D;

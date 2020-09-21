@@ -2,15 +2,15 @@ import D from './d-class';
 
 var _zid = 1;
 function zid(element) {
-  return element._zid || (element._zid = _zid++)
+  return element._zid || (element._zid = _zid++);
 }
 
 function isString(obj) {
-  return typeof obj == 'string'
+  return typeof obj == 'string';
 }
 
-var returnTrue = function () { return true },
-  returnFalse = function () { return false },
+var returnTrue = function () { return true; },
+  returnFalse = function () { return false; },
   eventMethods = {
     preventDefault: 'isDefaultPrevented',
     stopImmediatePropagation: 'isImmediatePropagationStopped',
@@ -19,27 +19,29 @@ var returnTrue = function () { return true },
 
 function compatible(event, source) {
   if (source || !event.isDefaultPrevented) {
-    source || (source = event)
+    source || (source = event);
 
     D.each(eventMethods, function (name, predicate) {
-      var sourceMethod = source[name]
+      var sourceMethod = source[name];
       event[name] = function () {
-        this[predicate] = returnTrue
-        return sourceMethod && sourceMethod.apply(source, arguments)
-      }
-      event[predicate] = returnFalse
-    })
+        this[predicate] = returnTrue;
+        return sourceMethod && sourceMethod.apply(source, arguments);
+      };
+      event[predicate] = returnFalse;
+    });
 
     try {
-      event.timeStamp || (event.timeStamp = Date.now())
-    } catch (ignored) { }
+      event.timeStamp || (event.timeStamp = Date.now());
+    } catch (ignored) {
+      console.warn(ignored);
+    }
 
     if (source.defaultPrevented !== undefined ? source.defaultPrevented :
       'returnValue' in source ? source.returnValue === false :
         source.getPreventDefault && source.getPreventDefault())
-      event.isDefaultPrevented = returnTrue
+      event.isDefaultPrevented = returnTrue;
   }
-  return event
+  return event;
 }
 
 export {
@@ -48,4 +50,4 @@ export {
   returnTrue,
   returnFalse,
   compatible
-}
+};
