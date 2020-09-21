@@ -1,6 +1,6 @@
 {
   "name": "domq.js",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "A modular version of Zepto.js.",
   "main": "dist/domq.modular.js",
   "module": "dist/domq.esm.js",
@@ -35,7 +35,7 @@
     "release": "run-s clean build compress",
     "lint": "eslint src --fix",
     "clean": "rimraf dist",
-    "publish": "npm run release && npm publish"
+    "prepublish": "npm run release"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
