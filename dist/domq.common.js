@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.6.5
+ * domq.js - v0.6.6
  * A modular version of Zepto.js.
  * https://github.com/nzbin/domq#readme
  *
@@ -117,12 +117,12 @@ function compact(array) {
   });
 }
 
-function dasherize(str) {
+function dasherize$1(str) {
   return str.replace(/::/g, '/').replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2').replace(/([a-z\d])([A-Z])/g, '$1_$2').replace(/_/g, '-').toLowerCase();
 }
 
 function maybeAddPx(name, value) {
-  return typeof value == 'number' && !cssNumber[dasherize(name)] ? value + 'px' : value;
+  return typeof value == 'number' && !cssNumber[dasherize$1(name)] ? value + 'px' : value;
 }
 
 function uniq(array) {
@@ -235,41 +235,41 @@ D.fn = D.prototype = {
       return this;
     } // Optimize for string selectors
     else if (typeof selector == 'string') {
-        selector = selector.trim(); // If it's a html fragment, create nodes from it
-        // Note: In both Chrome 21 and Firefox 15, DOM error 12
-        // is thrown if the fragment doesn't begin with <
+      selector = selector.trim(); // If it's a html fragment, create nodes from it
+      // Note: In both Chrome 21 and Firefox 15, DOM error 12
+      // is thrown if the fragment doesn't begin with <
 
-        if (selector[0] == '<' && fragmentRE.test(selector)) {
-          dom = D.fragment(selector, RegExp.$1, context);
-          selector = null;
-        } // If there's a context, create a collection on that context first, and select
-        // nodes from there
-        else if (context !== undefined) {
-            return D(context).find(selector);
-          } // If it's a CSS selector, use it to select nodes.
-          else {
-              dom = D.qsa(document, selector);
-            }
-      } // If a function is given, call it when the DOM is ready
-      else if (isFunction(selector)) {
-          return D(document).ready(selector);
-        } // If a D collection is given, just return it
-        else if (isD(selector)) {
-            return selector;
-          } // normalize array if an array of nodes is given
-          else if (isArray(selector)) {
-              dom = compact(selector);
-            } // Wrap DOM nodes.
-            else if (isObject(selector)) {
-                dom = [selector], selector = null;
-              } // If there's a context, create a collection on that context first, and select
-              // nodes from there
-              else if (context !== undefined) {
-                  return D(context).find(selector);
-                } // And last but no least, if it's a CSS selector, use it to select nodes.
-                else {
-                    dom = D.qsa(document, selector);
-                  } // create a new D collection from the nodes found
+      if (selector[0] == '<' && fragmentRE.test(selector)) {
+        dom = D.fragment(selector, RegExp.$1, context);
+        selector = null;
+      } // If there's a context, create a collection on that context first, and select
+      // nodes from there
+      else if (context !== undefined) {
+        return D(context).find(selector);
+      } // If it's a CSS selector, use it to select nodes.
+      else {
+        dom = D.qsa(document, selector);
+      }
+    } // If a function is given, call it when the DOM is ready
+    else if (isFunction(selector)) {
+      return D(document).ready(selector);
+    } // If a D collection is given, just return it
+    else if (isD(selector)) {
+      return selector;
+    } // normalize array if an array of nodes is given
+    else if (isArray(selector)) {
+      dom = compact(selector);
+    } // Wrap DOM nodes.
+    else if (isObject(selector)) {
+      dom = [selector], selector = null;
+    } // If there's a context, create a collection on that context first, and select
+    // nodes from there
+    else if (context !== undefined) {
+      return D(context).find(selector);
+    } // And last but no least, if it's a CSS selector, use it to select nodes.
+    else {
+      dom = D.qsa(document, selector);
+    } // create a new D collection from the nodes found
 
 
     return D.makeArray(dom, selector, this);
@@ -416,8 +416,7 @@ D.extend({
     nameOnly = maybeID || maybeClass ? selector.slice(1) : selector,
         isSimple = simpleSelectorRE.test(nameOnly);
     return (// Safari DocumentFragment doesn't have getElementById
-      element.getElementById && isSimple && maybeID ? // eslint-disable-next-line no-cond-assign
-      (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
+      element.getElementById && isSimple && maybeID ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
       isSimple && !maybeID && element.getElementsByClassName ? maybeClass // If it's simple, it could be a class
       ? element.getElementsByClassName(nameOnly) // Or a tag
       : element.getElementsByTagName(selector) // Or it's not simple, and we need to query all
@@ -545,19 +544,19 @@ function css(property, value) {
   if (type(property) == 'string') {
     if (!value && value !== 0) {
       this.each(function () {
-        this.style.removeProperty(dasherize(property));
+        this.style.removeProperty(dasherize$1(property));
       });
     } else {
-      css = dasherize(property) + ':' + maybeAddPx(property, value);
+      css = dasherize$1(property) + ':' + maybeAddPx(property, value);
     }
   } else {
     for (var key in property) {
       if (!property[key] && property[key] !== 0) {
         this.each(function () {
-          this.style.removeProperty(dasherize(key));
+          this.style.removeProperty(dasherize$1(key));
         });
       } else {
-        css += dasherize(key) + ':' + maybeAddPx(key, property[key]) + ';';
+        css += dasherize$1(key) + ':' + maybeAddPx(key, property[key]) + ';';
       }
     }
   }
@@ -655,26 +654,30 @@ function offset(coordinates) {
 function position() {
   if (!this.length) return;
   var elem = this[0],
-      // Get *real* offsetParent
+      offset,
+      // Get *real* offset parent
   offsetParent = this.offsetParent(),
-      // Get correct offsets
-  offset = this.offset(),
       parentOffset = rootNodeRE.test(offsetParent[0].nodeName) ? {
     top: 0,
     left: 0
-  } : offsetParent.offset(); // Subtract element margins
-  // note: when an element has margin: auto the offsetLeft and marginLeft
-  // are the same in Safari causing offset.left to incorrectly be 0
+  } : offsetParent.offset(); // `position: fixed` elements are offset from the viewport, which itself always has zero offset
 
-  offset.top -= parseFloat(D(elem).css('margin-top')) || 0;
-  offset.left -= parseFloat(D(elem).css('margin-left')) || 0; // Add offsetParent borders
+  if (D(elem).css('position') === 'fixed') {
+    // Assume `position: fixed` implies availability of getBoundingClientRect
+    offset = elem.getBoundingClientRect();
+  } else {
+    offset = this.offset(); // Incorporate borders into its offset, since they are outside its content origin
 
-  parentOffset.top += parseFloat(D(offsetParent[0]).css('border-top-width')) || 0;
-  parentOffset.left += parseFloat(D(offsetParent[0]).css('border-left-width')) || 0; // Subtract the two offsets
+    parentOffset.top += parseFloat(D(offsetParent[0]).css('border-top-width')) || 0;
+    parentOffset.left += parseFloat(D(offsetParent[0]).css('border-left-width')) || 0;
+  } // Subtract parent offsets and element margins
+  // note: when an element has `margin: auto` the offsetLeft and marginLeft
+  // are the same in Safari causing `offset.left` to incorrectly be 0
+
 
   return {
-    top: offset.top - parentOffset.top,
-    left: offset.left - parentOffset.left
+    top: offset.top - parentOffset.top - parseFloat(D(elem).css('margin-top')) || 0,
+    left: offset.left - parentOffset.left - parseFloat(D(elem).css('margin-left')) || 0
   };
 }
 
@@ -878,7 +881,7 @@ function is(selector) {
   return typeof selector == 'string' ? this.length > 0 && D.matches(this[0], selector) : selector && this.selector == selector.selector;
 }
 
-function add(selector, context) {
+function add$1(selector, context) {
   return D(uniq(this.concat(D(selector, context))));
 }
 
@@ -954,7 +957,7 @@ var traversing = /*#__PURE__*/Object.freeze({
   has: has,
   not: not,
   is: is,
-  add: add,
+  add: add$1,
   contents: contents,
   closest: closest,
   parents: parents,
@@ -1055,7 +1058,7 @@ var domMani = function domMani(elem, args, fn, inside) {
 }; // Export
 
 
-function remove() {
+function remove$1() {
   return this.each(function () {
     if (this.parentNode != null) this.parentNode.removeChild(this);
   });
@@ -1147,7 +1150,7 @@ function replaceAll(html) {
 
 var manipulation = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  remove: remove,
+  remove: remove$1,
   empty: empty,
   clone: clone,
   html: html,
@@ -1252,7 +1255,7 @@ function realEvent(type) {
   return hover[type] || focusinSupported && focus[type] || type;
 }
 
-function add$1(element, events, fn, data, selector, delegator, capture) {
+function add(element, events, fn, data, selector, delegator, capture) {
   var id = zid(element),
       set = handlers[id] || (handlers[id] = []);
   events.split(/\s/).forEach(function (event) {
@@ -1283,7 +1286,7 @@ function add$1(element, events, fn, data, selector, delegator, capture) {
   });
 }
 
-function remove$1(element, events, fn, selector, capture) {
+function remove(element, events, fn, selector, capture) {
   var id = zid(element);
   (events || '').split(/\s/).forEach(function (event) {
     findHandlers(element, event, fn, selector).forEach(function (handler) {
@@ -1329,7 +1332,7 @@ var on = function on(event, selector, data, callback, one) {
   if (callback === false) callback = returnFalse;
   return $this.each(function (_, element) {
     if (one) autoRemove = function autoRemove(e) {
-      remove$1(element, e.type, callback);
+      remove(element, e.type, callback);
       return callback.apply(this, arguments);
     };
     if (selector) delegator = function delegator(e) {
@@ -1344,7 +1347,7 @@ var on = function on(event, selector, data, callback, one) {
         return (autoRemove || callback).apply(match, [evt].concat(slice.call(arguments, 1)));
       }
     };
-    add$1(element, event, callback, data, selector, delegator || autoRemove);
+    add(element, event, callback, data, selector, delegator || autoRemove);
   });
 };
 
@@ -1361,7 +1364,7 @@ var off = function off(event, selector, callback) {
   if (!isString(selector) && !isFunction(callback) && callback !== false) callback = selector, selector = undefined;
   if (callback === false) callback = returnFalse;
   return $this.each(function () {
-    remove$1(this, event, callback, selector);
+    remove(this, event, callback, selector);
   });
 };
 
@@ -1369,7 +1372,7 @@ var trigger = function trigger(event, args) {
   event = isString(event) || isPlainObject(event) ? D.Event(event) : compatible(event);
   event._args = args;
   return this.each(function () {
-    // handle focus(), blur() by calling them directly
+    // handle `focus()`, `blur()` by calling them directly
     if (event.type in focus && typeof this[event.type] == 'function') this[event.type](); // items in the collection might not be DOM elements
     else if ('dispatchEvent' in this) this.dispatchEvent(event);else D(this).triggerHandler(event, args);
   });
@@ -1499,14 +1502,14 @@ var supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|per
     animationDelay,
     cssReset = {};
 
-function dasherize$1(str) {
+function dasherize(str) {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase();
 }
 
 transform = prefix + 'transform';
 cssReset[transitionProperty = prefix + 'transition-property'] = cssReset[transitionDuration = prefix + 'transition-duration'] = cssReset[transitionDelay = prefix + 'transition-delay'] = cssReset[transitionTiming = prefix + 'transition-timing-function'] = cssReset[animationName = prefix + 'animation-name'] = cssReset[animationDuration = prefix + 'animation-duration'] = cssReset[animationDelay = prefix + 'animation-delay'] = cssReset[animationTiming = prefix + 'animation-timing-function'] = '';
 
-var anim = function anim(properties, duration, ease, callback, delay) {
+var anim$1 = function anim(properties, duration, ease, callback, delay) {
   var key,
       cssValues = {},
       cssProperties,
@@ -1531,7 +1534,7 @@ var anim = function anim(properties, duration, ease, callback, delay) {
     cssProperties = []; // CSS transitions
 
     for (key in properties) {
-      if (supportedTransforms.test(key)) transforms += key + '(' + properties[key] + ') ';else cssValues[key] = properties[key], cssProperties.push(dasherize$1(key));
+      if (supportedTransforms.test(key)) transforms += key + '(' + properties[key] + ') ';else cssValues[key] = properties[key], cssProperties.push(dasherize(key));
     }
 
     if (transforms) cssValues[transform] = transforms, cssProperties.push(transform);
@@ -1590,7 +1593,7 @@ var animate = function animate(properties, duration, ease, callback, delay) {
 
 var animate$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  anim: anim,
+  anim: anim$1,
   animate: animate
 });
 
@@ -1612,7 +1615,7 @@ var origToggle = function origToggle(setting) {
   });
 };
 
-function anim$1(el, speed, opacity, scale, callback) {
+function anim(el, speed, opacity, scale, callback) {
   if (typeof speed == 'function' && !callback) callback = speed, speed = undefined;
   var props = {
     opacity: opacity
@@ -1627,7 +1630,7 @@ function anim$1(el, speed, opacity, scale, callback) {
 }
 
 function hideHelper(el, speed, scale, callback) {
-  return anim$1(el, speed, 0, scale, function () {
+  return anim(el, speed, 0, scale, function () {
     origHide.call(D(this));
     callback && callback.call(this);
   });
@@ -1637,7 +1640,7 @@ function hideHelper(el, speed, scale, callback) {
 var show = function show(speed, callback) {
   origShow.call(this);
   if (speed === undefined) speed = 0;else this.css('opacity', 0);
-  return anim$1(this, speed, 1, '1,1', callback);
+  return anim(this, speed, 1, '1,1', callback);
 };
 
 var hide = function hide(speed, callback) {
@@ -1652,7 +1655,7 @@ var toggle = function toggle(speed, callback) {
 };
 
 var fadeTo = function fadeTo(speed, opacity, callback) {
-  return anim$1(this, speed, opacity, null, callback);
+  return anim(this, speed, opacity, null, callback);
 };
 
 var fadeIn = function fadeIn(speed, callback) {
