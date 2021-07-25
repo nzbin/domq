@@ -338,6 +338,7 @@ export {
   camelize as camelCase,
   isFunction,
   isWindow,
+  isObject,
   isPlainObject,
   isEmptyObject,
   isNumeric,
