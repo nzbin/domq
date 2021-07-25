@@ -30,27 +30,29 @@ function offset(coordinates) {
 function position() {
   if (!this.length) return;
 
-  var elem = this[0],
-    // Get *real* offsetParent
+  var elem = this[0], offset,
+    // Get *real* offset parent
     offsetParent = this.offsetParent(),
-    // Get correct offsets
-    offset = this.offset(),
     parentOffset = rootNodeRE.test(offsetParent[0].nodeName) ? { top: 0, left: 0 } : offsetParent.offset();
 
-  // Subtract element margins
-  // note: when an element has margin: auto the offsetLeft and marginLeft
-  // are the same in Safari causing offset.left to incorrectly be 0
-  offset.top -= parseFloat(D(elem).css('margin-top')) || 0;
-  offset.left -= parseFloat(D(elem).css('margin-left')) || 0;
+  // `position: fixed` elements are offset from the viewport, which itself always has zero offset
+  if (D(elem).css('position') === 'fixed') {
+    // Assume `position: fixed` implies availability of getBoundingClientRect
+    offset = elem.getBoundingClientRect();
+  } else {
+    offset = this.offset();
 
-  // Add offsetParent borders
-  parentOffset.top += parseFloat(D(offsetParent[0]).css('border-top-width')) || 0;
-  parentOffset.left += parseFloat(D(offsetParent[0]).css('border-left-width')) || 0;
+    // Incorporate borders into its offset, since they are outside its content origin
+    parentOffset.top += parseFloat(D(offsetParent[0]).css('border-top-width')) || 0;
+    parentOffset.left += parseFloat(D(offsetParent[0]).css('border-left-width')) || 0;
+  }
 
-  // Subtract the two offsets
+  // Subtract parent offsets and element margins
+  // note: when an element has `margin: auto` the offsetLeft and marginLeft
+  // are the same in Safari causing `offset.left` to incorrectly be 0
   return {
-    top: offset.top - parentOffset.top,
-    left: offset.left - parentOffset.left
+    top: offset.top - parentOffset.top - parseFloat(D(elem).css('margin-top')) || 0,
+    left: offset.left - parentOffset.left - parseFloat(D(elem).css('margin-left')) || 0
   };
 }
 
