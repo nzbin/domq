@@ -152,7 +152,7 @@ var trigger = function (event, args) {
   event = (isString(event) || isPlainObject(event)) ? D.Event(event) : compatible(event);
   event._args = args;
   return this.each(function () {
-    // handle focus(), blur() by calling them directly
+    // handle `focus()`, `blur()` by calling them directly
     if (event.type in focus && typeof this[event.type] == 'function') this[event.type]();
     // items in the collection might not be DOM elements
     else if ('dispatchEvent' in this) this.dispatchEvent(event);

@@ -132,8 +132,7 @@ function deserializeValue(value) {
           ? null
           : +value + '' == value
             ? +value
-            // eslint-disable-next-line no-useless-escape
-            : /^[\[\{]/.test(value)
+            : /^[[{]/.test(value)
               ? JSON.parse(value)
               : value)
       : value;
