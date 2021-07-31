@@ -1,7 +1,7 @@
 {
   "name": "domq.js",
-  "version": "0.6.6",
-  "description": "A modular version of Zepto.js.",
+  "version": "0.6.7",
+  "description": "A modular DOM manipulation library.",
   "main": "dist/domq.modular.js",
   "module": "dist/domq.esm.js",
   "browser": "dist/domq.js",

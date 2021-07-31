@@ -1,7 +1,7 @@
 
 /*!
- * domq.js - v0.6.6
- * A modular version of Zepto.js.
+ * domq.js - v0.6.7
+ * A modular DOM manipulation library.
  * https://github.com/nzbin/domq#readme
  *
  * Copyright (c) 2018 nzbin
