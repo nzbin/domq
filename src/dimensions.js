@@ -25,7 +25,7 @@ function calc(dimension, value) {
   var dimensionProperty = dimension.replace(/./, function (m) { return m[0].toUpperCase(); });
   var el = this[0];
   if (value === undefined) return isWindow(el)
-    ? el['inner' + dimensionProperty]
+    ? el.document.documentElement['client' + dimensionProperty]
     : isDocument(el)
       ? el.documentElement['scroll' + dimensionProperty]
       : subtract(this, dimension);

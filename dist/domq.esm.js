@@ -984,7 +984,7 @@ function calc(dimension, value) {
     return m[0].toUpperCase();
   });
   var el = this[0];
-  if (value === undefined) return isWindow(el) ? el['inner' + dimensionProperty] : isDocument(el) ? el.documentElement['scroll' + dimensionProperty] : subtract(this, dimension);else return this.each(function (idx) {
+  if (value === undefined) return isWindow(el) ? el.document.documentElement['client' + dimensionProperty] : isDocument(el) ? el.documentElement['scroll' + dimensionProperty] : subtract(this, dimension);else return this.each(function (idx) {
     el = D(this);
     el.css(dimension, funcArg(this, value, idx, el[dimension]()));
   });
