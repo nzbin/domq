@@ -22,9 +22,7 @@ function subtract(el, dimen) {
 }
 
 function calc(dimension, value) {
-  var dimensionProperty =
-    dimension.replace(/./, function (m) { return m[0].toUpperCase(); });
-
+  var dimensionProperty = dimension.replace(/./, function (m) { return m[0].toUpperCase(); });
   var el = this[0];
   if (value === undefined) return isWindow(el)
     ? el['inner' + dimensionProperty]

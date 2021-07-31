@@ -1,4 +1,3 @@
-import D from './d-class';
 import { propMap } from './vars';
 import { funcArg, isObject } from './utils';
 
