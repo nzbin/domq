@@ -36,6 +36,7 @@ function calc(dimension, value) {
 }
 
 // Export
+
 function width(value) {
   return calc.call(this, 'width', value);
 }

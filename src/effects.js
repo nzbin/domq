@@ -40,6 +40,7 @@ function hideHelper(el, speed, scale, callback) {
 }
 
 // Export
+
 var show = function (speed, callback) {
   origShow.call(this);
   if (speed === undefined) speed = 0;

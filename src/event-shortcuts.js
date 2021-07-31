@@ -1,5 +1,3 @@
-import D from './d-class';
-
 var events = {};
 
 // shortcut methods for `.on(event, fn)` for each event type

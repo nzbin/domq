@@ -54,6 +54,7 @@ var domMani = function (elem, args, fn, inside) {
 };
 
 // Export
+
 function remove() {
   return this.each(function () {
     if (this.parentNode != null)
@@ -120,6 +121,7 @@ function before() {
 // insertBefore -> before
 // insertAfter -> after
 // replaceAll -> replaceWith
+
 function appendTo(html) {
   D(html)['append'](this);
   return this;
