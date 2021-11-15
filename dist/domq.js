@@ -12,7 +12,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.domq = {}));
-}(this, (function (exports) { 'use strict';
+})(this, (function (exports) { 'use strict';
 
   // Class D
   var D = function D(selector, context) {
@@ -418,7 +418,8 @@
       nameOnly = maybeID || maybeClass ? selector.slice(1) : selector,
           isSimple = simpleSelectorRE.test(nameOnly);
       return (// Safari DocumentFragment doesn't have getElementById
-        element.getElementById && isSimple && maybeID ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
+        element.getElementById && isSimple && maybeID // eslint-disable-next-line no-cond-assign
+        ? (found = element.getElementById(nameOnly)) ? [found] : [] : element.nodeType !== 1 && element.nodeType !== 9 && element.nodeType !== 11 ? [] : slice.call( // DocumentFragment doesn't have getElementsByClassName/TagName
         isSimple && !maybeID && element.getElementsByClassName ? maybeClass // If it's simple, it could be a class
         ? element.getElementsByClassName(nameOnly) // Or a tag
         : element.getElementsByTagName(selector) // Or it's not simple, and we need to query all
@@ -1696,4 +1697,4 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
