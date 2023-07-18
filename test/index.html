@@ -6,10 +6,26 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Domq Test</title>
+  <style>
+    .outer {
+      width: 200px;
+      height: 200px;
+      padding: 20px;
+      background-color: red;
+    }
+
+    .inner {
+      width: 100%;
+      height: 100%;
+      background-color: green;
+    }
+  </style>
 </head>
 
 <body>
-  <div></div>
+  <div class="outer">
+    <div class="inner"></div>
+  </div>
 
   <script src="../dist/domq.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
