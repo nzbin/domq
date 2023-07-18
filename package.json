@@ -35,7 +35,7 @@
     "release": "run-s clean build compress",
     "lint": "eslint src --fix",
     "clean": "rimraf dist",
-    "prepublish": "npm run release"
+    "prepublishOnly": "npm run release"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
