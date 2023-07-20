@@ -208,6 +208,8 @@ D.extend = D.fn.extend = function () {
 };
 
 D.extend({
+  // Unique for each copy of domq on the page
+  expando: 'domq' + ('' + Math.random()).replace(/\D/g, ''),
   // Make DOM Array
   makeArray: function (dom, selector, me) {
     var i, len = dom ? dom.length : 0;

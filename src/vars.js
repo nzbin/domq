@@ -19,6 +19,7 @@ var document = window.document,
   tagExpanderRE = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,
   rootNodeRE = /^(?:body|html)$/i,
   capitalRE = /([A-Z])/g,
+  nothtmlwhiteRE = /[^\x20\t\r\n\f]+/g,
 
   // special attributes that should be get/set via method calls
   methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
@@ -79,6 +80,7 @@ export {
   tagExpanderRE,
   rootNodeRE,
   capitalRE,
+  nothtmlwhiteRE,
   methodAttributes,
   containers,
   simpleSelectorRE,

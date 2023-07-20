@@ -1,7 +1,8 @@
 import D from './d-class';
 import { document, slice, contains } from './vars';
-import { isFunction, isPlainObject } from './utils';
+import { isFunction, isPlainObject, isEmptyObject } from './utils';
 import { zid, isString, returnFalse, compatible } from './event-utils';
+import { dataPriv } from './data';
 
 var handlers = {},
   focusinSupported = 'onfocusin' in window,
@@ -13,6 +14,7 @@ function parse(event) {
   var parts = ('' + event).split('.');
   return { e: parts[0], ns: parts.slice(1).sort().join(' ') };
 }
+
 function matcherFor(ns) {
   return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)');
 }
@@ -39,8 +41,16 @@ function realEvent(type) {
   return hover[type] || (focusinSupported && focus[type]) || type;
 }
 
-function add(element, events, fn, data, selector, delegator, capture) {
-  var id = zid(element), set = (handlers[id] || (handlers[id] = []));
+function addEvent(element, events, fn, data, selector, delegator, capture) {
+  var id = zid(element),
+    set = (handlers[id] || (handlers[id] = [])),
+    elemData = dataPriv.get(element);
+
+  // Init the element's event structure and main handler, if this is the first
+  if (!elemData.events) {
+    elemData.events = Object.create(null);
+  }
+
   events.split(/\s/).forEach(function (event) {
     if (event == 'ready') return D(document).ready(fn);
     var handler = parse(event);
@@ -67,10 +77,18 @@ function add(element, events, fn, data, selector, delegator, capture) {
     if ('addEventListener' in element)
       element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture));
   });
+
+  elemData.events = set;
 }
 
-function remove(element, events, fn, selector, capture) {
-  var id = zid(element);
+function removeEvent(element, events, fn, selector, capture) {
+  var id = zid(element),
+    elemData = dataPriv.hasData(element) && dataPriv.get(element);
+
+  if (!elemData || !elemData.events) {
+    return;
+  }
+
   (events || '').split(/\s/).forEach(function (event) {
     findHandlers(element, event, fn, selector).forEach(function (handler) {
       delete handlers[id][handler.i];
@@ -78,6 +96,11 @@ function remove(element, events, fn, selector, capture) {
         element.removeEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture));
     });
   });
+
+  // Remove data and the expando if it's no longer used
+  if (isEmptyObject(elemData.events)) {
+    dataPriv.remove(element, 'events');
+  }
 }
 
 function createProxy(event) {
@@ -88,7 +111,7 @@ function createProxy(event) {
   return compatible(proxy, event);
 }
 
-// D.event = { add: add, remove: remove }
+// D.event = { add: addEvent, remove: removeEvent }
 
 // Export
 
@@ -114,7 +137,7 @@ var on = function (event, selector, data, callback, one) {
 
   return $this.each(function (_, element) {
     if (one) autoRemove = function (e) {
-      remove(element, e.type, callback);
+      removeEvent(element, e.type, callback);
       return callback.apply(this, arguments);
     };
 
@@ -126,7 +149,7 @@ var on = function (event, selector, data, callback, one) {
       }
     };
 
-    add(element, event, callback, data, selector, delegator || autoRemove);
+    addEvent(element, event, callback, data, selector, delegator || autoRemove);
   });
 };
 
@@ -145,7 +168,7 @@ var off = function (event, selector, callback) {
   if (callback === false) callback = returnFalse;
 
   return $this.each(function () {
-    remove(this, event, callback, selector);
+    removeEvent(this, event, callback, selector);
   });
 };
 
@@ -178,6 +201,8 @@ var triggerHandler = function (event, args) {
 };
 
 export {
+  addEvent,
+  removeEvent,
   one,
   on,
   off,
