@@ -1,7 +1,7 @@
 import D from './d-class';
 import { document, slice } from './vars';
-import { isFunction } from './utils';
-import { isString, zid, compatible } from './event-utils';
+import { isString, isFunction } from './utils';
+import { zid, compatible } from './event-utils';
 
 // Event
 var specialEvents = {

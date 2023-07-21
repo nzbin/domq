@@ -17,6 +17,10 @@ function type(obj) {
     : class2type[toString.call(obj)] || 'object';
 }
 
+function isString(obj) {
+  return typeof obj == 'string';
+}
+
 function isFunction(value) {
   return type(value) == 'function';
 }
@@ -196,6 +200,7 @@ function nodeName(elem, name) {
 
 export {
   type,
+  isString,
   isFunction,
   isWindow,
   isDocument,

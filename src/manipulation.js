@@ -1,17 +1,17 @@
 import D from './d-class';
 import { document, contains } from './vars';
 import { funcArg, type, isD, nodeName, acceptData } from './utils';
+import { removeEvent } from './event-utils';
 import { dataPriv } from './data';
-import { removeEvent } from './event';
 
-var traverseNode = function (node, fn) {
+function traverseNode(node, fn) {
   fn(node);
   for (var i = 0, len = node.childNodes.length; i < len; i++)
     traverseNode(node.childNodes[i], fn);
-};
+}
 
 // inside => append, prepend
-var domMani = function (elem, args, fn, inside) {
+function domMani(elem, args, fn, inside) {
   // arguments can be nodes, arrays of nodes, D objects and HTML strings
   var argType,
     nodes = D.map(args, function (arg) {
@@ -53,7 +53,7 @@ var domMani = function (elem, args, fn, inside) {
       }
     });
   });
-};
+}
 
 function getAll(context, tag) {
   // Support: IE <=9 - 11+
