@@ -1,6 +1,8 @@
 import D from './d-class';
 import { document, contains } from './vars';
-import { funcArg, type, isD } from './utils';
+import { funcArg, type, isD, nodeName, acceptData } from './utils';
+import { dataPriv } from './data';
+import { removeEvent } from './event';
 
 var traverseNode = function (node, fn) {
   fn(node);
@@ -53,21 +55,66 @@ var domMani = function (elem, args, fn, inside) {
   });
 };
 
+function getAll(context, tag) {
+  // Support: IE <=9 - 11+
+  // Use typeof to avoid zero-argument method invocation on host objects (trac-15151)
+  var ret;
+  if (typeof context.getElementsByTagName !== 'undefined') {
+    ret = context.getElementsByTagName(tag || '*');
+  } else if (typeof context.querySelectorAll !== 'undefined') {
+    ret = context.querySelectorAll(tag || '*');
+  } else {
+    ret = [];
+  }
+  if (tag === undefined || tag && nodeName(context, tag)) {
+    return D.merge([context], ret);
+  }
+  return ret;
+}
+
+function cleanData(elems) {
+  var data, elem,
+    i = 0;
+  for (; (elem = elems[i]) !== undefined; i++) {
+    if (acceptData(elem)) {
+      if ((data = elem[dataPriv.expando])) {
+        if (data.events) {
+          data.events.forEach(evt => {
+            const type = evt.e + '.' + evt.ns.split(' ').join('.');
+            removeEvent(elem, type, evt.fn, evt.sel);
+          });
+        }
+        // Support: Chrome <=35 - 45+
+        // Assign undefined instead of using delete, see Data#remove
+        elem[dataPriv.expando] = undefined;
+      }
+    }
+  }
+}
+
 // Export
 
 function remove() {
   return this.each(function () {
+    if (this.nodeType === 1) {
+      cleanData(getAll(this));
+    }
+
     if (this.parentNode != null)
       this.parentNode.removeChild(this);
   });
 }
 
 function empty() {
-  return this.each(function () { this.innerHTML = ''; });
+  return this.each(function () {
+    this.innerHTML = '';
+  });
 }
 
 function clone() {
-  return this.map(function () { return this.cloneNode(true); });
+  return this.map(function () {
+    return this.cloneNode(true);
+  });
 }
 
 function html(html) {

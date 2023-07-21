@@ -190,6 +190,10 @@ function acceptData(owner) {
   return owner.nodeType === 1 || owner.nodeType === 9 || !(+owner.nodeType);
 }
 
+function nodeName(elem, name) {
+  return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
+}
+
 export {
   type,
   isFunction,
@@ -217,7 +221,6 @@ export {
   isNumeric,
   inArray,
   trim,
-  acceptData
+  acceptData,
+  nodeName
 };
-
-

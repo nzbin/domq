@@ -218,6 +218,14 @@ D.extend({
     me.selector = selector || '';
     return me;
   },
+  merge: function (first, second) {
+    var len = +second.length,
+      j = 0,
+      i = first.length;
+    for (; j < len; j++) first[i++] = second[j];
+    first.length = i;
+    return first;
+  },
   // D's CSS selector
   qsa: function (element, selector) {
     var found,
@@ -299,7 +307,6 @@ D.extend({
       for (key in elements)
         if (callback.call(elements[key], key, elements[key]) === false) return elements;
     }
-
     return elements;
   },
   map: function (elements, callback) {
