@@ -33,7 +33,7 @@ cssReset[transitionProperty = prefix + 'transition-property'] =
   cssReset[animationDelay = prefix + 'animation-delay'] =
   cssReset[animationTiming = prefix + 'animation-timing-function'] = '';
 
-var anim = function (properties, duration, ease, callback, delay) {
+function anim(properties, duration, ease, callback, delay) {
   var key, cssValues = {}, cssProperties, transforms = '',
     that = this, wrappedCallback, endEvent = D.fx.transitionEnd,
     fired = false;
@@ -96,9 +96,9 @@ var anim = function (properties, duration, ease, callback, delay) {
   }, 0);
 
   return this;
-};
+}
 
-var animate = function (properties, duration, ease, callback, delay) {
+function animate(properties, duration, ease, callback, delay) {
   if (isFunction(duration))
     callback = duration, ease = undefined, duration = undefined;
   if (isFunction(ease))
@@ -109,7 +109,7 @@ var animate = function (properties, duration, ease, callback, delay) {
     (D.fx.speeds[duration] || D.fx.speeds._default)) / 1000;
   if (delay) delay = parseFloat(delay) / 1000;
   return this.anim(properties, duration, ease, callback, delay);
-};
+}
 
 export {
   anim,

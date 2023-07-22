@@ -17,7 +17,7 @@ import {
   tempParent
 } from './vars';
 import {
-  camelize,
+  camelize as camelCase,
   compact,
   flatten,
   inArray,
@@ -345,7 +345,7 @@ function noop() {
 export {
   type,
   contains,
-  camelize as camelCase,
+  camelCase,
   isFunction,
   isWindow,
   isPlainObject,

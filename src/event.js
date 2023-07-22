@@ -10,11 +10,11 @@ import {
   createProxy
 } from './event-utils';
 
-var one = function (event, selector, data, callback) {
+function one(event, selector, data, callback) {
   return this.on(event, selector, data, callback, 1);
-};
+}
 
-var on = function (event, selector, data, callback, one) {
+function on(event, selector, data, callback, one) {
   var autoRemove, delegator, $this = this;
   if (event && !isString(event)) {
     D.each(event, function (type, fn) {
@@ -46,9 +46,9 @@ var on = function (event, selector, data, callback, one) {
 
     addEvent(element, event, callback, data, selector, delegator || autoRemove);
   });
-};
+}
 
-var off = function (event, selector, callback) {
+function off(event, selector, callback) {
   var $this = this;
   if (event && !isString(event)) {
     D.each(event, function (type, fn) {
@@ -65,9 +65,9 @@ var off = function (event, selector, callback) {
   return $this.each(function () {
     removeEvent(this, event, callback, selector);
   });
-};
+}
 
-var trigger = function (event, args) {
+function trigger(event, args) {
   event = (isString(event) || isPlainObject(event)) ? D.Event(event) : compatible(event);
   event._args = args;
   return this.each(function () {
@@ -77,11 +77,11 @@ var trigger = function (event, args) {
     else if ('dispatchEvent' in this) this.dispatchEvent(event);
     else D(this).triggerHandler(event, args);
   });
-};
+}
 
 // triggers event handlers on current element just as if an event occurred,
 // doesn't trigger an actual event, doesn't bubble
-var triggerHandler = function (event, args) {
+function triggerHandler(event, args) {
   var e, result;
   this.each(function (i, element) {
     e = createProxy(isString(event) ? D.Event(event) : event);
@@ -93,7 +93,7 @@ var triggerHandler = function (event, args) {
     });
   });
   return result;
-};
+}
 
 export {
   one,

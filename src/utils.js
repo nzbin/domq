@@ -103,7 +103,7 @@ function flatten(array) {
   return array.length > 0 ? D.fn.concat.apply([], array) : array;
 }
 
-function children(element) {
+function getChildren(element) {
   return 'children' in element ?
     slice.call(element.children) :
     D.map(element.childNodes, function (node) {
@@ -216,7 +216,7 @@ export {
   classRE,
   defaultDisplay,
   deserializeValue,
-  children,
+  getChildren,
   filtered,
   funcArg,
   setAttribute,

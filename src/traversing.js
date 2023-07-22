@@ -1,6 +1,6 @@
 import D from './d-class';
-import { emptyArray, filter, slice, contains } from './vars';
-import { children, filtered, isDocument, isFunction, isObject, likeArray, uniq } from './utils';
+import { emptyArray, filter as filterArr, slice, contains } from './vars';
+import { getChildren, filtered, isDocument, isFunction, isObject, likeArray, uniq } from './utils';
 
 function find(selector) {
   var result, $this = this;
@@ -17,9 +17,9 @@ function find(selector) {
   return result;
 }
 
-function filter$1(selector) {
+function filter(selector) {
   if (isFunction(selector)) return this.not(this.not(selector));
-  return D(filter.call(this, function (element) {
+  return D(filterArr.call(this, function (element) {
     return D.matches(element, selector);
   }));
 }
@@ -90,13 +90,13 @@ function parent(selector) {
   return filtered(uniq(this.pluck('parentNode')), selector);
 }
 
-function children$1(selector) {
-  return filtered(this.map(function () { return children(this); }), selector);
+function children(selector) {
+  return filtered(this.map(function () { return getChildren(this); }), selector);
 }
 
 function siblings(selector) {
   return filtered(this.map(function (i, el) {
-    return filter.call(children(el.parentNode), function (child) { return child !== el; });
+    return filterArr.call(getChildren(el.parentNode), function (child) { return child !== el; });
   }), selector);
 }
 
@@ -114,7 +114,7 @@ function index(element) {
 
 export {
   find,
-  filter$1 as filter,
+  filter,
   has,
   not,
   is,
@@ -123,7 +123,7 @@ export {
   closest,
   parents,
   parent,
-  children$1 as children,
+  children,
   siblings,
   prev,
   next,

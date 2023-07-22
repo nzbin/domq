@@ -11,15 +11,15 @@ var specialEvents = {
   mousemove: 'MouseEvents',
 };
 
-var Event = function (type, props) {
+function Event(type, props) {
   if (!isString(type)) props = type, type = props.type;
   var event = document.createEvent(specialEvents[type] || 'Events'), bubbles = true;
   if (props) for (var name in props) (name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name]);
   event.initEvent(type, bubbles, true);
   return compatible(event);
-};
+}
 
-var proxy = function (fn, context) {
+function proxy(fn, context) {
   var args = (2 in arguments) && slice.call(arguments, 2);
   if (isFunction(fn)) {
     var proxyFn = function () { return fn.apply(context, args ? args.concat(slice.call(arguments)) : arguments); };
@@ -35,7 +35,7 @@ var proxy = function (fn, context) {
   } else {
     throw new TypeError('expected function');
   }
-};
+}
 
 export {
   Event,
