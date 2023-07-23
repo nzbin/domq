@@ -1,7 +1,5 @@
 import D from './d-class';
 import { document, contains } from './vars';
-import { isEmptyObject } from './utils';
-import { dataPriv } from './data';
 
 var _zid = 1,
   handlers = {},
@@ -80,15 +78,7 @@ function realEvent(type) {
 }
 
 function addEvent(element, events, fn, data, selector, delegator, capture) {
-  var id = zid(element),
-    set = (handlers[id] || (handlers[id] = [])),
-    elemData = dataPriv.get(element);
-
-  // Init the element's event structure and main handler, if this is the first
-  if (!elemData.events) {
-    elemData.events = Object.create(null);
-  }
-
+  var id = zid(element), set = (handlers[id] || (handlers[id] = []));
   events.split(/\s/).forEach(function (event) {
     if (event == 'ready') return D(document).ready(fn);
     var handler = parse(event);
@@ -115,18 +105,10 @@ function addEvent(element, events, fn, data, selector, delegator, capture) {
     if ('addEventListener' in element)
       element.addEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture));
   });
-
-  elemData.events = set;
 }
 
 function removeEvent(element, events, fn, selector, capture) {
-  var id = zid(element),
-    elemData = dataPriv.hasData(element) && dataPriv.get(element);
-
-  if (!elemData || !elemData.events) {
-    return;
-  }
-
+  var id = zid(element);
   (events || '').split(/\s/).forEach(function (event) {
     findHandlers(element, event, fn, selector).forEach(function (handler) {
       delete handlers[id][handler.i];
@@ -134,11 +116,6 @@ function removeEvent(element, events, fn, selector, capture) {
         element.removeEventListener(realEvent(handler.e), handler.proxy, eventCapture(handler, capture));
     });
   });
-
-  // Remove data and the expando if it's no longer used
-  if (isEmptyObject(elemData.events)) {
-    dataPriv.remove(element, 'events');
-  }
 }
 
 function createProxy(event) {
@@ -150,6 +127,7 @@ function createProxy(event) {
 }
 
 export {
+  handlers,
   zid,
   returnTrue,
   returnFalse,

@@ -1,8 +1,7 @@
 import D from './d-class';
 import { document, contains } from './vars';
-import { funcArg, type, isD, nodeName, acceptData } from './utils';
-import { removeEvent } from './event-utils';
-import { dataPriv } from './data';
+import { funcArg, type, isD, nodeName } from './utils';
+import { handlers, removeEvent } from './event-utils';
 
 function traverseNode(node, fn) {
   fn(node);
@@ -56,8 +55,6 @@ function domMani(elem, args, fn, inside) {
 }
 
 function getAll(context, tag) {
-  // Support: IE <=9 - 11+
-  // Use typeof to avoid zero-argument method invocation on host objects (trac-15151)
   var ret;
   if (typeof context.getElementsByTagName !== 'undefined') {
     ret = context.getElementsByTagName(tag || '*');
@@ -73,21 +70,14 @@ function getAll(context, tag) {
 }
 
 function cleanData(elems) {
-  var data, elem,
+  var events, elem,
     i = 0;
   for (; (elem = elems[i]) !== undefined; i++) {
-    if (acceptData(elem)) {
-      if ((data = elem[dataPriv.expando])) {
-        if (data.events) {
-          data.events.forEach(evt => {
-            const type = evt.e + '.' + evt.ns.split(' ').join('.');
-            removeEvent(elem, type, evt.fn, evt.sel);
-          });
-        }
-        // Support: Chrome <=35 - 45+
-        // Assign undefined instead of using delete, see Data#remove
-        elem[dataPriv.expando] = undefined;
-      }
+    if (elem._zid && (events = handlers[elem._zid])) {
+      events.forEach(evt => {
+        const type = evt.e + '.' + evt.ns.split(' ').join('.');
+        removeEvent(elem, type, evt.fn, evt.sel);
+      });
     }
   }
 }
@@ -97,6 +87,7 @@ function cleanData(elems) {
 function remove() {
   return this.each(function () {
     if (this.nodeType === 1) {
+      // Prevent memory leaks
       cleanData(getAll(this));
     }
 

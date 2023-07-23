@@ -184,16 +184,6 @@ function trim(str) {
   return str == null ? '' : String.prototype.trim.call(str);
 }
 
-function acceptData(owner) {
-  // Accepts only:
-  //  - Node
-  //    - Node.ELEMENT_NODE
-  //    - Node.DOCUMENT_NODE
-  //  - Object
-  //    - Any
-  return owner.nodeType === 1 || owner.nodeType === 9 || !(+owner.nodeType);
-}
-
 function nodeName(elem, name) {
   return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
 }
@@ -226,6 +216,5 @@ export {
   isNumeric,
   inArray,
   trim,
-  acceptData,
   nodeName
 };
