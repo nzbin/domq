@@ -9,6 +9,7 @@ Domq is a modular DOM manipulation library. It's built according to Zepto.js.
 ## Who uses it?
 
 - [photoviewer](https://github.com/nzbin/photoviewer)
+- [unsliderjs](https://github.com/nzbin/unsliderjs)
 
 ## Installation
 
