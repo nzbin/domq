@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.6.8
+ * domq.js - v0.7.0
  * A modular DOM manipulation library.
  * https://github.com/nzbin/domq#readme
  *
