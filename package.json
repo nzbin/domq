@@ -1,6 +1,6 @@
 {
   "name": "domq.js",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A modular DOM manipulation library.",
   "main": "src/domq.modular.js",
   "files": [

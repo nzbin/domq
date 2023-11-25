@@ -1,6 +1,6 @@
 
 /*!
- * domq.js - v0.7.0
+ * domq.js - v0.7.1
  * A modular DOM manipulation library.
  * https://github.com/nzbin/domq#readme
  *
@@ -1563,6 +1563,5 @@ var effects = /*#__PURE__*/Object.freeze({
 
 D.extend(D, core, efn);
 D.extend(D.fn, css$1, classes, offset$1, attr$1, prop$1, val$1, wrap$1, traversing, dimensions, manipulation, event, animate$1, effects, events);
-window.D = D;
 
-export { D };
+export { D as default };
