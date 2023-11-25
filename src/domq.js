@@ -40,6 +40,4 @@ D.extend(
   shortcuts['events']
 );
 
-window.D = D;
-
-export { D };
+export default D;
